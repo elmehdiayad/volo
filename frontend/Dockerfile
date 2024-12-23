@@ -5,7 +5,7 @@ WORKDIR /bookcars/frontend
 COPY ./frontend ./
 COPY ./frontend/.env.docker .env
 COPY ./packages /bookcars/packages
-RUN npm install --force
+RUN npm install --legacy-peer-deps
 RUN npm run build
 
 FROM nginx:stable-alpine
@@ -14,5 +14,5 @@ RUN rm -rf -- *
 COPY --from=build /bookcars/frontend/build .
 COPY ./frontend/nginx.conf /etc/nginx/conf.d/default.conf
 CMD ["nginx", "-g", "daemon off;"]
-EXPOSE 80
+EXPOSE 3002
 EXPOSE 443

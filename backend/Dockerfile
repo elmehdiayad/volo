@@ -5,7 +5,7 @@ WORKDIR /bookcars/backend
 COPY ./backend ./
 COPY ./backend/.env.docker .env
 COPY ./packages /bookcars/packages
-RUN npm install --force
+RUN npm install --legacy-peer-deps
 RUN npm run build
 
 FROM nginx:stable-alpine
