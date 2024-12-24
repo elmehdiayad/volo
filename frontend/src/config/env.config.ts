@@ -49,9 +49,9 @@ const CURRENCIES: Currency[] = [
     symbol: '£',
   },
   {
-    code: 'AUD',
-    symbol: '$',
-  },
+    code: 'MAD',
+    symbol: 'DH',
+  }
 ]
 
 const env = {
@@ -66,7 +66,7 @@ const env = {
   LANGUAGES: LANGUAGES.map((l) => l.code),
   _LANGUAGES: LANGUAGES,
   DEFAULT_LANGUAGE: String(import.meta.env.VITE_BC_DEFAULT_LANGUAGE || 'en'),
-  BASE_CURRENCY: String(import.meta.env.VITE_BC_BASE_CURRENCY || 'USD'),
+  BASE_CURRENCY: String(import.meta.env.VITE_BC_BASE_CURRENCY || 'MAD'),
   CURRENCIES,
   PAGE_SIZE: Number.parseInt(String(import.meta.env.VITE_BC_PAGE_SIZE), 10) || 30,
   CARS_PAGE_SIZE: Number.parseInt(String(import.meta.env.VITE_BC_CARS_PAGE_SIZE), 10) || 15,

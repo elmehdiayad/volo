@@ -304,6 +304,7 @@ const UpdateSupplier = () => {
 
               <FormControl fullWidth margin="dense">
                 <FormControlLabel
+                  disabled
                   control={(
                     <Switch
                       checked={payLater}
