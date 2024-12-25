@@ -11,6 +11,16 @@
   z-index: 1401 !important;
 }
 
+.horizontal-menu {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  
+}
+.horizontal-menu .menu-btn {
+  text-transform: capitalize;
+}
 .menu div.language,
 .btn div.language {
   display: flex;

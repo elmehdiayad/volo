@@ -395,125 +395,137 @@ const Header = ({
           <Toolbar className="toolbar">
             {isLoaded && !loading && (
               <>
-                <IconButton edge="start" sx={classes.menuButton} aria-label="open drawer" onClick={handleSideMenuOpen}>
+                {env.isMobile && <IconButton edge="start" sx={classes.menuButton} aria-label="open drawer" onClick={handleSideMenuOpen}>
                   <MenuIcon />
-                </IconButton>
+                </IconButton>}
 
                 <Button onClick={() => navigate('/')} className="logo">{env.WEBSITE_NAME}</Button>
 
                 {!env.isMobile && headerTitle && <div className="header-title">{headerTitle}</div>}
               </>
             )}
-
-            <Drawer open={isSideMenuOpen} onClose={handleSideMenuClose} className="menu side-menu">
-              <List sx={classes.list}>
-                <ListItem
-                  onClick={() => {
-                    navigate('/')
-                    handleSideMenuClose()
-                  }}
-                >
-                  <ListItemIcon><HomeIcon /></ListItemIcon>
-                  <ListItemText primary={strings.HOME} />
-                </ListItem>
-                {isSignedIn && (
+            {
+              env.isMobile ? <Drawer open={isSideMenuOpen} onClose={handleSideMenuClose} className="menu side-menu">
+                <List sx={classes.list}>
                   <ListItem
                     onClick={() => {
-                      navigate('/bookings')
+                      navigate('/')
                       handleSideMenuClose()
                     }}
                   >
-                    <ListItemIcon><BookingsIcon /></ListItemIcon>
-                    <ListItemText primary={strings.BOOKINGS} />
+                    <ListItemIcon><HomeIcon /></ListItemIcon>
+                    <ListItemText primary={strings.HOME} />
                   </ListItem>
-                )}
-                <ListItem
-                  onClick={() => {
-                    navigate('/suppliers')
-                    handleSideMenuClose()
-                  }}
-                >
-                  <ListItemIcon><SupplierIcon /></ListItemIcon>
-                  <ListItemText primary={strings.SUPPLIERS} />
-                </ListItem>
-                <ListItem
-                  onClick={() => {
-                    navigate('/locations')
-                    handleSideMenuClose()
-                  }}
-                >
-                  <ListItemIcon><LocationIcon /></ListItemIcon>
-                  <ListItemText primary={strings.LOCATIONS} />
-                </ListItem>
-                <ListItem
-                  onClick={() => {
-                    navigate('/about')
-                    handleSideMenuClose()
-                  }}
-                >
-                  <ListItemIcon><AboutIcon /></ListItemIcon>
-                  <ListItemText primary={strings.ABOUT} />
-                </ListItem>
-                <ListItem
-                  onClick={() => {
-                    navigate('/privacy')
-                    handleSideMenuClose()
-                  }}
-                >
-                  <ListItemIcon><PrivacyIcon /></ListItemIcon>
-                  <ListItemText primary={strings.PRIVACY_POLICY} />
-                </ListItem>
-                <ListItem
-                  onClick={() => {
-                    navigate('/tos')
-                    handleSideMenuClose()
-                  }}
-                >
-                  <ListItemIcon><TosIcon /></ListItemIcon>
-                  <ListItemText primary={strings.TOS} />
-                </ListItem>
-                <ListItem
-                  onClick={() => {
-                    navigate('/faq')
-                    handleSideMenuClose()
-                  }}
-                >
-                  <ListItemIcon><FaqIcon /></ListItemIcon>
-                  <ListItemText primary={strings.FAQ} />
-                </ListItem>
-                <ListItem
-                  onClick={() => {
-                    navigate('/contact')
-                    handleSideMenuClose()
-                  }}
-                >
-                  <ListItemIcon><MailIcon /></ListItemIcon>
-                  <ListItemText primary={strings.CONTACT} />
-                </ListItem>
-                {env.isMobile && !hideSignin && !isSignedIn && isLoaded && !loading && (
-                  <>
+                  {isSignedIn && (
                     <ListItem
                       onClick={() => {
-                        navigate('/sign-in')
+                        navigate('/bookings')
                         handleSideMenuClose()
                       }}
                     >
-                      <ListItemIcon><LoginIcon /></ListItemIcon>
-                      <ListItemText primary={strings.SIGN_IN} />
+                      <ListItemIcon><BookingsIcon /></ListItemIcon>
+                      <ListItemText primary={strings.BOOKINGS} />
                     </ListItem>
-                    <ListItem
-                      onClick={() => {
-                        navigate('/sign-up')
-                        handleSideMenuClose()
-                      }}
-                    >
-                      <ListItemIcon><SignUpIcon /></ListItemIcon>
-                      <ListItemText primary={suStrings.SIGN_UP} />
-                    </ListItem>
-                  </>
-                )}
-              </List>
-            </Drawer>
+                  )}
+                  <ListItem
+                    onClick={() => {
+                      navigate('/suppliers')
+                      handleSideMenuClose()
+                    }}
+                  >
+                    <ListItemIcon><SupplierIcon /></ListItemIcon>
+                    <ListItemText primary={strings.SUPPLIERS} />
+                  </ListItem>
+                  <ListItem
+                    onClick={() => {
+                      navigate('/locations')
+                      handleSideMenuClose()
+                    }}
+                  >
+                    <ListItemIcon><LocationIcon /></ListItemIcon>
+                    <ListItemText primary={strings.LOCATIONS} />
+                  </ListItem>
+                  <ListItem
+                    onClick={() => {
+                      navigate('/about')
+                      handleSideMenuClose()
+                    }}
+                  >
+                    <ListItemIcon><AboutIcon /></ListItemIcon>
+                    <ListItemText primary={strings.ABOUT} />
+                  </ListItem>
+                  <ListItem
+                    onClick={() => {
+                      navigate('/privacy')
+                      handleSideMenuClose()
+                    }}
+                  >
+                    <ListItemIcon><PrivacyIcon /></ListItemIcon>
+                    <ListItemText primary={strings.PRIVACY_POLICY} />
+                  </ListItem>
+                  <ListItem
+                    onClick={() => {
+                      navigate('/tos')
+                      handleSideMenuClose()
+                    }}
+                  >
+                    <ListItemIcon><TosIcon /></ListItemIcon>
+                    <ListItemText primary={strings.TOS} />
+                  </ListItem>
+                  <ListItem
+                    onClick={() => {
+                      navigate('/faq')
+                      handleSideMenuClose()
+                    }}
+                  >
+                    <ListItemIcon><FaqIcon /></ListItemIcon>
+                    <ListItemText primary={strings.FAQ} />
+                  </ListItem>
+                  <ListItem
+                    onClick={() => {
+                      navigate('/contact')
+                      handleSideMenuClose()
+                    }}
+                  >
+                    <ListItemIcon><MailIcon /></ListItemIcon>
+                    <ListItemText primary={strings.CONTACT} />
+                  </ListItem>
+                  {env.isMobile && !hideSignin && !isSignedIn && isLoaded && !loading && (
+                    <>
+                      <ListItem
+                        onClick={() => {
+                          navigate('/sign-in')
+                          handleSideMenuClose()
+                        }}
+                      >
+                        <ListItemIcon><LoginIcon /></ListItemIcon>
+                        <ListItemText primary={strings.SIGN_IN} />
+                      </ListItem>
+                      <ListItem
+                        onClick={() => {
+                          navigate('/sign-up')
+                          handleSideMenuClose()
+                        }}
+                      >
+                        <ListItemIcon><SignUpIcon /></ListItemIcon>
+                        <ListItemText primary={suStrings.SIGN_UP} />
+                      </ListItem>
+                    </>
+                  )}
+                </List>
+              </Drawer> :
+                <div className="horizontal-menu">
+                  {isSignedIn && (
+                    <Button className="menu-btn" onClick={() => navigate('/bookings')}>{strings.BOOKINGS}</Button>
+                  )}
+                  <Button className="menu-btn" onClick={() => navigate('/suppliers')}>{strings.SUPPLIERS}</Button>
+                  <Button className="menu-btn" onClick={() => navigate('/locations')}>{strings.LOCATIONS}</Button>
+                  <Button className="menu-btn" onClick={() => navigate('/contact')}>{strings.CONTACT}</Button>
+                  <Button className="menu-btn" onClick={() => navigate('/about')}>{strings.ABOUT}</Button>
+                </div>
+            }
+
+
 
             {(env.isMobile || !headerTitle) && <div style={classes.grow} />}
             <div className="header-desktop">
