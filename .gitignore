@@ -6,3 +6,4 @@
 /**/.DS_Store
 
 bookcars-db/
+.env.dev.docker

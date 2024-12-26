@@ -1,16 +1,26 @@
 services:
+  # nginx:
+  #     image: nginx:stable-alpine
+  #     volumes:
+  #       - cdn:/var/www/cdn/bookcars
+  #     ports:
+  #       - 80:80
   api:
     build: 
       context: .
-      dockerfile: ./api/Dockerfile
-    env_file: ./api/.env.docker
+      dockerfile: ./api/Dockerfile.dev
+    env_file: ./api/.env.dev.docker
     restart: always
     ports:
       - 4002:4002
     depends_on:
       - mongo
     volumes:
+      - ./api:/bookcars/api
+      - /bookcars/api/node_modules
       - cdn:/var/www/cdn/bookcars
+    command: npm run dev
+
 
   mongo:
     image: mongo:latest
@@ -27,22 +37,18 @@ services:
     build: 
       context: .
       dockerfile: ./backend/Dockerfile
-    depends_on:
-      - api
     ports:
       - 3001:3001
 
-  frontend:
-    build: 
-      context: .
-      dockerfile: ./frontend/Dockerfile
-    depends_on:
-      - api
-    ports:
-      - 3002:3002
-      - 443:443
-    volumes:
-      - cdn:/var/www/cdn/bookcars
+  # frontend:
+  #   build: 
+  #     context: .
+  #     dockerfile: ./frontend/Dockerfile
+  #   ports:
+  #     - 80:80
+  #     - 443:443
+  #   volumes:
+  #     - cdn:/var/www/cdn/bookcars
 
 volumes:
   cdn:
