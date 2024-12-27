@@ -14,13 +14,18 @@ import env from '@/config/env.config'
 
 import SecurePayment from '@/assets/img/secure-payment.png'
 import '@/assets/css/footer.css'
+import Logo from './Logo'
 
 const Footer = () => {
   const navigate = useNavigate()
 
   return (
     <div className="footer">
-      <div className="header">{env.WEBSITE_NAME}</div>
+      <div className="">
+        <div className="footer-logo">
+          <Logo fillColor="black" />
+        </div>
+      </div>
       <section className="main">
         <div className="main-section">
           <div className="title">{strings.CORPORATE}</div>

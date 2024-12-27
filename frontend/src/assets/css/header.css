@@ -5,7 +5,10 @@
   top: 0; 
   z-index: 1400; */
   transform: translate3d(0, 0, 0);
+  background-color: #59B0EA;
+
 }
+
 
 .menu {
   z-index: 1401 !important;
@@ -20,6 +23,7 @@
 }
 .horizontal-menu .menu-btn {
   text-transform: capitalize;
+  color: #fff
 }
 .menu div.language,
 .btn div.language {
@@ -63,7 +67,7 @@
 
 .header .btn {
   background-color: transparent !important;
-  color: #121212 !important;
+  color: #fff !important;
   text-transform: none !important;
 }
 
@@ -76,12 +80,7 @@
 }
 
 .header .logo {
-  text-decoration: none;
-  text-transform: none;
-  background: transparent;
-  font-size: 18px;
-  font-weight: 500;
-  color: #121212;
+  font-size: 0;
 }
 
 /* Device width is greater than or equal to 960px */

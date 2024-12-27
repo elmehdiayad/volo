@@ -117,28 +117,7 @@ const Home = () => {
       <div className="home">
         <div className="home-content">
 
-          <div className="video">
-            <video
-              id="cover"
-              muted={!env.isSafari}
-              autoPlay={!env.isSafari}
-              loop
-              playsInline
-              disablePictureInPicture
-              onLoadedData={async () => {
-                setVideoLoaded(true)
-              }}
-            >
-              <source src="cover.mp4" type="video/mp4" />
-              <track kind="captions" />
-            </video>
-            {!videoLoaded && (
-              <div className="video-background" />
-            )}
-            {/* <div className="video-background">
-              <img src="cover.png" alt="" />
-            </div> */}
-          </div>
+         
 
           <div className="home-title">{strings.TITLE}</div>
           <div className="home-cover">{strings.COVER}</div>
