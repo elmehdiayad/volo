@@ -1,12 +1,9 @@
 import cors from 'cors'
 import * as helper from '../common/helper'
-import * as env from '../config/env.config'
+import { WHITELISTED_DOMAINS } from '../config/env.config'
 import * as logger from '../common/logger'
 
-const whitelist = [
-  helper.trimEnd(env.BACKEND_HOST, '/'),
-  helper.trimEnd(env.FRONTEND_HOST, '/'),
-]
+const whitelist = WHITELISTED_DOMAINS.map((domain) => helper.trimEnd(domain, '/'))
 
 /**
  * CORS configuration.

@@ -295,6 +295,13 @@ export const BACKEND_HOST = __env__('BC_BACKEND_HOST', true)
 export const FRONTEND_HOST = __env__('BC_FRONTEND_HOST', true)
 
 /**
+ * Whitelisted domains.
+ *
+ * @type {string[]}
+ */
+export const WHITELISTED_DOMAINS = __env__('BC_WHITELISTED_DOMAINS', true).split(',').map((domain) => domain.trim())
+
+/**
  * Default language. Default is en. Available options: en, fr, es.
  *
  * @type {string}
