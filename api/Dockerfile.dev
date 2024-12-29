@@ -1,14 +1,9 @@
 # syntax=docker/dockerfile:1
 
 FROM node:lts-alpine
-
 WORKDIR /bookcars/api
-
-COPY package*.json ./
+COPY ./api ./
+COPY ./packages /bookcars/packages
 RUN npm install
-
-COPY . .
-
+CMD [ "npm", "run", "dev"]
 EXPOSE 4002
-
-CMD ["npm", "run", "dev"]
