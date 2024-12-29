@@ -446,6 +446,7 @@ const CarList = ({
                     </div>
                   </div>
                   <div className="car-info">
+
                     <ul className="car-info-list">
                       {car.type !== bookcarsTypes.CarType.Unknown && (
                         <li className="car-type">
@@ -514,6 +515,9 @@ const CarList = ({
                       </li>
                     </ul>
                     <ul className="extras-list">
+                      {car.plateNumber && <li className="plate">
+                        <h3>{car.plateNumber}</h3>
+                      </li>}
                       {edit && (
                         <li className={car.available ? 'car-available' : 'car-unavailable'}>
                           <Tooltip title={car.available ? strings.CAR_AVAILABLE_TOOLTIP : strings.CAR_UNAVAILABLE_TOOLTIP}>
@@ -616,7 +620,7 @@ const CarList = ({
                       </>
                     )}
                   </div>
-                </article>
+                </article >
               )
             })}
           <Dialog disableEscapeKeyDown maxWidth="xs" open={openInfoDialog}>
@@ -641,17 +645,19 @@ const CarList = ({
               </Button>
             </DialogActions>
           </Dialog>
-        </section>
-        {env.PAGINATION_MODE === Const.PAGINATION_MODE.CLASSIC && !env.isMobile && (
-          <Pager
-            page={page}
-            pageSize={env.CARS_PAGE_SIZE}
-            rowCount={rowCount}
-            totalRecords={totalRecords}
-            onNext={() => setPage(page + 1)}
-            onPrevious={() => setPage(page - 1)}
-          />
-        )}
+        </section >
+        {
+          env.PAGINATION_MODE === Const.PAGINATION_MODE.CLASSIC && !env.isMobile && (
+            <Pager
+              page={page}
+              pageSize={env.CARS_PAGE_SIZE}
+              rowCount={rowCount}
+              totalRecords={totalRecords}
+              onNext={() => setPage(page + 1)}
+              onPrevious={() => setPage(page - 1)}
+            />
+          )
+        }
         {loading && <SimpleBackdrop text={commonStrings.LOADING} />}
       </>
     )) || <></>

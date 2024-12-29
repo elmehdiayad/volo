@@ -494,6 +494,7 @@ export interface Booking extends Document {
  */
 export interface Car extends Document {
   name: string
+  plateNumber: string
   supplier: Types.ObjectId
   minimumAge: number
   locations: Types.ObjectId[]

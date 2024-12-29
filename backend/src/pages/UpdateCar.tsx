@@ -47,6 +47,7 @@ const UpdateCar = () => {
   const [imageSizeError, setImageSizeError] = useState(false)
   const [image, setImage] = useState('')
   const [name, setName] = useState('')
+  const [plateNumber, setPlateNumber] = useState('')
   const [supplier, setSupplier] = useState<bookcarsTypes.Option>()
   const [locations, setLocations] = useState<bookcarsTypes.Option[]>([])
   const [range, setRange] = useState('')
@@ -107,6 +108,10 @@ const UpdateCar = () => {
   }
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setName(e.target.value)
+  }
+
+  const handlePlateNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPlateNumber(e.target.value)
   }
 
   const handleSupplierChange = (values: bookcarsTypes.Option[]) => {
@@ -246,6 +251,7 @@ const UpdateCar = () => {
       const data: bookcarsTypes.UpdateCarPayload = {
         _id: car._id,
         name,
+        plateNumber,
         supplier: supplier._id,
         minimumAge: Number.parseInt(minimumAge, 10),
         locations: locations.map((l) => l._id),
@@ -318,6 +324,7 @@ const UpdateCar = () => {
               setCar(_car)
               setImageRequired(!_car.image)
               setName(_car.name)
+              setPlateNumber(_car.plateNumber)
               setSupplier(_supplier)
               setMinimumAge(_car.minimumAge.toString())
               const lcs: bookcarsTypes.Option[] = []
@@ -411,6 +418,11 @@ const UpdateCar = () => {
               <FormControl fullWidth margin="dense">
                 <InputLabel className="required">{strings.NAME}</InputLabel>
                 <Input type="text" required value={name} autoComplete="off" onChange={handleNameChange} />
+              </FormControl>
+
+              <FormControl fullWidth margin="dense">
+                <InputLabel className="required">{strings.PLATE_NUMBER}</InputLabel>
+                <Input type="text" required value={plateNumber} autoComplete="off" onChange={handlePlateNumberChange} />
               </FormControl>
 
               {admin && (

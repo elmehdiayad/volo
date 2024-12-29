@@ -6,6 +6,7 @@ const strings = new LocalizedStrings({
   fr: {
     NEW_CAR_HEADING: 'Nouvelle voiture',
     NAME: 'Nom',
+    PLATE_NUMBER: 'Matricule',
     CAR_IMAGE_SIZE_ERROR: `L'image doit être au format ${env.CAR_IMAGE_WIDTH}x${env.CAR_IMAGE_HEIGHT}`,
     RECOMMENDED_IMAGE_SIZE: `Taille d'image recommandée : ${env.CAR_IMAGE_WIDTH}x${env.CAR_IMAGE_HEIGHT}`,
     SUPPLIER: 'Fournisseur',
@@ -34,6 +35,7 @@ const strings = new LocalizedStrings({
   en: {
     NEW_CAR_HEADING: 'New car',
     NAME: 'Name',
+    PLATE_NUMBER: 'Plate Number',
     CAR_IMAGE_SIZE_ERROR: `The image must be in the format ${env.CAR_IMAGE_WIDTH}x${env.CAR_IMAGE_HEIGHT}`,
     RECOMMENDED_IMAGE_SIZE: `Recommended image size: ${env.CAR_IMAGE_WIDTH}x${env.CAR_IMAGE_HEIGHT}`,
     SUPPLIER: 'Supplier',

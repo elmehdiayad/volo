@@ -165,6 +165,7 @@ export interface UpdateSupplierPayload {
 
 export interface CreateCarPayload {
   name: string
+  plateNumber: string
   supplier: string
   minimumAge: number
   locations: string[]

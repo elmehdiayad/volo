@@ -44,6 +44,7 @@ const CreateCar = () => {
   const [imageSizeError, setImageSizeError] = useState(false)
   const [image, setImage] = useState('')
   const [name, setName] = useState('')
+  const [plateNumber, setPlateNumber] = useState('')
   const [supplier, setSupplier] = useState('')
   const [locations, setLocations] = useState<bookcarsTypes.Option[]>([])
   const [range, setRange] = useState('')
@@ -105,6 +106,9 @@ const CreateCar = () => {
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setName(e.target.value)
+  }
+  const handlePlateNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPlateNumber(e.target.value)
   }
 
   const handleSupplierChange = (values: bookcarsTypes.Option[]) => {
@@ -243,6 +247,7 @@ const CreateCar = () => {
 
       const data: bookcarsTypes.CreateCarPayload = {
         name,
+        plateNumber,
         supplier,
         minimumAge: Number.parseInt(minimumAge, 10),
         locations: locations.map((l) => l._id),
@@ -306,9 +311,7 @@ const CreateCar = () => {
       <div className="create-car">
         <Paper className="car-form car-form-wrapper" elevation={10} style={visible ? {} : { display: 'none' }}>
           <h1 className="car-form-title">
-            {' '}
             {strings.NEW_CAR_HEADING}
-            {' '}
           </h1>
           <form onSubmit={handleSubmit}>
             <Avatar
@@ -332,6 +335,12 @@ const CreateCar = () => {
             <FormControl fullWidth margin="dense">
               <InputLabel className="required">{strings.NAME}</InputLabel>
               <Input type="text" required value={name} autoComplete="off" onChange={handleNameChange} />
+            </FormControl>
+            <FormControl fullWidth margin="dense">
+              <InputLabel className="required">{strings.PLATE_NUMBER}</InputLabel>
+              <Input type="text" required value={plateNumber} autoComplete="off" onChange={handlePlateNumberChange}
+                inputProps={{ inputMode: 'text', pattern: '^\\d{1,5}([ء-يA-Za-z]){1,2}\\d{1,2}$' }}
+              />
             </FormControl>
 
             {!isSupplier && (

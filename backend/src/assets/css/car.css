@@ -33,6 +33,7 @@ div.car section.car-sec div.car-img div.car-supplier span.car-supplier-logo {
   border-radius: 3px;
 }
 
+
 div.car section.car-sec div.car-img div.car-supplier span.car-supplier-logo img {
   max-width: 100%;
   max-height: 100%;
@@ -59,6 +60,10 @@ div.car section.car-sec div.car-img div.car-supplier span.car-supplier-logo img 
   }
 
   div.car section.car-sec div.name {
+    text-align: center;
+  }
+
+  div.car section.car-sec div.plate {
     text-align: center;
   }
 
@@ -198,6 +203,15 @@ div.car section.car-sec div.car-img div.car-supplier span.car-supplier-logo img 
 
   div.car section.car-sec div.name {
     text-align: center;
+  }
+
+  div.car section.car-sec div.plate {
+    text-align: center;
+    border: 2px solid #000;
+    border-radius: 5px;
+    background-color: #fff;
+    margin: 0 auto;
+    max-width: 100px;
   }
 
   div.car section.car-sec div.car-img div.car-supplier {
