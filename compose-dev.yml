@@ -36,14 +36,14 @@ services:
   backend:
     build: 
       context: .
-      dockerfile: ./backend/Dockerfile
+      dockerfile: ./backend/Dockerfile.dev
     ports:
       - 3001:3001
 
   # frontend:
   #   build: 
   #     context: .
-  #     dockerfile: ./frontend/Dockerfile
+  #     dockerfile: ./frontend/Dockerfile.dev
   #   ports:
   #     - 80:80
   #     - 443:443
