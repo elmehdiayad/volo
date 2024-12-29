@@ -89,6 +89,7 @@ beforeAll(async () => {
   // create car
   const payload: bookcarsTypes.CreateCarPayload = {
     name: 'BMW X1',
+    plateNumber: '12345A0',
     supplier: SUPPLIER_ID,
     minimumAge: 21,
     locations: [LOCATION_ID],

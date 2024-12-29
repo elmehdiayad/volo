@@ -81,6 +81,7 @@ describe('POST /api/create-car', () => {
     }
     const payload: bookcarsTypes.CreateCarPayload = {
       name: 'BMW X1',
+      plateNumber: '12345A0',
       supplier: SUPPLIER1_ID,
       minimumAge: 21,
       locations: [LOCATION1_ID],
@@ -178,6 +179,7 @@ describe('PUT /api/update-car', () => {
     const payload: bookcarsTypes.UpdateCarPayload = {
       _id: CAR_ID,
       name: 'BMW X5',
+      plateNumber: '12345A0',
       supplier: SUPPLIER2_ID,
       minimumAge: 23,
       locations: [LOCATION2_ID],
