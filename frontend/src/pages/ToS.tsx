@@ -1,4 +1,5 @@
 import React from 'react'
+import ReactMarkdown from 'react-markdown'
 import { strings } from '@/lang/tos'
 import Layout from '@/components/Layout'
 import Footer from '@/components/Footer'
@@ -11,8 +12,7 @@ const ToS = () => {
   return (
     <Layout onLoad={onLoad} strict={false}>
       <div className="tos">
-        <h1>{strings.TITLE}</h1>
-        <p>{strings.TOS}</p>
+        <ReactMarkdown>{strings.TOS}</ReactMarkdown>
       </div>
       <Footer />
     </Layout>

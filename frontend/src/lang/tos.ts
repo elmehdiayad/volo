@@ -1,155 +1,204 @@
 import LocalizedStrings from 'localized-strings'
 import * as langHelper from '@/common/langHelper'
-import env from '@/config/env.config'
 
 const strings = new LocalizedStrings({
   fr: {
     TITLE: "Conditions d'utilisation",
     TOS: `
-Bienvenue chez ${env.WEBSITE_NAME} ! En accédant à notre site Web et en utilisant nos services, vous acceptez de vous conformer et d'être lié par les conditions d'utilisation suivantes. Si vous n'acceptez pas ces conditions, veuillez ne pas utiliser nos services.
+# Conditions Générales d'Utilisation (CGU)
 
-1. Acceptation des conditions
+**Date d'effet :** 30 Décembre 2024
 
-En accédant ou en utilisant nos services, vous confirmez avoir lu, compris et accepté ces conditions d'utilisation et notre politique de confidentialité.
+Bienvenue sur **Volo.ma**. En accédant à notre plateforme, vous acceptez les termes et conditions suivants. Veuillez les lire attentivement avant d'utiliser nos services.
 
-2. Utilisation de nos services
+---
 
-Vous acceptez d'utiliser nos services uniquement à des fins légales et d'une manière qui ne porte pas atteinte aux droits, ne restreint ni n'empêche quiconque d'utiliser nos services. Cela inclut le respect de toutes les lois et réglementations applicables au Kurdistan, en Irak.
+## 1. Acceptation des Conditions
 
-3. Réservations et paiements
+En utilisant notre plateforme, vous reconnaissez avoir lu, compris et accepté les présentes CGU. Si vous n'acceptez pas ces conditions, veuillez ne pas utiliser notre plateforme.
 
-Lorsque vous effectuez une réservation avec ${env.WEBSITE_NAME}, vous acceptez de fournir des informations exactes et complètes. Tous les paiements doivent être effectués via notre système de paiement sécurisé. Une fois le paiement effectué, vous recevrez une confirmation de votre réservation.
+---
 
-4. Politique d'annulation
+## 2. Utilisation de la Plateforme
 
-Les annulations effectuées 24 heures avant la date de location peuvent donner droit à un remboursement complet. Les annulations effectuées moins de 24 heures avant la date de location peuvent entraîner des frais d'annulation. Veuillez vous référer à notre politique d'annulation pour des informations détaillées.
+- Vous devez avoir au moins 18 ans pour utiliser nos services.
+- Vous vous engagez à fournir des informations exactes, complètes et à jour lors de votre inscription.
+- Toute utilisation frauduleuse, abusive ou illégale de notre plateforme est strictement interdite.
 
-5. Conditions de location
+---
 
-Toutes les locations sont soumises à nos conditions de location, qui incluent, sans s'y limiter, les restrictions d'âge, les exigences en matière de permis de conduire et les obligations d'assurance. Vous êtes responsable de vous assurer que vous remplissez toutes les conditions avant d'effectuer une réservation.
+## 3. Réservations et Paiements
 
-6. Limitation de responsabilité
+- Les conditions spécifiques aux réservations de véhicules sont décrites lors de chaque transaction.
+- Vous acceptez de payer tous les frais applicables liés à votre réservation, y compris les taxes et frais supplémentaires.
 
-${env.WEBSITE_NAME} ne sera pas responsable des dommages indirects, accessoires ou consécutifs découlant de votre utilisation de nos services. En aucun cas, notre responsabilité totale ne dépassera le montant que vous avez payé pour les services.
+---
 
-7. Modifications des conditions
+## 4. Politique de Confidentialité
 
-Nous nous réservons le droit de modifier ces conditions de service à tout moment. Toute modification entrera en vigueur immédiatement après sa publication sur notre site Web. Votre utilisation continue de nos services après toute modification constitue votre acceptation des nouvelles conditions.
+Votre utilisation de notre plateforme est également régie par notre Politique de Confidentialité, disponible [ici](#).
 
-8. Loi applicable
+---
 
-Ces conditions de service seront régies et interprétées conformément aux lois du Kurdistan, en Irak. Tout litige découlant de ces conditions sera résolu devant les tribunaux du Kurdistan.
+## 5. Limitation de Responsabilité
 
-9. Coordonnées
+- **Volo.ma** ne sera pas responsable des dommages directs, indirects, ou consécutifs résultant de l'utilisation de la plateforme.
+- Nous ne garantissons pas que notre plateforme sera exempte d'erreurs ou d'interruptions.
 
-Si vous avez des questions concernant ces conditions d'utilisation, veuillez nous contacter à l'adresse ${env.CONTACT_EMAIL}. Nous sommes là pour vous aider pour toute demande relative à nos services.
+---
 
-10. Reconnaissance
+## 6. Résiliation
 
-En utilisant nos services, vous reconnaissez avoir lu et compris ces conditions d'utilisation et acceptez d'être lié par elles.    
-    `,
+Nous nous réservons le droit de suspendre ou de résilier votre accès à notre plateforme à tout moment, sans préavis, en cas de violation des présentes CGU.
+
+---
+
+## 7. Modifications des CGU
+
+Nous nous réservons le droit de modifier ces conditions à tout moment. Les modifications seront publiées sur cette page avec une date de mise à jour.
+
+---
+
+## 8. Contact
+
+Pour toute question ou préoccupation concernant ces CGU, veuillez nous contacter à :
+- **E-mail :** contact@volo.ma
+- **Téléphone :** +212 6 36 12 57 97
+
+En utilisant **Volo.ma**, vous acceptez ces Conditions Générales d'Utilisation.
+`,
   },
   en: {
     TITLE: 'Terms of Service',
     TOS: `
-Welcome to ${env.WEBSITE_NAME}! By accessing our website and using our services, you agree to comply with and be bound by the following Terms of Service. If you do not agree to these terms, please do not use our services.
+# Terms of Service (TOS)
 
+**Effective Date:** December 30, 2024
 
-1. Acceptance of Terms
+Welcome to **Volo.ma**. By accessing our platform, you agree to the following terms and conditions. Please read them carefully before using our services.
 
-By accessing or using our services, you confirm that you have read, understood, and agree to these Terms of Service and our Privacy Policy.
+---
 
+## 1. Acceptance of Terms
 
-2. Use of Our Services
+By using our platform, you acknowledge that you have read, understood, and agreed to these TOS. If you do not agree, please do not use our platform.
 
-You agree to use our services only for lawful purposes and in a manner that does not infringe the rights of, restrict, or inhibit anyone else's use of our services. This includes compliance with all applicable laws and regulations in Kurdistan, Iraq.
+---
 
+## 2. Use of the Platform
 
-3. Reservations and Payments
+- You must be at least 18 years old to use our services.
+- You agree to provide accurate, complete, and up-to-date information during registration.
+- Any fraudulent, abusive, or illegal use of our platform is strictly prohibited.
 
-When you make a reservation with ${env.WEBSITE_NAME}, you agree to provide accurate and complete information. All payments must be made through our secure payment system. Once payment is completed, you will receive a confirmation of your reservation.
+---
 
+## 3. Reservations and Payments
 
-4. Cancellation Policy
+- Specific terms for vehicle reservations are outlined during each transaction.
+- You agree to pay all applicable fees associated with your reservation, including taxes and additional charges.
 
-Cancellations made 24 hours before the rental date may be eligible for a full refund. Cancellations made less than 24 hours prior to the rental date may incur a cancellation fee. Please refer to our cancellation policy for detailed information.
+---
 
+## 4. Privacy Policy
 
-5. Rental Conditions
+Your use of our platform is also governed by our Privacy Policy, available [here](#).
 
-All rentals are subject to our rental conditions, which include but are not limited to age restrictions, driver's license requirements, and insurance obligations. You are responsible for ensuring that you meet all requirements before making a reservation.
+---
 
+## 5. Limitation of Liability
 
-6. Limitation of Liability
+- **Volo.ma** will not be liable for any direct, indirect, or consequential damages arising from the use of the platform.
+- We do not guarantee that our platform will be error-free or uninterrupted.
 
-${env.WEBSITE_NAME} shall not be liable for any indirect, incidental, or consequential damages arising out of your use of our services. In no event shall our total liability exceed the amount paid by you for the services.
+---
 
+## 6. Termination
 
-7. Modifications to Terms
+We reserve the right to suspend or terminate your access to our platform at any time, without notice, in case of a breach of these TOS.
 
-We reserve the right to modify these Terms of Service at any time. Any changes will be effective immediately upon posting on our website. Your continued use of our services following any changes constitutes your acceptance of the new terms.
+---
 
+## 7. Changes to the TOS
 
-8. Governing Law
+We reserve the right to modify these terms at any time. Changes will be posted on this page with an updated effective date.
 
-These Terms of Service shall be governed by and construed in accordance with the laws of Kurdistan, Iraq. Any disputes arising out of these terms shall be resolved in the courts of Kurdistan.
+---
 
+## 8. Contact
 
-9. Contact Information
+For any questions or concerns about these TOS, please contact us at:
+- **Email:** contact@volo.ma
+- **Phone:** +212 6 36 12 57 97
 
-If you have any questions regarding these Terms of Service, please contact us at ${env.CONTACT_EMAIL}. We are here to help you with any inquiries related to our services.
-
-
-10. Acknowledgment
-
-By using our services, you acknowledge that you have read and understood these Terms of Service and agree to be bound by them.
-    `,
+By using **Volo.ma**, you agree to these Terms of Service.
+`,
   },
   es: {
     TITLE: 'Condiciones de uso',
     TOS: `
-¡Bienvenido a ${env.WEBSITE_NAME}! Al acceder a nuestro sitio web y utilizar nuestros servicios, usted acepta cumplir y estar sujeto a los siguientes Términos de servicio. Si no acepta estos términos, no utilice nuestros servicios.
+# Términos y Condiciones (TOS)
 
-1. Aceptación de los términos
+**Fecha de Vigencia:** 30 de Diciembre de 2024
 
-Al acceder o utilizar nuestros servicios, usted confirma que ha leído, comprendido y acepta estos Términos de servicio y nuestra Política de privacidad.
+Bienvenido a **Volo.ma**. Al acceder a nuestra plataforma, acepta los siguientes términos y condiciones. Léalos detenidamente antes de utilizar nuestros servicios.
 
-2. Uso de nuestros servicios
+---
 
-Usted acepta utilizar nuestros servicios solo con fines legales y de una manera que no infrinja los derechos de terceros ni restrinja o inhiba el uso de nuestros servicios por parte de terceros. Esto incluye el cumplimiento de todas las leyes y regulaciones aplicables en Kurdistán, Irak.
+## 1. Aceptación de los Términos
 
-3. Reservas y pagos
+Al utilizar nuestra plataforma, usted reconoce que ha leído, entendido y aceptado estos TOS. Si no está de acuerdo, por favor no utilice nuestra plataforma.
 
-Cuando hace una reserva con ${env.WEBSITE_NAME}, acepta proporcionar información precisa y completa. Todos los pagos deben realizarse a través de nuestro sistema de pago seguro. Una vez completado el pago, recibirá una confirmación de su reserva.
+---
 
-4. Política de cancelación
+## 2. Uso de la Plataforma
 
-Las cancelaciones realizadas 24 horas antes de la fecha de alquiler pueden ser elegibles para un reembolso completo. Las cancelaciones realizadas con menos de 24 horas de antelación a la fecha de alquiler pueden generar un cargo por cancelación. Consulte nuestra política de cancelación para obtener información detallada.
+- Debe tener al menos 18 años para utilizar nuestros servicios.
+- Usted se compromete a proporcionar información precisa, completa y actualizada durante el registro.
+- Está estrictamente prohibido cualquier uso fraudulento, abusivo o ilegal de nuestra plataforma.
 
-5. Condiciones de alquiler
+---
 
-Todos los alquileres están sujetos a nuestras condiciones de alquiler, que incluyen, entre otras, restricciones de edad, requisitos de licencia de conducir y obligaciones de seguro. Usted es responsable de asegurarse de cumplir con todos los requisitos antes de realizar una reserva.
+## 3. Reservas y Pagos
 
-6. Limitación de responsabilidad
+- Los términos específicos para las reservas de vehículos se detallan durante cada transacción.
+- Usted acepta pagar todas las tarifas aplicables asociadas con su reserva, incluidos impuestos y cargos adicionales.
 
-${env.WEBSITE_NAME} no será responsable de ningún daño indirecto, incidental o consecuente que surja de su uso de nuestros servicios. En ningún caso nuestra responsabilidad total excederá el monto que usted pagó por los servicios.
+---
 
-7. Modificaciones de los términos
+## 4. Política de Privacidad
 
-Nos reservamos el derecho de modificar estos Términos de servicio en cualquier momento. Cualquier cambio entrará en vigencia inmediatamente después de su publicación en nuestro sitio web. Su uso continuo de nuestros servicios después de cualquier cambio constituye su aceptación de los nuevos términos.
+Su uso de nuestra plataforma también está regido por nuestra Política de Privacidad, disponible [aquí](#).
 
-8. Ley aplicable
+---
 
-Estos Términos de servicio se regirán e interpretarán de acuerdo con las leyes de Kurdistán, Irak. Cualquier disputa que surja de estos términos se resolverá en los tribunales de Kurdistán.
+## 5. Limitación de Responsabilidad
 
-9. Información de contacto
+- **Volo.ma** no será responsable de daños directos, indirectos o consecuentes que surjan del uso de la plataforma.
+- No garantizamos que nuestra plataforma esté libre de errores o interrupciones.
 
-Si tiene alguna pregunta sobre estos Términos de servicio, comuníquese con nosotros a ${env.CONTACT_EMAIL}. Estamos aquí para ayudarlo con cualquier consulta relacionada con nuestros servicios.
+---
 
-10. Reconocimiento
+## 6. Terminación
 
-Al utilizar nuestros servicios, usted reconoce que ha leído y comprendido estos Términos de servicio y acepta regirse por ellos.    
-    `,
+Nos reservamos el derecho de suspender o terminar su acceso a nuestra plataforma en cualquier momento, sin previo aviso, en caso de incumplimiento de estos TOS.
+
+---
+
+## 7. Cambios a los TOS
+
+Nos reservamos el derecho de modificar estos términos en cualquier momento. Los cambios se publicarán en esta página con una fecha de vigencia actualizada.
+
+---
+
+## 8. Contacto
+
+Si tiene preguntas o inquietudes sobre estos TOS, contáctenos en:
+- **Correo Electrónico:** contact@volo.ma
+- **Teléfono:** +212 6 36 12 57 97
+
+Al utilizar **Volo.ma**, usted acepta estos Términos y Condiciones.
+`,
   },
 })
 

@@ -1,188 +1,322 @@
 import LocalizedStrings from 'localized-strings'
 import * as langHelper from '@/common/langHelper'
-import env from '@/config/env.config'
 
 const strings = new LocalizedStrings({
   fr: {
     TITLE: 'Politique de Confidentialité',
     PRIVACY_POLICY: `
-Votre vie privée est importante pour nous chez ${env.WEBSITE_NAME}. Cette politique de confidentialité décrit comment nous collectons, utilisons et protégeons vos informations lorsque vous utilisez notre site Web et nos services. En accédant à nos services, vous consentez aux pratiques décrites dans cette politique.
-
-1. Informations que nous collectons
-
-Nous collectons des informations auprès de vous lorsque vous vous inscrivez sur notre site, passez une commande ou interagissez avec nos services. Les informations que nous pouvons collecter comprennent :
-
-Nom
-Adresse e-mail
-Numéro de téléphone
-Informations de paiement
-Préférences de location
-Vous pouvez visiter notre site de manière anonyme, mais certaines fonctionnalités peuvent être limitées.
-
-2. Comment nous utilisons vos informations
-
-Vos informations peuvent être utilisées des manières suivantes :
-
-Pour traiter vos réservations et paiements
-Pour améliorer le service client
-Pour envoyer des e-mails périodiques concernant votre commande ou d'autres produits et services
-Pour répondre aux demandes de renseignements et d'assistance
-
-3. Comment nous protégeons vos informations
-
-Nous mettons en œuvre diverses mesures de sécurité pour maintenir la sécurité de vos informations personnelles. Toutes les informations sensibles sont transmises via des serveurs sécurisés et ne sont accessibles qu'au personnel autorisé. Nous ne stockons pas vos informations de carte de crédit sur nos serveurs.
-
-4. Partage de vos informations
-
-Nous ne vendons, n'échangeons ni ne transférons vos informations personnelles identifiables à des tiers, sauf à des partenaires de confiance qui nous aident à exploiter notre site Web, à mener nos activités ou à vous fournir des services, tant que ces parties acceptent de garder ces informations confidentielles. Nous pouvons également divulguer vos informations lorsque nous pensons que cette divulgation est appropriée pour se conformer à la loi, appliquer les politiques de notre site ou protéger nos droits ou ceux d'autrui, notre propriété ou notre sécurité.
-
-5. Confidentialité des enfants
-
-Nous respectons la loi sur la protection de la vie privée des enfants en ligne (Children's Online Privacy Protection Act, COPPA). Nos services ne sont pas destinés aux enfants de moins de 13 ans et nous ne collectons pas sciemment d'informations personnelles auprès d'enfants de moins de 13 ans. Si nous apprenons que nous avons collecté des informations personnelles auprès d'un enfant de moins de 13 ans, nous prendrons des mesures pour supprimer ces informations.
-
-6. Modifications de notre politique de confidentialité
-
-Nous pouvons mettre à jour cette politique de confidentialité de temps à autre. Nous vous informerons de tout changement en publiant la nouvelle politique de confidentialité sur cette page. Il vous est conseillé de consulter régulièrement cette politique de confidentialité pour prendre connaissance de tout changement.
-
-7. Vos droits
-
-Vous avez le droit de demander l'accès aux informations personnelles que nous détenons à votre sujet, de demander la correction de toute inexactitude et de demander la suppression de vos informations personnelles, sous réserve de certaines exceptions. Pour exercer ces droits, veuillez nous contacter en utilisant les informations fournies ci-dessous.
-
-8. Contactez-nous
-
-Si vous avez des questions sur cette politique de confidentialité ou sur nos pratiques en matière de données, veuillez nous contacter à l'adresse ${env.CONTACT_EMAIL}. Nous nous engageons à répondre à vos préoccupations et à protéger votre vie privée.
-
-9. Reconnaissance
-
-En utilisant nos services, vous reconnaissez avoir lu et compris cette politique de confidentialité et acceptez ses conditions.    
-    `,
-  },
-  en: {
-    TITLE: 'Privacy Policy',
-    PRIVACY_POLICY: `
-Your privacy is important to us at ${env.WEBSITE_NAME}. This Privacy Policy outlines how we collect, use, and protect your information when you use our website and services. By accessing our services, you consent to the practices described in this policy.
-
-
-1. Information We Collect
-
-We collect information from you when you register on our site, place an order, or interact with our services. The information we may collect includes:
-
-Name
-Email address
-Phone number
-Payment information
-Rental preferences
-You may visit our site anonymously, but certain functionalities may be limited.
-
-
-2. How We Use Your Information
-
-Your information may be used in the following ways:
-
-To process your reservations and payments
-To improve customer service
-To send periodic emails regarding your order or other products and services
-To respond to inquiries and support requests
-
-
-3. How We Protect Your Information
-
-We implement a variety of security measures to maintain the safety of your personal information. All sensitive information is transmitted via secure servers and is only accessible by authorized personnel. We do not store your credit card information on our servers.
-
-
-4. Sharing Your Information
-
-We do not sell, trade, or otherwise transfer your personally identifiable information to outside parties, except to trusted partners who assist us in operating our website, conducting our business, or servicing you, as long as those parties agree to keep this information confidential. We may also release your information when we believe release is appropriate to comply with the law, enforce our site policies, or protect our rights or others' rights, property, or safety.
-
-
-5. Children's Privacy
-
-We comply with the Children's Online Privacy Protection Act (COPPA). Our services are not directed to children under the age of 13, and we do not knowingly collect personal information from children under 13. If we become aware that we have collected personal information from a child under 13, we will take steps to delete such information.
-
-
-6. Changes to Our Privacy Policy
-
-We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page. You are advised to review this Privacy Policy periodically for any changes.
-
-
-7. Your Rights
-
-You have the right to request access to the personal information we hold about you, to request correction of any inaccuracies, and to request deletion of your personal information, subject to certain exceptions. To exercise these rights, please contact us using the information provided below.
-
-
-8. Contact Us
-
-If you have any questions about this Privacy Policy or our data practices, please contact us at ${env.CONTACT_EMAIL}. We are committed to addressing your concerns and protecting your privacy.
-
-
-9. Acknowledgment
-
-By using our services, you acknowledge that you have read and understood this Privacy Policy and agree to its terms.
-    `,
+  # Politique de Confidentialité  
+  
+  **Date d'effet :** 30 Decembre 2024 
+  
+  Chez **Volo.ma**, nous nous engageons à protéger votre vie privée et à garantir que vos informations personnelles sont traitées de manière sécurisée et responsable. Cette Politique de Confidentialité explique comment nous collectons, utilisons, divulguons et protégeons vos informations lorsque vous utilisez notre plateforme.  
+  
+  ---
+  
+  ## 1. Informations que Nous Collectons  
+  
+  Nous pouvons collecter les types d'informations suivants :  
+  
+  ### 1.1 Informations Personnelles  
+  - Nom, adresse e-mail, numéro de téléphone et autres coordonnées.  
+  - Documents d'identité officiels, tels qu’un permis de conduire ou un passeport (pour des fins de vérification).  
+  
+  ### 1.2 Informations sur la Location de Véhicules  
+  - Historique des réservations, préférences et dates de location.  
+  - Détails des véhicules, y compris le modèle et le lieu de location.  
+  
+  ### 1.3 Informations de Paiement  
+  - Détails de la carte de crédit/débit et historique des transactions.  
+  - Adresse de facturation et autres informations relatives au paiement.  
+  
+  ### 1.4 Informations Techniques  
+  - Adresse IP, type de navigateur et informations sur l'appareil.  
+  - Cookies et données d'utilisation pour améliorer votre expérience utilisateur.  
+  
+  ---
+  
+  ## 2. Comment Nous Utilisons Vos Informations  
+  
+  Nous utilisons les informations que nous collectons pour les raisons suivantes :  
+  - Traiter les réservations et faciliter la location de véhicules.  
+  - Vérifier votre identité et garantir la conformité avec les exigences légales.  
+  - Communiquer avec vous au sujet de vos réservations, questions et compte.  
+  - Améliorer notre plateforme et offrir une expérience personnalisée.  
+  - Traiter les paiements et prévenir les activités frauduleuses.  
+  - Envoyer des communications marketing, des offres et des mises à jour (avec votre consentement).  
+  
+  ---
+  
+  ## 3. Partage de Vos Informations  
+  
+  Nous ne vendons pas vos informations personnelles. Cependant, nous pouvons les partager dans les cas suivants :  
+  - **Fournisseurs de Services :** Avec des prestataires tiers qui nous aident à fournir nos services (ex. : processeurs de paiements, service client).  
+  - **Conformité Légale :** Si requis par la loi ou pour protéger nos droits légaux.  
+  - **Transferts d'Entreprise :** En cas de fusion, acquisition ou vente d'actifs de l'entreprise.  
+  
+  ---
+  
+  ## 4. Sécurité des Données  
+  
+  Nous mettons en œuvre des mesures de sécurité standard pour protéger vos informations personnelles contre tout accès, divulgation ou altération non autorisés. Cependant, aucune transmission ou stockage de données ne peut être garanti à 100 % sécurisé.  
+  
+  ---
+  
+  ## 5. Vos Droits  
+  
+  Vous avez le droit de :  
+  - Accéder, mettre à jour ou supprimer vos informations personnelles.  
+  - Refuser de recevoir des communications marketing.  
+  - Demander une copie des données que nous détenons à votre sujet.  
+  
+  Pour exercer vos droits, veuillez nous contacter à **contact@volo.ma**.  
+  
+  ---
+  
+  ## 6. Cookies et Technologies de Suivi  
+  
+  Nous utilisons des cookies et des technologies similaires pour :  
+  - Améliorer votre expérience de navigation.  
+  - Analyser le trafic et l'utilisation du site.  
+  - Fournir des publicités ciblées.  
+  
+  Vous pouvez gérer vos préférences en matière de cookies dans les paramètres de votre navigateur.  
+  
+  ---
+  
+  ## 7. Liens de Tiers  
+  
+  Notre plateforme peut contenir des liens vers des sites tiers. Nous ne sommes pas responsables des pratiques de confidentialité de ces sites externes.  
+  
+  ---
+  
+  ## 8. Modifications de Cette Politique de Confidentialité  
+  
+  Nous pouvons mettre à jour cette Politique de Confidentialité de temps à autre. Toute modification sera publiée sur cette page avec la date d'effet mise à jour.  
+  
+  ---
+  
+  ## 9. Contactez-Nous  
+  
+  Si vous avez des questions ou préoccupations concernant cette Politique de Confidentialité ou la manière dont nous gérons vos données, veuillez nous contacter à :  
+  - **E-mail :** contact@volo.ma
+  - **Téléphone :** +212 6 36 12 57 97
+  
+  ---
+  
+  En utilisant **Volo.ma**, vous acceptez les termes de cette Politique de Confidentialité.
+  `,
   },
   es: {
     TITLE: 'Política de privacidad de alquiler',
     PRIVACY_POLICY: `
-Su privacidad es importante para nosotros en ${env.WEBSITE_NAME}. Esta Política de Privacidad describe cómo recopilamos, utilizamos y protegemos su información cuando utiliza nuestro sitio web y nuestros servicios. Al acceder a nuestros servicios, usted acepta las prácticas descritas en esta política.
-
-
-1. Información que recopilamos
-
-Recopilamos información sobre usted cuando se registra en nuestro sitio, realiza un pedido o interactúa con nuestros servicios. La información que podemos recopilar incluye:
-
-Nombre
-Dirección de correo electrónico
-Número de teléfono
-Información de pago
-Preferencias de alquiler
-Puede visitar nuestro sitio de forma anónima, pero ciertas funcionalidades pueden estar limitadas.
-
-
-2. Cómo utilizamos su información
-
-Su información podrá ser utilizada de las siguientes maneras:
-
-Para procesar sus reservas y pagos
-Para mejorar el servicio al cliente
-Para enviar correos electrónicos periódicos sobre su pedido u otros productos y servicios
-Para responder a consultas y solicitudes de soporte.
-
-
-3. Cómo protegemos su información
-
-Implementamos una variedad de medidas de seguridad para mantener la seguridad de su información personal. Toda la información confidencial se transmite a través de servidores seguros y solo el personal autorizado puede acceder a ella. No almacenamos la información de su tarjeta de crédito en nuestros servidores.
-
-
-4. Compartir su información
-
-No vendemos, comercializamos ni transferimos de otro modo su información de identificación personal a terceros, excepto a socios confiables que nos ayudan a operar nuestro sitio web, realizar nuestro negocio o brindarle servicios, siempre que dichas partes acepten mantener esta información confidencial. También podemos divulgar su información cuando creamos que la divulgación es apropiada para cumplir con la ley, hacer cumplir las políticas de nuestro sitio o proteger nuestros derechos o los derechos, la propiedad o la seguridad de otros.
-
-
-5. Privacidad de los niños
-
-Cumplimos con la Ley de Protección de la Privacidad Infantil en Línea (COPPA). Nuestros servicios no están dirigidos a niños menores de 13 años y no recopilamos intencionadamente información personal de niños menores de 13 años. Si nos damos cuenta de que hemos recopilado información personal de un niño menor de 13 años, tomaremos medidas para eliminar dicha información. .
-
-
-6. Cambios a nuestra política de privacidad
-
-Podemos actualizar esta Política de Privacidad de vez en cuando. Le notificaremos cualquier cambio publicando la nueva Política de Privacidad en esta página. Se le recomienda revisar esta Política de Privacidad periódicamente para detectar cualquier cambio.
-
-
-7. Tus derechos
-
-Tiene derecho a solicitar acceso a la información personal que tenemos sobre usted, solicitar la corrección de cualquier inexactitud y solicitar la eliminación de su información personal, sujeto a ciertas excepciones. Para ejercer estos derechos, comuníquese con nosotros utilizando la información proporcionada a continuación.
-
-
-8. Contáctenos
-
-Si tiene alguna pregunta sobre esta Política de Privacidad o nuestras prácticas de datos, contáctenos en ${env.CONTACT_EMAIL}. Estamos comprometidos a abordar sus inquietudes y proteger su privacidad.
-
-
-9. Reconocimiento
-
-Al utilizar nuestros servicios, usted reconoce que ha leído y comprendido esta Política de Privacidad y acepta sus términos.    
-    `,
+  # Política de Privacidad  
+  
+  **Fecha de Vigencia:** 30 de Diciembre de 2024 
+  
+  En **Volo.ma**, nos comprometemos a proteger su privacidad y garantizar que su información personal se maneje de manera segura y responsable. Esta Política de Privacidad explica cómo recopilamos, usamos, divulgamos y protegemos su información cuando utiliza nuestra plataforma.  
+  
+  ---
+  
+  ## 1. Información que Recopilamos  
+  
+  Podemos recopilar los siguientes tipos de información:  
+  
+  ### 1.1 Información Personal  
+  - Nombre, dirección de correo electrónico, número de teléfono y otros datos de contacto.  
+  - Identificación oficial, como licencia de conducir o pasaporte (para fines de verificación).  
+  
+  ### 1.2 Información sobre el Alquiler de Vehículos  
+  - Historial de reservas, preferencias y fechas de alquiler.  
+  - Detalles del vehículo, incluido el modelo y la ubicación del alquiler.  
+  
+  ### 1.3 Información de Pago  
+  - Detalles de la tarjeta de crédito/débito e historial de transacciones.  
+  - Dirección de facturación y otra información relacionada con el pago.  
+  
+  ### 1.4 Información Técnica  
+  - Dirección IP, tipo de navegador e información del dispositivo.  
+  - Cookies y datos de uso para mejorar su experiencia de usuario.  
+  
+  ---
+  
+  ## 2. Cómo Usamos su Información  
+  
+  Usamos la información que recopilamos para los siguientes propósitos:  
+  - Procesar reservas y facilitar el alquiler de vehículos.  
+  - Verificar su identidad y garantizar el cumplimiento de los requisitos legales.  
+  - Comunicarnos con usted sobre sus reservas, consultas y cuenta.  
+  - Mejorar nuestra plataforma y proporcionar una experiencia personalizada.  
+  - Procesar pagos y prevenir actividades fraudulentas.  
+  - Enviar comunicaciones de marketing, ofertas y actualizaciones (con su consentimiento).  
+  
+  ---
+  
+  ## 3. Compartir su Información  
+  
+  No vendemos su información personal. Sin embargo, podemos compartir su información en los siguientes casos:  
+  - **Proveedores de Servicios:** Con proveedores externos que nos ayudan a brindar nuestros servicios (por ejemplo, procesadores de pagos, atención al cliente).  
+  - **Cumplimiento Legal:** Si es requerido por ley o para proteger nuestros derechos legales.  
+  - **Transferencias Comerciales:** En caso de fusión, adquisición o venta de activos de la empresa.  
+  
+  ---
+  
+  ## 4. Seguridad de los Datos  
+  
+  Implementamos medidas de seguridad estándar para proteger su información personal contra el acceso, divulgación o alteración no autorizados. Sin embargo, ninguna transmisión o almacenamiento de datos puede garantizarse como 100 % seguro.  
+  
+  ---
+  
+  ## 5. Sus Derechos  
+  
+  Tiene derecho a:  
+  - Acceder, actualizar o eliminar su información personal.  
+  - Optar por no recibir comunicaciones de marketing.  
+  - Solicitar una copia de los datos que tenemos sobre usted.  
+  
+  Para ejercer sus derechos, comuníquese con nosotros a **contact@volo.ma**.  
+  
+  ---
+  
+  ## 6. Cookies y Tecnologías de Seguimiento  
+  
+  Usamos cookies y tecnologías similares para:  
+  - Mejorar su experiencia de navegación.  
+  - Analizar el tráfico y el uso del sitio web.  
+  - Proporcionar publicidad dirigida.  
+  
+  Puede gestionar sus preferencias de cookies a través de la configuración de su navegador.  
+  
+  ---
+  
+  ## 7. Enlaces de Terceros  
+  
+  Nuestra plataforma puede contener enlaces a sitios web de terceros. No somos responsables de las prácticas de privacidad de estos sitios externos.  
+  
+  ---
+  
+  ## 8. Cambios a Esta Política de Privacidad  
+  
+  Podemos actualizar esta Política de Privacidad de vez en cuando. Cualquier cambio se publicará en esta página con la fecha de vigencia actualizada.  
+  
+  ---
+  
+  ## 9. Contáctenos  
+  
+  Si tiene preguntas o inquietudes sobre esta Política de Privacidad o cómo manejamos sus datos, comuníquese con nosotros a:  
+  - **Correo Electrónico:** contact@volo.ma  
+  - **Teléfono:** +212 6 36 12 57 97  
+  
+  ---
+  
+  Al utilizar **Volo.ma**, acepta los términos de esta Política de Privacidad.
+  `,
   },
+  en: {
+    PRIVACY_POLICY: `
+  # Privacy Policy
+
+  **Effective Date:** December 30, 2024
+
+  At **Volo.ma**, we are committed to protecting your privacy and ensuring your personal information is handled securely and responsibly. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our platform.  
+
+  ---
+
+  ## 1. Information We Collect  
+
+  We may collect the following types of information:  
+
+  ### 1.1 Personal Information  
+  - Name, email address, phone number, and other contact details.  
+  - Government-issued identification, such as a driver’s license or passport (for verification purposes).  
+
+  ### 1.2 Vehicle Rental Information  
+  - Booking history, preferences, and rental dates.  
+  - Vehicle details, including model and rental location.  
+
+  ### 1.3 Payment Information  
+  - Credit/debit card details and transaction history.  
+  - Billing address and other payment-related information.  
+
+  ### 1.4 Technical Information  
+  - IP address, browser type, and device information.  
+  - Cookies and usage data to enhance your user experience.  
+
+  ---
+
+  ## 2. How We Use Your Information  
+
+  We use the information we collect for the following purposes:  
+  - To process bookings and facilitate vehicle rentals.  
+  - To verify your identity and ensure compliance with legal requirements.  
+  - To communicate with you regarding your bookings, inquiries, and account.  
+  - To improve our platform and provide a personalized experience.  
+  - To process payments and prevent fraudulent activities.  
+  - To send marketing communications, offers, and updates (with your consent).  
+
+  ---
+
+  ## 3. Sharing Your Information  
+
+  We do not sell your personal information. However, we may share your information in the following cases:  
+  - **Service Providers:** With third-party vendors who assist us in providing our services (e.g., payment processors, customer support).  
+  - **Legal Compliance:** If required by law or to protect our legal rights.  
+  - **Business Transfers:** In case of a merger, acquisition, or sale of company assets.  
+
+  ---
+
+  ## 4. Data Security  
+
+  We implement industry-standard security measures to protect your personal information from unauthorized access, disclosure, or alteration. Despite our efforts, no data transmission or storage system can be guaranteed to be 100% secure.  
+
+  ---
+
+  ## 5. Your Rights  
+
+  You have the right to:  
+  - Access, update, or delete your personal information.  
+  - Opt-out of receiving marketing communications.  
+  - Request a copy of the data we hold about you.  
+
+  To exercise your rights, please contact us at **contact@volo.ma**.  
+
+  ---
+
+  ## 6. Cookies and Tracking Technologies  
+
+  We use cookies and similar technologies to:  
+  - Enhance your browsing experience.  
+  - Analyze website traffic and usage.  
+  - Provide targeted advertising.  
+
+  You can manage your cookie preferences through your browser settings.  
+
+  ---
+
+  ## 7. Third-Party Links  
+
+  Our platform may contain links to third-party websites. We are not responsible for the privacy practices of these external sites.  
+
+  ---
+
+  ## 8. Changes to This Privacy Policy  
+
+  We may update this Privacy Policy from time to time. Any changes will be posted on this page with the updated effective date.  
+
+  ---
+
+  ## 9. Contact Us  
+
+  If you have questions or concerns about this Privacy Policy or how we handle your data, please contact us at:  
+  - **Email:** contact@volo.ma  
+  - **Phone:** +212 6 36 12 57 97
+
+  ---  
+
+  By using **Volo.ma**, you agree to the terms of this Privacy Policy.
+  `
+  },
+
 })
 
 langHelper.setLanguage(strings)

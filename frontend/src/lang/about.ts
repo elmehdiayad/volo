@@ -1,34 +1,36 @@
 import LocalizedStrings from 'localized-strings'
 import * as langHelper from '@/common/langHelper'
-import env from '@/config/env.config'
 
 const strings = new LocalizedStrings({
   fr: {
-    TITLE1: `${env.WEBSITE_NAME} - Votre service de location de voitures de premier ordre`,
-    SUBTITLE1: 'Votre partenaire de confiance pour la location de voitures',
-    CONTENT1: `Chez ${env.WEBSITE_NAME}, nous comprenons que chaque voyage est unique. Nous nous engageons à fournir à nos clients une sélection diversifiée de véhicules qui répondent à tous les besoins de voyage. Que vous exploriez une ville, que vous vous déplaciez pour affaires ou que vous recherchiez l'aventure, nos services de location de voitures fiables garantissent que votre aventure commence en toute transparence. Notre mission est de fournir un service client exceptionnel, rendant votre expérience agréable et sans stress. Avec des tarifs compétitifs, une variété de véhicules bien entretenus et une équipe dédiée prête à vous aider, nous nous efforçons d'être votre partenaire de confiance sur la route. Choisissez ${env.WEBSITE_NAME} pour tous vos besoins de location de voiture et découvrez la liberté d'explorer à votre rythme.`,
-    TITLE2: `Pourquoi choisir ${env.WEBSITE_NAME}`,
-    SUBTITLE2: "Découvrez l'excellence à chaque voyage",
-    CONTENT2: "Profitez d'une commodité, d'une fiabilité et d'une valeur inégalées avec notre service de location de voitures, au Kurdistan. Des réservations sans effort aux véhicules de haute qualité, nous sommes votre partenaire de voyage de confiance.",
-    FIND_DEAL: 'Trouver une Offre',
+    ABOUT_US_TITLE: 'À PROPOS DE VOLO.MA',
+    ABOUT_US: `
+Bienvenue sur Volo.ma, la plateforme leader de location de voitures au Maroc, conçue pour rendre vos voyages fluides et agréables. Que vous exploriez les villes animées ou partiez à l’aventure à la campagne, nous vous connectons à des véhicules fiables adaptés à tous vos besoins et budgets.
+
+Chez Volo.ma, nous mettons l’accent sur la commodité, la transparence et un service exceptionnel. Notre plateforme propose un large choix de véhicules, un processus de réservation simple et des tarifs compétitifs adaptés aux habitants et aux visiteurs.
+
+Portés par l’innovation et notre passion pour la mobilité, nous visons à révolutionner la location de voitures au Maroc, en rendant vos déplacements plus faciles que jamais. Découvrez la liberté de voyager avec Volo.ma, votre compagnon de voyage de confiance.
+    `,
   },
   en: {
-    TITLE1: `${env.WEBSITE_NAME} - Your Premier Car Rental Service`,
-    SUBTITLE1: 'Your Trusted Partner for Car Rentals',
-    CONTENT1: `At ${env.WEBSITE_NAME}, we understand that every journey is unique. We are committed to providing our customers with a diverse selection of vehicles that cater to every travel need. Whether you're exploring a city, commuting for business, or seeking adventure, our reliable car rental services ensure that your adventure begins seamlessly. Our mission is to deliver exceptional customer service, making your experience enjoyable and stress-free. With competitive rates, a variety of well-maintained vehicles, and a dedicated team ready to assist you, we strive to be your trusted partner on the road. Choose ${env.WEBSITE_NAME} for all your car rental needs and experience the freedom to explore at your own pace.`,
-    TITLE2: `Why Choose ${env.WEBSITE_NAME}`,
-    SUBTITLE2: 'Experience Excellence in Every Journey',
-    CONTENT2: "Enjoy unmatched convenience, reliability, and value with our premier car rental service. From effortless bookings to high-quality vehicles, we're your trusted travel partner.",
-    FIND_DEAL: 'Find Deal',
+    ABOUT_US_TITLE: 'ABOUT VOLO.MA',
+    ABOUT_US: `
+Welcome to Volo.ma, the leading car rental platform in Morocco, designed to make your travels smooth and enjoyable. Whether you're exploring bustling cities or venturing into the countryside, we connect you with reliable vehicles suited to all your needs and budgets.
+
+At Volo.ma, we emphasize convenience, transparency, and exceptional service. Our platform offers a wide selection of vehicles, a simple booking process, and competitive rates tailored to both locals and visitors.
+
+Driven by innovation and our passion for mobility, we aim to revolutionize car rental in Morocco, making your journeys easier than ever. Discover the freedom to travel with Volo.ma, your trusted travel companion.
+    `,
   },
   es: {
-    TITLE1: `${env.WEBSITE_NAME} - Su servicio de alquiler de coches de primera calidad`,
-    SUBTITLE1: 'Su socio de confianza para alquileres de coches',
-    CONTENT1: `En ${env.WEBSITE_NAME}, entendemos que cada viaje es único. Nos comprometemos a brindarles a nuestros clientes una selección diversa de vehículos que satisfagan todas las necesidades de viaje. Ya sea que esté explorando una ciudad, viajando por negocios o buscando aventuras, nuestros confiables servicios de alquiler de automóviles garantizan que su aventura comience sin problemas. Nuestra misión es brindar un servicio al cliente excepcional, haciendo que su experiencia sea agradable y sin estrés. Con tarifas competitivas, una variedad de vehículos bien mantenidos y un equipo dedicado listo para ayudarlo, nos esforzamos por ser su socio de confianza en la carretera. Elija ${env.WEBSITE_NAME} para todas sus necesidades de alquiler de automóviles y experimente la libertad de explorar a su propio ritmo.`,
-    TITLE2: `Por qué elegir ${env.WEBSITE_NAME}`,
-    SUBTITLE2: 'Experimenta la excelencia en cada viaje',
-    CONTENT2: 'Disfruta de una comodidad, fiabilidad y valor inigualables con nuestro servicio de alquiler de coches de primera calidad. Desde reservas sencillas hasta vehículos de alta calidad, somos tu socio de viajes de confianza.',
-    FIND_DEAL: 'Buscar oferta',
+    ABOUT_US_TITLE: 'SOBRE VOLO.MA',
+    ABOUT_US: `
+Bienvenido a Volo.ma, la plataforma líder de alquiler de coches en Marruecos, diseñada para hacer que tus viajes sean fluidos y agradables. Ya sea que estés explorando ciudades bulliciosas o aventurándote en el campo, te conectamos con vehículos confiables adecuados para todas tus necesidades y presupuestos.
+
+En Volo.ma, enfatizamos la conveniencia, la transparencia y un servicio excepcional. Nuestra plataforma ofrece una amplia selección de vehículos, un proceso de reserva simple y tarifas competitivas adaptadas tanto a locales como a visitantes.
+
+Impulsados por la innovación y nuestra pasión por la movilidad, nuestro objetivo es revolucionar el alquiler de coches en Marruecos, haciendo que tus viajes sean más fáciles que nunca. Descubre la libertad de viajar con Volo.ma, tu compañero de viaje de confianza.
+    `,
   },
 })
 
