@@ -130,7 +130,7 @@ const Map = ({
                 onClick={async () => {
                   try {
                     if (onSelelectPickUpLocation) {
-                      const { status, data } = await LocationService.getLocationId(marker.name, 'en')
+                        const { status, data } = await LocationService.getLocationId(marker.name, strings.getLanguage())
 
                       if (status === 200) {
                         onSelelectPickUpLocation(data)
