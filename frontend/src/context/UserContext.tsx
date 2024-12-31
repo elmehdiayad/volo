@@ -21,7 +21,6 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   const [user, setUser] = useState<bookcarsTypes.User | null>(null)
   const [userLoaded, setUserLoaded] = useState(false)
   const value = useMemo(() => ({ user, setUser, userLoaded, setUserLoaded }), [user, userLoaded])
-
   return (
     <UserContext.Provider value={value}>{children}</UserContext.Provider>
   )

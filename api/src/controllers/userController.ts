@@ -1102,6 +1102,7 @@ export const getUser = async (req: Request, res: Response) => {
       licenseRequired: 1,
       license: 1,
       minimumRentalDays: 1,
+      nationalId: 1,
     }).lean()
 
     if (!user) {

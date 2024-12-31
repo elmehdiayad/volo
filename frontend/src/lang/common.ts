@@ -89,6 +89,8 @@ const strings = new LocalizedStrings({
     OR: 'ou',
     DRIVER_LICENSE: 'Permis de conduire',
     UPLOAD_FILE: 'Charger un ficher...',
+    NATIONAL_ID: 'Numéro national d\'identité',
+    NATIONAL_ID_NOT_VALID: 'Numéro national d\'identité non valide',
   },
   en: {
     BOOKCARS: env.WEBSITE_NAME,
@@ -175,6 +177,8 @@ const strings = new LocalizedStrings({
     OR: 'or',
     DRIVER_LICENSE: "Driver's License",
     UPLOAD_FILE: 'Upload file...',
+    NATIONAL_ID: 'National ID',
+    NATIONAL_ID_NOT_VALID: 'Invalid national ID',
   },
   es: {
     BOOKCARS: env.WEBSITE_NAME,
@@ -261,6 +265,8 @@ const strings = new LocalizedStrings({
     OR: 'o',
     DRIVER_LICENSE: 'Licencia de conducir',
     UPLOAD_FILE: 'Subir archivo...',
+    NATIONAL_ID: 'Documento nacional de identidad',
+    NATIONAL_ID_NOT_VALID: 'Documento nacional de identidad no válido',
   },
 })
 

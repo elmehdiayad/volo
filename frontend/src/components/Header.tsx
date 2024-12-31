@@ -125,7 +125,6 @@ const Header = ({
 
         if (status === 200) {
           const _user = await UserService.getUser(_currentUser._id)
-
           if (_user) {
             if (_user.blacklisted) {
               await exit()

@@ -228,7 +228,8 @@ const Booking = () => {
         theftProtection,
         collisionDamageWaiver,
         fullInsurance,
-        price
+        price,
+        nationalId: booking.nationalId
       }
 
       const payload = { booking: _booking }

@@ -43,6 +43,8 @@ const Settings = () => {
   const [birthDateValid, setBirthDateValid] = useState(true)
   const [phoneValid, setPhoneValid] = useState(true)
   const [enableEmailNotifications, setEnableEmailNotifications] = useState(false)
+  const [nationalId, setNationalId] = useState('')
+  const [nationalIdValid, setNationalIdValid] = useState(true)
 
   const handleFullNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFullName(e.target.value)
@@ -124,12 +126,34 @@ const Settings = () => {
     setLoading(false)
   }
 
+  const handleNationalIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNationalId(e.target.value)
+    if (!e.target.value) {
+      setNationalIdValid(true)
+    }
+  }
+
+  const validateNationalId = (_nationalId?: string) => {
+    if (_nationalId) {
+      const _nationalIdValid = _nationalId.length >= 5
+      setNationalIdValid(_nationalIdValid)
+      return _nationalIdValid
+    }
+    setNationalIdValid(true)
+    return true
+  }
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     try {
       e.preventDefault()
 
       if (!user || !user._id) {
         helper.error()
+        return
+      }
+
+      const _nationalIdValid = validateNationalId(nationalId)
+      if (!_nationalIdValid) {
         return
       }
 
@@ -145,6 +169,7 @@ const Settings = () => {
 
       const data: bookcarsTypes.UpdateUserPayload = {
         _id: user._id,
+        nationalId,
         fullName,
         birthDate,
         phone,
@@ -169,6 +194,7 @@ const Settings = () => {
       setUser(_user)
       setFullName(_user.fullName)
       setPhone(_user.phone || '')
+      setNationalId(_user.nationalId || '')
       setBirthDate(_user && _user.birthDate ? new Date(_user.birthDate) : undefined)
       setLocation(_user.location || '')
       setBio(_user.bio || '')
@@ -205,6 +231,20 @@ const Settings = () => {
                   <Input type="text" value={user.email} disabled />
                 </FormControl>
                 <FormControl fullWidth margin="dense">
+                  <InputLabel className="required">{commonStrings.NATIONAL_ID}</InputLabel>
+                  <Input
+                    type="text"
+                    error={!nationalIdValid}
+                    onChange={handleNationalIdChange}
+                    autoComplete="off"
+                    value={nationalId}
+                    required
+                  />
+                  <FormHelperText error={!nationalIdValid}>
+                    {(!nationalIdValid && commonStrings.NATIONAL_ID_NOT_VALID) || ''}
+                  </FormHelperText>
+                </FormControl>
+                <FormControl fullWidth margin="dense">
                   <InputLabel className="required">{commonStrings.PHONE}</InputLabel>
                   <Input type="text" required error={!phoneValid} onChange={handlePhoneChange} autoComplete="off" value={phone} />
                   <FormHelperText error={!phoneValid}>{(!phoneValid && commonStrings.PHONE_NOT_VALID) || ''}</FormHelperText>
@@ -235,6 +275,7 @@ const Settings = () => {
                   <InputLabel>{commonStrings.BIO}</InputLabel>
                   <Input id="bio" type="text" onChange={handleBioChange} autoComplete="off" value={bio} />
                 </FormControl>
+
                 <div className="buttons">
                   <Button
                     variant="contained"

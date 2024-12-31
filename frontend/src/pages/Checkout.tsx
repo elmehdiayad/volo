@@ -127,6 +127,9 @@ const Checkout = () => {
   const [license, setLicense] = useState<string | null>(null)
   const [openMapDialog, setOpenMapDialog] = useState(false)
 
+  const [nationalId, setNationalId] = useState('')
+  const [nationalIdValid, setNationalIdValid] = useState(true)
+
   const _fr = language === 'fr'
   const _locale = _fr ? fr : enUS
   const _format = _fr ? 'eee d LLL yyyy kk:mm' : 'eee, d LLL yyyy, p'
@@ -280,6 +283,28 @@ const Checkout = () => {
     }
   }
 
+  const handleNationalIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNationalId(e.target.value)
+
+    if (!e.target.value) {
+      setNationalIdValid(true)
+    }
+  }
+
+  const validateNationalId = (_nationalId?: string) => {
+    if (_nationalId) {
+      const _nationalIdValid = _nationalId.length >= 5
+      setNationalIdValid(_nationalIdValid)
+      return _nationalIdValid
+    }
+    setNationalIdValid(true)
+    return true
+  }
+
+  const handleNationalIdBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    validateNationalId(e.target.value)
+  }
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     try {
       e.preventDefault()
@@ -315,6 +340,11 @@ const Checkout = () => {
 
         const _birthDateValid = validateBirthDate(birthDate)
         if (!_birthDateValid) {
+          return
+        }
+
+        const _nationalIdValid = validateNationalId(nationalId)
+        if (!_nationalIdValid) {
           return
         }
 
@@ -360,6 +390,7 @@ const Checkout = () => {
           birthDate,
           language: UserService.getLanguage(),
           license: license || undefined,
+          nationalId,
         }
       }
 
@@ -381,6 +412,7 @@ const Checkout = () => {
         fullInsurance,
         additionalDriver,
         price: basePrice,
+        nationalId,
       }
 
       if (adRequired && additionalDriver && addiontalDriverBirthDate) {
@@ -669,7 +701,6 @@ const Checkout = () => {
                               onChange={(_birthDate) => {
                                 if (_birthDate) {
                                   const _birthDateValid = validateBirthDate(_birthDate)
-
                                   setBirthDate(_birthDate)
                                   setBirthDateValid(_birthDateValid)
                                 }
@@ -677,6 +708,21 @@ const Checkout = () => {
                               language={language}
                             />
                             <FormHelperText error={!birthDateValid}>{(!birthDateValid && helper.getBirthDateError(car.minimumAge)) || ''}</FormHelperText>
+                          </FormControl>
+                          <FormControl fullWidth margin="dense">
+                            <InputLabel className="required">{commonStrings.NATIONAL_ID}</InputLabel>
+                            <OutlinedInput
+                              type="text"
+                              label={commonStrings.NATIONAL_ID}
+                              error={!nationalIdValid}
+                              onBlur={handleNationalIdBlur}
+                              onChange={handleNationalIdChange}
+                              required
+                              autoComplete="off"
+                            />
+                            <FormHelperText error={!nationalIdValid}>
+                              {(!nationalIdValid && commonStrings.NATIONAL_ID_NOT_VALID) || ''}
+                            </FormHelperText>
                           </FormControl>
 
                           <div className="checkout-tos">

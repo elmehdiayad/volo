@@ -55,6 +55,8 @@ const SignUp = () => {
   const [phoneValid, setPhoneValid] = useState(true)
   const [phone, setPhone] = useState('')
   const [birthDateValid, setBirthDateValid] = useState(true)
+  const [nationalId, setNationalId] = useState('')
+  const [nationalIdValid, setNationalIdValid] = useState(true)
 
   const handleFullNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFullName(e.target.value)
@@ -160,6 +162,28 @@ const SignUp = () => {
     }
   }
 
+  const handleNationalIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNationalId(e.target.value)
+
+    if (!e.target.value) {
+      setNationalIdValid(true)
+    }
+  }
+
+  const validateNationalId = (_nationalId?: string) => {
+    if (_nationalId) {
+      const _nationalIdValid = _nationalId.length >= 5
+      setNationalIdValid(_nationalIdValid)
+      return _nationalIdValid
+    }
+    setNationalIdValid(true)
+    return true
+  }
+
+  const handleNationalIdBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    validateNationalId(e.target.value)
+  }
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     try {
       e.preventDefault()
@@ -219,10 +243,16 @@ const SignUp = () => {
         return
       }
 
+      const _nationalIdValid = validateNationalId(nationalId)
+      if (!_nationalIdValid) {
+        return
+      }
+
       setLoading(true)
 
       const data: bookcarsTypes.SignUpPayload = {
         email,
+        nationalId,
         phone,
         password,
         fullName,
