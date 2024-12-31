@@ -27,6 +27,7 @@ const strings = new LocalizedStrings({
     CREATE: 'Créer',
     UPDATE: 'Modifier',
     DELETE: 'Supprimer',
+    CONTRACT: 'Contrat',
     SAVE: 'Sauvegarder',
     CANCEL: 'Annuler',
     RESET_PASSWORD: 'Changer le mot de passe',
@@ -87,6 +88,8 @@ const strings = new LocalizedStrings({
     MIN_RENTAL_DAYS: 'Jours Minimum de location',
     DRIVER_LICENSE: 'Permis de conduire',
     UPLOAD_DRIVER_LICENSE: 'Charger le permis de conduire...',
+    NATIONAL_ID: 'Carte nationale ou passeport',
+    NATIONAL_ID_INFO: 'Numéro de carte nationale ou de passeport',
   },
   en: {
     GENERIC_ERROR: 'An unhandled error occurred.',
@@ -112,6 +115,7 @@ const strings = new LocalizedStrings({
     CREATE: 'Create',
     UPDATE: 'Edit',
     DELETE: 'Delete',
+    CONTRACT: 'Contract',
     SAVE: 'Save',
     CANCEL: 'Cancel',
     RESET_PASSWORD: 'Change Password',
@@ -172,6 +176,8 @@ const strings = new LocalizedStrings({
     MIN_RENTAL_DAYS: 'Minimum Rental Days',
     DRIVER_LICENSE: "Driver's License",
     UPLOAD_DRIVER_LICENSE: "Upload driver's license...",
+    NATIONAL_ID: 'National ID or passport',
+    NATIONAL_ID_INFO: 'National ID or passport number',
   },
   es: {
     GENERIC_ERROR: 'Se ha producido un error no controlado.',

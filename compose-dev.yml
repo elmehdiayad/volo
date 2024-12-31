@@ -1,10 +1,10 @@
 services:
-  # nginx:
-  #     image: nginx:stable-alpine
-  #     volumes:
-  #       - cdn:/var/www/cdn/bookcars
-  #     ports:
-  #       - 80:80
+  nginx:
+      image: nginx:stable-alpine
+      volumes:
+        - cdn:/var/www/cdn/bookcars
+      ports:
+        - 80:80
   api:
     build: 
       context: .

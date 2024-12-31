@@ -3,6 +3,7 @@ const routes = {
   checkout: '/api/checkout',
   update: '/api/update-booking',
   updateStatus: '/api/update-booking-status',
+  generateContract: '/api/generate-contract/:bookingId',
   delete: '/api/delete-bookings',
   deleteTempBooking: '/api/delete-temp-booking/:bookingId/:sessionId',
   getBooking: '/api/booking/:id/:language',

@@ -405,6 +405,7 @@ export interface User extends Document {
   license?: string | null
   minimumRentalDays?: number
   expireAt?: Date
+  nationalId: string
 }
 
 /**
@@ -541,6 +542,7 @@ export interface Car extends Document {
 export interface CarInfo {
   _id?: Types.ObjectId
   name: string
+  plateNumber: string
   supplier: UserInfo
   minimumAge: number
   locations: Types.ObjectId[]

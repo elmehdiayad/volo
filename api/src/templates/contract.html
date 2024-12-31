@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page {
+            size: A4;
+            margin: 0;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.3;
+            margin: 20px;
+            padding: 20px;
+            max-width: 210mm;
+        }
+        .logo-section {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .logo-section img {
+            max-width: 150px;
+            max-height: 80px;
+            object-fit: contain;
+        }
+        .main-title {
+            text-align: center;
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+        .header-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .input-line {
+            border-bottom: 1px solid black;
+            padding: 2px 5px;
+            min-height: 20px;
+        }
+        .drivers-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+            border: 1px solid black;
+            padding: 10px;
+        }
+        .driver-section {
+            display: grid;
+            gap: 5px;
+        }
+        .driver-header {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .payment-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .payment-options {
+            display: flex;
+            gap: 20px;
+            margin: 10px 0;
+        }
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .vehicle-section {
+            border: 1px solid black;
+            padding: 10px;
+            margin: 20px 0;
+        }
+        .signature-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .signature-box {
+            border: 1px solid black;
+            height: 60px;
+            margin-top: 10px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 12px;
+        }
+        .terms-box {
+            border: 1px solid black;
+            padding: 10px;
+            margin: 20px 0;
+            font-size: 12px;
+        }
+        .observation-section {
+            margin: 15px 0;
+        }
+        .vehicle-status {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .status-checkbox {
+            display: flex;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="logo-section">
+        <img id="company-logo" src="/api/placeholder/150/80" alt="Logo entreprise" />
+    </div>
+    
+    <div class="main-title">CONTRAT DE LOCATION VEHICULE</div>
+
+    <div class="header-grid">
+        <div>CONTRAT N°<span class="input-line" id="contractNumber"></span></div>
+        <div>DATES:<span class="input-line" id="dates"></span></div>
+    </div>
+
+    <div>
+        NOM:<span class="input-line" id="lastName"></span>
+        PRENOM:<span class="input-line" id="firstName"></span>
+    </div>
+    <div>
+        ADRESSE:<span class="input-line" id="address1"></span>
+    </div>
+    <div>
+        <span class="input-line" id="address2"></span>
+    </div>
+    <div>
+        TEL:<span class="input-line" id="phone"></span>
+    </div>
+    <div>
+        MAIL:<span class="input-line" id="email"></span>
+    </div>
+
+    <div class="drivers-grid">
+        <div class="driver-section">
+            <div class="driver-header">Conducteur (1)</div>
+            <div>Nom:<span class="input-line"></span></div>
+            <div>Prénom:<span class="input-line"></span></div>
+            <div>Né(e) le:<span class="input-line"></span> à <span class="input-line"></span></div>
+            <div>N° permis:<span class="input-line"></span></div>
+            <div>Date d'obtention:<span class="input-line"></span></div>
+            <div>Préfecture:<span class="input-line"></span></div>
+        </div>
+        <div class="driver-section">
+            <div class="driver-header">Conducteur (2)</div>
+            <div>Nom:<span class="input-line"></span></div>
+            <div>Prénom:<span class="input-line"></span></div>
+            <div>Né(e) le:<span class="input-line"></span> à <span class="input-line"></span></div>
+            <div>N° permis:<span class="input-line"></span></div>
+            <div>Date d'obtention:<span class="input-line"></span></div>
+            <div>Préfecture:<span class="input-line"></span></div>
+        </div>
+    </div>
+
+    <div class="payment-grid">
+        <div>
+            <div>Prix/jours:<span class="input-line"></span></div>
+            <div>Total HT:<span class="input-line"></span></div>
+            <div>T.V.A:<span class="input-line"></span></div>
+            <div>Total T.T.C:<span class="input-line"></span></div>
+        </div>
+        <div>
+            <div>Date de départ:<span class="input-line"></span></div>
+            <div>Date de restitution:<span class="input-line"></span></div>
+            <div>Montant de la caution:<span class="input-line"></span></div>
+        </div>
+    </div>
+
+    <div>Mode de règlement: Nature:</div>
+    <div class="payment-options">
+        <div class="checkbox-container">
+            <input type="checkbox" id="cb">
+            <label for="cb">CB</label>
+        </div>
+        <div class="checkbox-container">
+            <input type="checkbox" id="cheque">
+            <label for="cheque">Chèque</label>
+        </div>
+        <div class="checkbox-container">
+            <input type="checkbox" id="especes">
+            <label for="especes">Espèces</label>
+        </div>
+    </div>
+
+    <div class="vehicle-section">
+        <div style="font-weight: bold;">VEHICULE</div>
+        <div style="margin-top: 10px;">
+            <span>Marque:<span class="input-line"></span></span>
+            <span>Immatriculation:<span class="input-line"></span></span>
+        </div>
+        <div>
+            <span>Kilométrages:</span>
+            <span>Départ:<span class="input-line"></span></span>
+            <span>Retour:<span class="input-line"></span></span>
+            <span>Carburant: Sans plomb</span>
+        </div>
+    </div>
+
+    <div class="observation-section">
+        <div>Observations:</div>
+        <div class="input-line" style="height: 40px;"></div>
+    </div>
+
+    <div class="terms-box">
+        FACTURATION / CAUTION / FRANCHISE<br>
+        La caution est égale au montant de la franchise<br><br>
+        Le locataire s'expose à des poursuites judiciaires si l'heure et la date
+        de restitution du véhicule consentie ne sont pas respectées.<br>
+        L'assurance ne couvre aucun risque en cas d'utilisation du
+        véhicule par un conducteur non désigné sur le contrat, le client
+        reconnait être responsable des frais de réparation non couvert par
+        l'assurance. En cas de prolongation un nouveau contrat sera établi.
+    </div>
+
+    <div class="checkbox-container">
+        <input type="checkbox" id="terms">
+        <label for="terms">J'ai pris connaissance et j'accepte les termes et conditions imprimées aux deux faces de ce contrat.</label>
+    </div>
+
+    <div>Je reconnais être responsable des amendes, des violations du code de la route et de leurs conséquences éventuelles.</div>
+    <div>En cas de vol ou d'accident responsable, la caution reste acquise au loueur</div>
+
+    <div class="signature-section">
+        <div>
+            <div>Signature client:</div>
+            <div class="signature-box"></div>
+        </div>
+        <div>
+            <div>Signature loueur:</div>
+            <div class="signature-box"></div>
+        </div>
+    </div>
+
+    <div class="vehicle-status">
+        <div>
+            <div>Véhicule restitué en état</div>
+            <div class="status-checkbox">
+                <div>
+                    <input type="checkbox" id="stateYes">
+                    <label for="stateYes">Oui</label>
+                </div>
+                <div>
+                    <input type="checkbox" id="stateNo">
+                    <label for="stateNo">Non</label>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div>Signature client:</div>
+            <div class="signature-box"></div>
+        </div>
+    </div>
+
+    <div class="footer">
+        13 Rue Docteur Joseph PITAT<br>
+        GISSAC – 97160 Le Moule<br>
+        Tél : 06 90 23 87 62 / 05 90 68 08 36<br>
+        E-mail : alma.location@orange.fr
+    </div>
+</body>
+</html>

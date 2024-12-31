@@ -2,6 +2,7 @@ import express from 'express'
 import routeNames from '../config/bookingRoutes.config'
 import authJwt from '../middlewares/authJwt'
 import * as bookingController from '../controllers/bookingController'
+import * as contractController from '../controllers/contractController'
 
 const routes = express.Router()
 
@@ -16,5 +17,6 @@ routes.route(routeNames.getBookingId).get(bookingController.getBookingId)
 routes.route(routeNames.getBookings).post(authJwt.verifyToken, bookingController.getBookings)
 routes.route(routeNames.hasBookings).get(authJwt.verifyToken, bookingController.hasBookings)
 routes.route(routeNames.cancelBooking).post(authJwt.verifyToken, bookingController.cancelBooking)
+routes.route(routeNames.generateContract).get(contractController.generateContract)
 
 export default routes

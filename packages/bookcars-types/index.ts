@@ -72,6 +72,7 @@ export enum RecordType {
 
 export interface Booking {
   _id?: string
+  nationalId: string
   supplier: string | User
   car: string | Car
   driver?: string | User
@@ -230,6 +231,7 @@ export interface GetCarsPayload {
 
 export interface SignUpPayload {
   email: string
+  nationalId: string
   password: string
   fullName: string
   phone?: string
@@ -262,7 +264,9 @@ export interface CreateUserPayload {
   contracts?: Contract[]
   licenseRequired?: boolean
   minimumRentalDays?: number
-  license?: string
+  license?: string,
+  nationalId: string
+
 }
 
 export interface UpdateUserPayload extends CreateUserPayload {
@@ -363,7 +367,8 @@ export interface User {
   contracts?: Contract[]
   licenseRequired?: boolean
   license?: string | null
-  minimumRentalDays?: number
+  minimumRentalDays?: number,
+  nationalId: string,
 }
 
 export interface Option {

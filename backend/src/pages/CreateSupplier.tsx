@@ -47,6 +47,7 @@ const CreateSupplier = () => {
   const [licenseRequired, setLicenseRequired] = useState(false)
   const [contracts, setContracts] = useState<bookcarsTypes.Contract[]>([])
   const [minimumRentalDays, setMinimumRentalDays] = useState('')
+  const [nationalId, setNationalId] = useState('')
 
   const handleFullNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFullName(e.target.value)
@@ -224,6 +225,7 @@ const CreateSupplier = () => {
 
       const data: bookcarsTypes.CreateUserPayload = {
         email,
+        nationalId,
         fullName,
         phone,
         location,
@@ -247,6 +249,10 @@ const CreateSupplier = () => {
     } catch (err) {
       helper.error(err)
     }
+  }
+
+  const handleNationalIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNationalId(e.target.value)
   }
 
   return (
@@ -304,6 +310,21 @@ const CreateSupplier = () => {
               <FormHelperText error={!emailValid || emailError}>
                 {(!emailValid && commonStrings.EMAIL_NOT_VALID) || ''}
                 {(emailError && commonStrings.EMAIL_ALREADY_REGISTERED) || ''}
+              </FormHelperText>
+            </FormControl>
+
+            <FormControl fullWidth margin="dense">
+              <InputLabel className="required">{commonStrings.NATIONAL_ID}</InputLabel>
+              <Input
+                id="national-id"
+                type="text"
+                onChange={handleNationalIdChange}
+                autoComplete="off"
+                value={nationalId}
+                required
+              />
+              <FormHelperText>
+                {commonStrings.NATIONAL_ID_INFO}
               </FormHelperText>
             </FormControl>
 

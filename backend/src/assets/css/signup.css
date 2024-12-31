@@ -30,7 +30,7 @@ div.signup {
 @media only screen and (width <=960px) {
   .signup-form {
     width: 350px;
-    height: 730px;
+    height: 800px;
     padding: 30px;
   }
 
@@ -45,7 +45,7 @@ div.signup {
 @media only screen and (width >=960px) {
   .signup-form {
     width: 550px;
-    height: 610px;
+    height: 680px;
     padding: 30px;
   }
 

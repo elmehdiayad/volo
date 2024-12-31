@@ -52,6 +52,7 @@ const _signup = async (req: Request, res: Response, userType: bookcarsTypes.User
   let user: env.User
   try {
     body.email = helper.trim(body.email, ' ')
+    body.nationalId = helper.trim(body.nationalId, ' ')
     body.active = true
     body.verified = false
     body.blacklisted = false
@@ -511,6 +512,7 @@ export const signin = async (req: Request, res: Response) => {
       const loggedUser: bookcarsTypes.User = {
         _id: user.id,
         email: user.email,
+        nationalId: user.nationalId,
         fullName: user.fullName,
         language: user.language,
         enableEmailNotifications: user.enableEmailNotifications,
@@ -631,6 +633,7 @@ export const socialSignin = async (req: Request, res: Response) => {
     const loggedUser: bookcarsTypes.User = {
       _id: user.id,
       email: user.email,
+      nationalId: user.nationalId,
       fullName: user.fullName,
       language: user.language,
       enableEmailNotifications: user.enableEmailNotifications,
@@ -952,6 +955,7 @@ export const update = async (req: Request, res: Response) => {
 
     const {
       fullName,
+      nationalId,
       phone,
       bio,
       location,
@@ -971,6 +975,7 @@ export const update = async (req: Request, res: Response) => {
     user.bio = bio
     user.birthDate = birthDate ? new Date(birthDate) : undefined
     user.minimumRentalDays = minimumRentalDays
+    user.nationalId = nationalId
     if (type) {
       user.type = type as bookcarsTypes.UserType
     }

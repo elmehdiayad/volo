@@ -132,6 +132,11 @@ const userSchema = new Schema<env.User>(
       type: Date,
       index: { name: USER_EXPIRE_AT_INDEX_NAME, expireAfterSeconds: env.USER_EXPIRE_AT, background: true },
     },
+    nationalId: {
+      type: String,
+      required: [true, "can't be blank"],
+      trim: true,
+    },
   },
   {
     timestamps: true,

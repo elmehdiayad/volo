@@ -60,6 +60,7 @@ const UpdateUser = () => {
   const [payLater, setPayLater] = useState(false)
   const [licenseRequired, setLicenseRequired] = useState(true)
   const [minimumRentalDays, setMinimumRentalDays] = useState('')
+  const [nationalId, setNationalId] = useState('')
 
   const validateFullName = async (_fullName: string, strict = true) => {
     const __fullName = _fullName || fullName
@@ -206,6 +207,10 @@ const UpdateUser = () => {
     }
   }
 
+  const handleNationalIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNationalId(e.target.value)
+  }
+
   const onLoad = async (_loggedUser?: bookcarsTypes.User) => {
     if (_loggedUser && _loggedUser.verified) {
       setLoading(true)
@@ -232,6 +237,7 @@ const UpdateUser = () => {
               setPayLater(_user.payLater || false)
               setLicenseRequired(_user.licenseRequired || false)
               setMinimumRentalDays(_user.minimumRentalDays?.toString() || '')
+              setNationalId(_user.nationalId || '')
               setVisible(true)
               setLoading(false)
             } else {
@@ -300,6 +306,7 @@ const UpdateUser = () => {
         type,
         avatar,
         birthDate,
+        nationalId,
         minimumRentalDays: minimumRentalDays ? Number(minimumRentalDays) : undefined,
       }
 
@@ -452,6 +459,21 @@ const UpdateUser = () => {
                   </FormControl>
                 </>
               )}
+
+              <FormControl fullWidth margin="dense">
+                <InputLabel className="required">{commonStrings.NATIONAL_ID}</InputLabel>
+                <Input
+                  id="national-id"
+                  type="text"
+                  onChange={handleNationalIdChange}
+                  autoComplete="off"
+                  value={nationalId}
+                  required
+                />
+                <FormHelperText>
+                  {commonStrings.NATIONAL_ID_INFO}
+                </FormHelperText>
+              </FormControl>
 
               <div className="info">
                 <InfoIcon />

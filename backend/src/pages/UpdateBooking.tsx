@@ -31,6 +31,7 @@ import { strings } from '@/lang/booking'
 import * as helper from '@/common/helper'
 import Layout from '@/components/Layout'
 import * as UserService from '@/services/UserService'
+import * as ContractService from '@/services/ContractService'
 import * as BookingService from '@/services/BookingService'
 import * as CarService from '@/services/CarService'
 import Backdrop from '@/components/SimpleBackdrop'
@@ -84,6 +85,7 @@ const UpdateBooking = () => {
   const [language, setLanguage] = useState(env.DEFAULT_LANGUAGE)
   const [fromError, setFromError] = useState(false)
   const [toError, setToError] = useState(false)
+  const [generatingContract, setGeneratingContract] = useState(false)
 
   const handleSupplierChange = (values: bookcarsTypes.Option[]) => {
     setSupplier(values.length > 0 ? values[0] : undefined)
@@ -301,6 +303,31 @@ const UpdateBooking = () => {
     }
   }
 
+  const handleGenerateContract = async () => {
+    if (booking && booking._id) {
+      try {
+        setGeneratingContract(true)
+        const response = await ContractService.generateContract(booking._id)
+        setGeneratingContract(false)
+        if (response) {
+          const url = window.URL.createObjectURL(response)
+          const a = document.createElement('a')
+          a.href = url
+          a.download = 'contract.pdf'
+          a.click()
+          window.URL.revokeObjectURL(url)
+        } else {
+          toastErr()
+        }
+      } catch (err) {
+        setGeneratingContract(false)
+        helper.error(err)
+      }
+    } else {
+      helper.error()
+    }
+  }
+
   const _validateEmail = (email: string) => {
     if (email) {
       if (validator.isEmail(email)) {
@@ -447,7 +474,7 @@ const UpdateBooking = () => {
               if (!helper.admin(_user) && (_booking.supplier as bookcarsTypes.User)._id !== _user._id) {
                 setLoading(false)
                 setNoMatch(true)
-                  return
+                return
               }
 
               if (!_booking.driver) {
@@ -816,6 +843,16 @@ const UpdateBooking = () => {
 
               <div>
                 <div className="buttons">
+                  <Button
+                    variant="contained"
+                    className="btn-margin-bottom"
+                    color="info"
+                    size="small"
+                    onClick={handleGenerateContract}
+                    disabled={generatingContract}
+                  >
+                    {commonStrings.CONTRACT}
+                  </Button>
                   <Button variant="contained" className="btn-primary btn-margin-bottom" size="small" type="submit">
                     {commonStrings.SAVE}
                   </Button>
@@ -865,6 +902,7 @@ const UpdateBooking = () => {
       {loading && <Backdrop text={commonStrings.PLEASE_WAIT} />}
       {noMatch && <NoMatch hideHeader />}
       {error && <Error />}
+      {generatingContract && <Backdrop text={commonStrings.PLEASE_WAIT} />}
     </Layout>
   )
 }

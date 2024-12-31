@@ -59,6 +59,7 @@ const CreateUser = () => {
   const [birthDateValid, setBirthDateValid] = useState(true)
   const [minimumRentalDays, setMinimumRentalDays] = useState('')
   const [license, setLicense] = useState<string | undefined>()
+  const [nationalId, setNationalId] = useState('')
 
   const handleFullNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFullName(e.target.value)
@@ -244,6 +245,10 @@ const CreateUser = () => {
     }
   }
 
+  const handleNationalIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNationalId(e.target.value)
+  }
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     try {
       e.preventDefault()
@@ -300,6 +305,7 @@ const CreateUser = () => {
         supplier,
         minimumRentalDays: minimumRentalDays ? Number(minimumRentalDays) : undefined,
         license,
+        nationalId,
       }
 
       if (type === bookcarsTypes.RecordType.Supplier) {
@@ -375,6 +381,21 @@ const CreateUser = () => {
                 <FormHelperText error={!emailValid || emailError}>
                   {(!emailValid && commonStrings.EMAIL_NOT_VALID) || ''}
                   {(emailError && commonStrings.EMAIL_ALREADY_REGISTERED) || ''}
+                </FormHelperText>
+              </FormControl>
+
+              <FormControl fullWidth margin="dense">
+                <InputLabel className="required">{commonStrings.NATIONAL_ID}</InputLabel>
+                <Input
+                  id="national-id"
+                  type="text"
+                  onChange={handleNationalIdChange}
+                  autoComplete="off"
+                  value={nationalId}
+                  required
+                />
+                <FormHelperText>
+                  {commonStrings.NATIONAL_ID_INFO}
                 </FormHelperText>
               </FormControl>
 

@@ -33,6 +33,7 @@ const SignUp = () => {
   const [visible, setVisible] = useState(false)
   const [loading, setLoading] = useState(false)
   const [emailValid, setEmailValid] = useState(true)
+  const [nationalId, setNationalId] = useState('')
 
   const handleFullNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFullName(e.target.value)
@@ -53,6 +54,10 @@ const SignUp = () => {
 
   const handleConfirmPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setConfirmPassword(e.target.value)
+  }
+
+  const handleNationalIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNationalId(e.target.value)
   }
 
   const validateEmail = async (_email?: string) => {
@@ -120,6 +125,7 @@ const SignUp = () => {
         email,
         password,
         fullName,
+        nationalId,
         language: UserService.getLanguage(),
       }
 
@@ -216,6 +222,20 @@ const SignUp = () => {
                     },
                   }}
                 />
+              </FormControl>
+              <FormControl fullWidth margin="dense">
+                <InputLabel htmlFor="national-id">{commonStrings.NATIONAL_ID}</InputLabel>
+                <Input
+                  id="national-id"
+                  type="text"
+                  name="NationalId"
+                  required
+                  onChange={handleNationalIdChange}
+                  autoComplete="off"
+                />
+                <FormHelperText>
+                  {commonStrings.NATIONAL_ID_INFO}
+                </FormHelperText>
               </FormControl>
               <div className="buttons">
                 <Button type="submit" variant="contained" className="btn-primary btn-margin-bottom" size="small">
