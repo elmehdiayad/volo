@@ -25,6 +25,7 @@ import { strings } from '@/lang/supplier-list'
 import * as SupplierService from '@/services/SupplierService'
 import * as helper from '@/common/helper'
 import Pager from './Pager'
+import * as UserService from '@/services/UserService'
 
 import '@/assets/css/supplier-list.css'
 
@@ -56,8 +57,11 @@ const SupplierList = ({
   const fetchData = async (_page: number, _keyword?: string) => {
     try {
       setLoading(true)
+      const payload: bookcarsTypes.GetSuppliersBody = {
+        user: (user && user._id) || '',
 
-      const data = await SupplierService.getSuppliers(_keyword || '', _page, env.PAGE_SIZE)
+      }
+      const data = await SupplierService.getSuppliers(payload, _keyword || '', _page, env.PAGE_SIZE)
       const _data = data && data.length > 0 ? data[0] : { pageInfo: { totalRecord: 0 }, resultData: [] }
       if (!_data) {
         helper.error()

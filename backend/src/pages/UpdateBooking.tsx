@@ -86,6 +86,7 @@ const UpdateBooking = () => {
   const [fromError, setFromError] = useState(false)
   const [toError, setToError] = useState(false)
   const [generatingContract, setGeneratingContract] = useState(false)
+  const [nationalId, setNationalId] = useState('')
 
   const handleSupplierChange = (values: bookcarsTypes.Option[]) => {
     setSupplier(values.length > 0 ? values[0] : undefined)
@@ -415,6 +416,7 @@ const UpdateBooking = () => {
         fullInsurance,
         additionalDriver: additionalDriverSet,
         price,
+        nationalId,
       }
 
       let payload: bookcarsTypes.UpsertBookingPayload
@@ -533,6 +535,7 @@ const UpdateBooking = () => {
                 setAdditionalDriverPhone(_additionalDriver.phone)
                 setAdditionalDriverBirthDate(new Date(_additionalDriver.birthDate))
               }
+              setNationalId(_booking.nationalId || '')
             } else {
               setLoading(false)
               setNoMatch(true)
@@ -840,6 +843,19 @@ const UpdateBooking = () => {
                   </FormControl>
                 </>
               )}
+
+              <FormControl fullWidth margin="dense">
+                <InputLabel>{commonStrings.NATIONAL_ID}</InputLabel>
+                <Input
+                  type="text"
+                  required
+                  value={nationalId}
+                  onChange={(e) => {
+                    setNationalId(e.target.value)
+                  }}
+                  autoComplete="off"
+                />
+              </FormControl>
 
               <div>
                 <div className="buttons">

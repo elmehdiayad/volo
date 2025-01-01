@@ -229,15 +229,24 @@ export const getSuppliers = async (req: Request, res: Response) => {
     const size = Number.parseInt(req.params.size, 10)
     const keyword = escapeStringRegexp(String(req.query.s || ''))
     const options = 'i'
+    const { body }: { body: bookcarsTypes.GetSuppliersBody } = req
+    const { user: userId } = body
+    const matchQuery: any = {
+      type: bookcarsTypes.UserType.Supplier,
+      avatar: { $ne: null },
+      fullName: { $regex: keyword, $options: options },
+    }
+    if (userId) {
+      const currentUser = await User.findById(userId)
+      if (currentUser?.type === bookcarsTypes.UserType.Supplier) {
+        matchQuery._id = new mongoose.Types.ObjectId(userId)
+      }
+    }
 
     const data = await User.aggregate(
       [
         {
-          $match: {
-            type: bookcarsTypes.UserType.Supplier,
-            avatar: { $ne: null },
-            fullName: { $regex: keyword, $options: options },
-          },
+          $match: matchQuery,
         },
         {
           $facet: {
@@ -276,9 +285,22 @@ export const getSuppliers = async (req: Request, res: Response) => {
  */
 export const getAllSuppliers = async (req: Request, res: Response) => {
   try {
+    const { user: userId } = req.body
+
+    const currentUser = await User.findById(userId)
+
+    const matchQuery: any = {
+      type: bookcarsTypes.UserType.Supplier,
+      avatar: { $ne: null },
+    }
+
+    if (currentUser?.type === bookcarsTypes.UserType.Supplier) {
+      matchQuery._id = new mongoose.Types.ObjectId(userId)
+    }
+
     let data = await User.aggregate(
       [
-        { $match: { type: bookcarsTypes.UserType.Supplier, avatar: { $ne: null } } },
+        { $match: matchQuery },
         { $sort: { fullName: 1, _id: 1 } },
       ],
       { collation: { locale: env.DEFAULT_LANGUAGE, strength: 2 } },

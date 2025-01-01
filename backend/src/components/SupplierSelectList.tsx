@@ -50,7 +50,11 @@ const SupplierSelectList = ({
   const fetchData = async (_page: number, _keyword: string, onFetch?: (data: { rows: any[], rowCount: number }) => void) => {
     try {
       setLoading(true)
-      const data = await SupplierService.getSuppliers(_keyword, _page, env.PAGE_SIZE)
+      const payload: bookcarsTypes.GetSuppliersBody = {
+        user: '',
+
+      }
+      const data = await SupplierService.getSuppliers(payload, _keyword || '', _page, env.PAGE_SIZE)
       const _data = data && data.length > 0 ? data[0] : { pageInfo: { totalRecord: 0 }, resultData: [] }
       if (!_data) {
         helper.error()

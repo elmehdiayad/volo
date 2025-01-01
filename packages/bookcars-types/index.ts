@@ -490,6 +490,11 @@ export interface GetUsersBody {
   types: UserType[]
 }
 
+
+export interface GetSuppliersBody {
+  user: string
+}
+
 export interface CreatePaymentPayload {
   amount: number
   /**
@@ -558,4 +563,15 @@ export interface CarOptions {
   collisionDamageWaiver?: boolean
   fullInsurance?: boolean
   additionalDriver?: boolean
+}
+
+
+export interface LicenseExtractedData {
+  documentType: string | null
+  fullName: string | null
+  dateOfBirth: string | null
+  placeOfBirth: string | null
+  documentNumber: string | null
+  expiryDate: string | null
+  nationalId: string | null
 }

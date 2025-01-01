@@ -496,7 +496,7 @@ export const deleteUsers = (ids: string[]): Promise<number> => (
 * @param {Blob} file
 * @returns {Promise<string>}
 */
-export const createLicense = (file: Blob): Promise<string> => {
+export const createLicense = (file: Blob): Promise<{ filename: string, extractedInfo?: bookcarsTypes.LicenseExtractedData }> => {
   const formData = new FormData()
   formData.append('file', file)
 
@@ -566,3 +566,64 @@ export const deleteTempLicense = (file: string): Promise<number> =>
       { withCredentials: true }
     )
     .then((res) => res.status)
+
+export const createDocument = (file: Blob, type: string): Promise<{ filename: string }> => {
+  const formData = new FormData()
+  formData.append('file', file)
+  formData.append('type', type)
+
+  return axiosInstance
+    .post(
+      '/api/create-document',
+      formData,
+      {
+        withCredentials: true,
+        headers: { 'Content-Type': 'multipart/form-data' }
+      },
+    )
+    .then((res) => res.data)
+}
+
+export const updateDocument = (userId: string, file: Blob, type: string): Promise<bookcarsTypes.Response<string>> => {
+  const formData = new FormData()
+  formData.append('file', file)
+  formData.append('type', type)
+
+  return axiosInstance
+    .post(
+      `/api/update-document/${userId}`,
+      formData,
+      {
+        withCredentials: true,
+        headers: { 'Content-Type': 'multipart/form-data' }
+      },
+    )
+    .then((res) => ({ status: res.status, data: res.data }))
+}
+
+export const deleteDocument = (userId: string, type: string): Promise<number> =>
+  axiosInstance
+    .post(
+      `/api/delete-document/${userId}/${type}`,
+      null,
+      { withCredentials: true }
+    )
+    .then((res) => res.status)
+
+export const deleteTempDocument = (filename: string, type: string): Promise<number> =>
+  axiosInstance
+    .post(
+      `/api/delete-temp-document/${encodeURIComponent(filename)}/${type}`,
+      null,
+      { withCredentials: true }
+    )
+    .then((res) => res.status)
+
+export const createCollage = (filenames: string[]): Promise<{ filename: string, extractedInfo?: bookcarsTypes.LicenseExtractedData }> =>
+  axiosInstance
+    .post(
+      '/api/create-collage',
+      { filenames },
+      { withCredentials: true }
+    )
+    .then((res) => res.data)

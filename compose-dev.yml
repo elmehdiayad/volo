@@ -32,6 +32,8 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: admin123
     ports:
       - 27017:27017
+    volumes:
+      - data:/data/db
 
   backend:
     build: 
@@ -52,3 +54,4 @@ services:
 
 volumes:
   cdn:
+  data:

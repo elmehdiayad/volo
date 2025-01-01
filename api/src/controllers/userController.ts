@@ -22,6 +22,7 @@ import NotificationCounter from '../models/NotificationCounter'
 import Car from '../models/Car'
 import AdditionalDriver from '../models/AdditionalDriver'
 import * as logger from '../common/logger'
+import * as ocrHelper from '../common/ocrHelper'
 
 /**
  * Get status message as HTML.
@@ -213,7 +214,6 @@ export const create = async (req: Request, res: Response) => {
       if (await helper.exists(license)) {
         const filename = `${user._id}${path.extname(body.license)}`
         const newPath = path.join(env.CDN_LICENSES, filename)
-
         await fs.rename(license, newPath)
         user.license = filename
         await user.save()
@@ -1388,7 +1388,15 @@ export const getUsers = async (req: Request, res: Response) => {
     }
 
     if (userId) {
-      $match.$and!.push({ _id: { $ne: new mongoose.Types.ObjectId(userId) } })
+      const currentUser = await User.findById(userId)
+      if (currentUser) {
+        $match.$and!.push({ _id: { $ne: new mongoose.Types.ObjectId(userId) } })
+
+        // Add supplier filter if user is a supplier
+        if (currentUser.type === bookcarsTypes.UserType.Supplier) {
+          $match.$and!.push({ supplier: new mongoose.Types.ObjectId(userId) })
+        }
+      }
     }
 
     const users = await User.aggregate(
@@ -1626,7 +1634,15 @@ export const createLicense = async (req: Request, res: Response) => {
     const filepath = path.join(env.CDN_TEMP_LICENSES, filename)
 
     await fs.writeFile(filepath, req.file.buffer)
-    return res.json(filename)
+
+    // Process the image with OCR using the helper
+    const extractedInfo = await ocrHelper.extractInformationFromCollage([req.file.buffer])
+
+    // Return both the filename and extracted information
+    return res.json({
+      filename,
+      extractedInfo,
+    })
   } catch (err) {
     logger.error(`[user.createLicense] ${i18n.t('DB_ERROR')}`, err)
     return res.status(400).send(i18n.t('ERROR') + err)
@@ -1672,9 +1688,17 @@ export const updateLicense = async (req: Request, res: Response) => {
 
       await fs.writeFile(filepath, file.buffer)
 
+      // Process the image with OCR using the helper
+      const extractedInfo = await ocrHelper.extractInformationFromCollage([file.buffer])
+
       user.license = filename
       await user.save()
-      return res.json(filename)
+
+      // Return both the filename and extracted information
+      return res.json({
+        filename,
+        extractedInfo,
+      })
     }
 
     return res.sendStatus(204)
@@ -1747,5 +1771,96 @@ export const deleteTempLicense = async (req: Request, res: Response) => {
   } catch (err) {
     logger.error(`[user.deleteTempLicense] ${i18n.t('DB_ERROR')} ${file}`, err)
     res.status(400).send(i18n.t('ERROR') + err)
+  }
+}
+
+export const createDocument = async (req: Request, res: Response) => {
+  try {
+    if (!req.file) {
+      throw new Error('req.file not found')
+    }
+
+    const filename = `${nanoid()}${path.extname(req.file.originalname)}`
+    const filepath = path.join(env.CDN_TEMP_DOCUMENTS, filename)
+
+    await fs.writeFile(filepath, req.file.buffer)
+    return res.json({ filename })
+  } catch (err) {
+    logger.error(`[user.createDocument] ${i18n.t('DB_ERROR')}`, err)
+    return res.status(400).send(i18n.t('ERROR') + err)
+  }
+}
+
+export const createCollage = async (req: Request, res: Response) => {
+  try {
+    const { filenames } = req.body
+    const buffers = await Promise.all(
+      filenames.map(async (filename: string) => {
+        const filepath = path.join(env.CDN_TEMP_DOCUMENTS, filename)
+        return fs.readFile(filepath)
+      }),
+    )
+
+    const extractedInfo = await ocrHelper.extractInformationFromCollage(buffers)
+    return res.json(extractedInfo)
+  } catch (err) {
+    logger.error(`[user.createCollage] ${i18n.t('DB_ERROR')}`, err)
+    return res.status(400).send(i18n.t('ERROR') + err)
+  }
+}
+
+export const updateDocument = async (req: Request, res: Response) => {
+  const { userId } = req.params
+  try {
+    if (!req.file) {
+      throw new Error('req.file not found')
+    }
+
+    const user = await User.findById(userId)
+    if (!user) {
+      return res.sendStatus(204)
+    }
+
+    const filename = `${user._id}_${Date.now()}${path.extname(req.file.originalname)}`
+    const filepath = path.join(env.CDN_DOCUMENTS, filename)
+
+    await fs.writeFile(filepath, req.file.buffer)
+    return res.json({ filename })
+  } catch (err) {
+    logger.error(`[user.updateDocument] ${i18n.t('DB_ERROR')}`, err)
+    return res.status(400).send(i18n.t('ERROR') + err)
+  }
+}
+
+export const deleteDocument = async (req: Request, res: Response) => {
+  const { userId, type } = req.params
+  try {
+    const user = await User.findById(userId)
+    if (!user) {
+      return res.sendStatus(204)
+    }
+
+    const filepath = path.join(env.CDN_DOCUMENTS, `${user._id}_${type}`)
+    if (await helper.exists(filepath)) {
+      await fs.unlink(filepath)
+    }
+    return res.sendStatus(200)
+  } catch (err) {
+    logger.error(`[user.deleteDocument] ${i18n.t('DB_ERROR')}`, err)
+    return res.status(400).send(i18n.t('ERROR') + err)
+  }
+}
+
+export const deleteTempDocument = async (req: Request, res: Response) => {
+  const { filename } = req.params
+  try {
+    const filepath = path.join(env.CDN_TEMP_DOCUMENTS, filename)
+    if (await helper.exists(filepath)) {
+      await fs.unlink(filepath)
+    }
+    return res.sendStatus(200)
+  } catch (err) {
+    logger.error(`[user.deleteTempDocument] ${i18n.t('DB_ERROR')}`, err)
+    return res.status(400).send(i18n.t('ERROR') + err)
   }
 }

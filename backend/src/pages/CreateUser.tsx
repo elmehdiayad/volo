@@ -249,6 +249,27 @@ const CreateUser = () => {
     setNationalId(e.target.value)
   }
 
+  const handleLicenseUpload = async (filename: string, extractedInfo?: bookcarsTypes.LicenseExtractedData) => {
+    setLicense(filename)
+    // Set fields from extracted data if available
+    if (extractedInfo) {
+      console.log(extractedInfo)
+      if (extractedInfo.fullName && !fullName) {
+        setFullName(extractedInfo.fullName)
+      }
+      if (extractedInfo.nationalId && !nationalId) {
+        setNationalId(extractedInfo.nationalId)
+      }
+      if (extractedInfo.dateOfBirth && !birthDate) {
+        const parsedDate = new Date(extractedInfo.dateOfBirth)
+        if (!isNaN(parsedDate.getTime())) {
+          setBirthDate(parsedDate)
+          validateBirthDate(parsedDate)
+        }
+      }
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     try {
       e.preventDefault()
@@ -339,7 +360,7 @@ const CreateUser = () => {
               {' '}
             </h1>
             <form onSubmit={handleSubmit}>
-              <Avatar
+              {supplier && (<><Avatar
                 type={type}
                 mode="create"
                 record={null}
@@ -348,14 +369,10 @@ const CreateUser = () => {
                 onBeforeUpload={onBeforeUpload}
                 onChange={onAvatarChange}
                 color="disabled"
-                className="avatar-ctn"
-              />
-
-              {supplier && (
-                <div className="info">
+                className="avatar-ctn" /><div className="info">
                   <InfoIcon />
                   <span>{ccStrings.RECOMMENDED_IMAGE_SIZE}</span>
-                </div>
+                </div></>
               )}
 
               {admin && (
@@ -369,9 +386,18 @@ const CreateUser = () => {
                 </FormControl>
               )}
 
+              {driver &&
+                <DriverLicense
+                  className="driver-license-field"
+                  onUpload={(filename: string, extractedInfo?: bookcarsTypes.LicenseExtractedData) => {
+                    console.log(extractedInfo)
+                    handleLicenseUpload(filename, extractedInfo)
+                  }}
+                />}
+
               <FormControl fullWidth margin="dense">
                 <InputLabel className="required">{commonStrings.FULL_NAME}</InputLabel>
-                <Input id="full-name" type="text" error={fullNameError} required onBlur={handleFullNameBlur} onChange={handleFullNameChange} autoComplete="off" />
+                <Input id="full-name" type="text" value={fullName} error={fullNameError} required onBlur={handleFullNameBlur} onChange={handleFullNameChange} autoComplete="off" />
                 <FormHelperText error={fullNameError}>{(fullNameError && ccStrings.INVALID_SUPPLIER_NAME) || ''}</FormHelperText>
               </FormControl>
 
@@ -418,13 +444,6 @@ const CreateUser = () => {
                     />
                     <FormHelperText error={!birthDateValid}>{(!birthDateValid && commonStrings.BIRTH_DATE_NOT_VALID) || ''}</FormHelperText>
                   </FormControl>
-
-                  <DriverLicense
-                    className="driver-license-field"
-                    onUpload={(filename: string) => {
-                      setLicense(filename)
-                    }}
-                  />
                 </>
               )}
 

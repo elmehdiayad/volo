@@ -90,6 +90,10 @@ const strings = new LocalizedStrings({
     UPLOAD_DRIVER_LICENSE: 'Charger le permis de conduire...',
     NATIONAL_ID: 'Carte nationale ou passeport',
     NATIONAL_ID_INFO: 'Numéro de carte nationale ou de passeport',
+    LICENSE_RECTO: 'Permis de conduire (recto)',
+    LICENSE_VERSO: 'Permis de conduire (verso)',
+    ID_RECTO: "Pièce d'identité (recto)",
+    ID_VERSO: "Pièce d'identité (verso)",
   },
   en: {
     GENERIC_ERROR: 'An unhandled error occurred.',
@@ -178,6 +182,10 @@ const strings = new LocalizedStrings({
     UPLOAD_DRIVER_LICENSE: "Upload driver's license...",
     NATIONAL_ID: 'National ID or passport',
     NATIONAL_ID_INFO: 'National ID or passport number',
+    LICENSE_RECTO: "Driver's License (front)",
+    LICENSE_VERSO: "Driver's License (back)", 
+    ID_RECTO: 'ID Card (front)',
+    ID_VERSO: 'ID Card (back)',
   },
   es: {
     GENERIC_ERROR: 'Se ha producido un error no controlado.',

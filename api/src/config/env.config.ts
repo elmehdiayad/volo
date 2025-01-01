@@ -374,6 +374,13 @@ export const ADMIN_EMAIL = __env__('BC_ADMIN_EMAIL', false)
 export const RECAPTCHA_SECRET = __env__('BC_RECAPTCHA_SECRET', false)
 
 /**
+ * Open AI API Key.
+ *
+ * @type {string}
+ */
+export const OPENAI_API_KEY = __env__('BC_OPENAI_API_KEY', false)
+
+/**
  * User Document.
  *
  * @export
@@ -735,3 +742,6 @@ export interface Token extends Document {
   token: string
   expireAt?: Date
 }
+
+export const CDN_DOCUMENTS = process.env.BC_CDN_DOCUMENTS || '/var/www/cdn/bookcars/temp/licenses'
+export const CDN_TEMP_DOCUMENTS = process.env.BC_CDN_TEMP_DOCUMENTS || '/var/www/cdn/bookcars/temp/licenses'
