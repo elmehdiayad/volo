@@ -139,7 +139,7 @@ const DriverLicense = ({
                     <IconButton
                       size="small"
                       onClick={() => {
-                        const url = `${bookcarsHelper.trimEnd(user ? env.CDN_DOCUMENTS : env.CDN_TEMP_DOCUMENTS, '/')}/${images[doc.key]}`
+                        const url = `${bookcarsHelper.trimEnd(user ? env.CDN_LICENSES : env.CDN_TEMP_LICENSES, '/')}/${images[doc.key]}`
                         console.log(url);
                         helper.downloadURI(url)
                       }}

@@ -65,8 +65,6 @@ const env = {
   DEPOSIT_FILTER_VALUE_1: Number.parseInt(String(import.meta.env.VITE_BC_DEPOSIT_FILTER_VALUE_1), 10),
   DEPOSIT_FILTER_VALUE_2: Number.parseInt(String(import.meta.env.VITE_BC_DEPOSIT_FILTER_VALUE_2), 10),
   DEPOSIT_FILTER_VALUE_3: Number.parseInt(String(import.meta.env.VITE_BC_DEPOSIT_FILTER_VALUE_3), 10),
-  CDN_DOCUMENTS: 'http://localhost/cdn/bookcars/licenses',
-  CDN_TEMP_DOCUMENTS: 'http://localhost/cdn/bookcars/temp/licenses',
 }
 
 export default env

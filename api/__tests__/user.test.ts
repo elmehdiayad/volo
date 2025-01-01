@@ -85,6 +85,7 @@ describe('POST /api/sign-up', () => {
       birthDate: new Date(1992, 5, 25),
       phone: '09090909',
       avatar: AVATAR1,
+      nationalId: 'GHI789',
     }
     let res = await request(app)
       .post('/api/sign-up')
@@ -143,6 +144,7 @@ describe('POST /api/admin-sign-up', () => {
       language: testHelper.LANGUAGE,
       birthDate: new Date(1992, 5, 25),
       phone: '09090909',
+      nationalId: 'JKL012',
     }
     const res = await request(app)
       .post('/api/admin-sign-up')
@@ -200,6 +202,7 @@ describe('POST /api/create-user', () => {
       avatar: AVATAR1,
       license: LICENSE1,
       contracts,
+      nationalId: 'JKL012',
     }
     let res = await request(app)
       .post('/api/create-user')
@@ -237,6 +240,7 @@ describe('POST /api/create-user', () => {
       avatar: AVATAR1,
       type: bookcarsTypes.UserType.Supplier,
       licenseRequired: true,
+      nationalId: 'JKL012',
     }
     res = await request(app)
       .post('/api/create-user')
@@ -271,6 +275,7 @@ describe('POST /api/create-user', () => {
       bio: 'bio',
       avatar: AVATAR1,
       type: bookcarsTypes.UserType.Admin,
+      nationalId: 'JKL012',
     }
     res = await request(app)
       .post('/api/create-user')
@@ -926,6 +931,7 @@ describe('POST /api/update-user', () => {
       payLater: false,
       minimumRentalDays: 3,
       licenseRequired: true,
+      nationalId: 'MNO345',
     }
     let res = await request(app)
       .post('/api/update-user')
@@ -1271,9 +1277,12 @@ describe('POST /api/delete-temp-avatar/:avatar', () => {
     res = await request(app)
       .post('/api/delete-temp-avatar/unknown.jpg')
       .set(env.X_ACCESS_TOKEN, token)
-    expect(res.statusCode).toBe(400)
+    expect(res.statusCode).toBe(200)
 
-    await testHelper.signout(token)
+    // test failure (temp file not valid)
+    res = await request(app)
+      .post('/api/delete-temp-avatar/unknown')
+    expect(res.statusCode).toBe(400)
   })
 })
 

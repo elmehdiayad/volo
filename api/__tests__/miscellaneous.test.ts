@@ -54,6 +54,7 @@ describe('Test User phone validation', () => {
       fullName: 'Additional Driver 1',
       birthDate: new Date(1990, 5, 20),
       phone: '',
+      nationalId: 'PQR678',
     }
 
     let userId = ''
