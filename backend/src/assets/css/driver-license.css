@@ -24,10 +24,20 @@ div.document-upload div.actions {
   div.document-upload .filename {
     width: 210px;
   }
-}
 
-@media only screen and (max-width: 600px) {
   .driver-documents .MuiBox-root {
     grid-template-columns: 1fr;
   }
+}
+
+.ReactCrop__crop-selection {
+  border: 2px solid #0696c1;
+}
+
+.ReactCrop__drag-handle::after {
+  background: #0696c1;
+}
+
+.ReactCrop__drag-handle {
+  border: 2px solid #0696c1;
 }
