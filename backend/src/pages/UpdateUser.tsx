@@ -32,7 +32,6 @@ import Error from '@/components/Error'
 import Backdrop from '@/components/SimpleBackdrop'
 import Avatar from '@/components/Avatar'
 import DatePicker from '@/components/DatePicker'
-import DriverLicense from '@/components/DriverLicense'
 
 import '@/assets/css/update-user.css'
 
@@ -61,6 +60,7 @@ const UpdateUser = () => {
   const [licenseRequired, setLicenseRequired] = useState(true)
   const [minimumRentalDays, setMinimumRentalDays] = useState('')
   const [nationalId, setNationalId] = useState('')
+  const [licenseId, setLicenseId] = useState('')
 
   const validateFullName = async (_fullName: string, strict = true) => {
     const __fullName = _fullName || fullName
@@ -211,6 +211,10 @@ const UpdateUser = () => {
     setNationalId(e.target.value)
   }
 
+  const handleLicenseIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLicenseId(e.target.value)
+  }
+
   const onLoad = async (_loggedUser?: bookcarsTypes.User) => {
     if (_loggedUser && _loggedUser.verified) {
       setLoading(true)
@@ -221,7 +225,7 @@ const UpdateUser = () => {
         if (id && id !== '') {
           try {
             const _user = await UserService.getUser(id)
-
+            console.log(_user)
             if (_user) {
               setLoggedUser(_loggedUser)
               setUser(_user)
@@ -238,6 +242,7 @@ const UpdateUser = () => {
               setLicenseRequired(_user.licenseRequired || false)
               setMinimumRentalDays(_user.minimumRentalDays?.toString() || '')
               setNationalId(_user.nationalId || '')
+              setLicenseId(_user.licenseId || '')
               setVisible(true)
               setLoading(false)
             } else {
@@ -307,6 +312,7 @@ const UpdateUser = () => {
         avatar,
         birthDate,
         nationalId,
+        licenseId,
         minimumRentalDays: minimumRentalDays ? Number(minimumRentalDays) : undefined,
       }
 
@@ -410,8 +416,6 @@ const UpdateUser = () => {
                     />
                     <FormHelperText error={!birthDateValid}>{(!birthDateValid && commonStrings.BIRTH_DATE_NOT_VALID) || ''}</FormHelperText>
                   </FormControl>
-
-                  <DriverLicense user={user} className="driver-license-field" />
                 </>
               )}
 
@@ -474,6 +478,23 @@ const UpdateUser = () => {
                   {commonStrings.NATIONAL_ID_INFO}
                 </FormHelperText>
               </FormControl>
+
+              {driver && (
+                <FormControl fullWidth margin="dense">
+                  <InputLabel className="required">{commonStrings.LICENSE_ID}</InputLabel>
+                  <Input
+                    id="license-id"
+                    type="text"
+                    onChange={handleLicenseIdChange}
+                    autoComplete="off"
+                    value={licenseId}
+                    required
+                  />
+                  <FormHelperText>
+                    {commonStrings.LICENSE_ID_INFO}
+                  </FormHelperText>
+                </FormControl>
+              )}
 
               <div className="info">
                 <InfoIcon />

@@ -134,8 +134,13 @@ const userSchema = new Schema<env.User>(
     },
     nationalId: {
       type: String,
-      required: [true, "can't be blank"],
+      required: false,
       trim: true,
+    },
+    licenseId: {
+      type: String,
+      required: false,
+      trime: true,
     },
   },
   {

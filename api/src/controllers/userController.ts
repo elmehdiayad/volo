@@ -170,6 +170,16 @@ export const create = async (req: Request, res: Response) => {
       body.password = passwordHash
     }
 
+    // Handle licenseId for driver type
+    if (body.type === bookcarsTypes.UserType.User && body.licenseId) {
+      body.licenseId = helper.trim(body.licenseId, ' ')
+    }
+
+    // Handle nationalId for driver type
+    if (body.type === bookcarsTypes.UserType.User && body.nationalId) {
+      body.nationalId = helper.trim(body.nationalId, ' ')
+    }
+
     const { contracts } = body
     body.contracts = undefined
 
@@ -250,7 +260,7 @@ export const create = async (req: Request, res: Response) => {
     await mailHelper.sendMail(mailOptions)
     return res.sendStatus(200)
   } catch (err) {
-    logger.error(`[user.create] ${i18n.t('DB_ERROR')} ${JSON.stringify(body)}`, err)
+    logger.error(`[user.create] ${i18n.t('DB_ERROR')} ${JSON.stringify(req.body)}`, err)
     return res.status(400).send(i18n.t('DB_ERROR') + err)
   }
 }
@@ -965,7 +975,7 @@ export const update = async (req: Request, res: Response) => {
       payLater,
       licenseRequired,
       minimumRentalDays,
-    } = body
+      licenseId } = body
 
     if (fullName) {
       user.fullName = fullName
@@ -976,6 +986,16 @@ export const update = async (req: Request, res: Response) => {
     user.birthDate = birthDate ? new Date(birthDate) : undefined
     user.minimumRentalDays = minimumRentalDays
     user.nationalId = nationalId
+
+    // Handle licenseId update for driver type
+    if (type === bookcarsTypes.UserType.User && licenseId) {
+      user.licenseId = helper.trim(licenseId, ' ')
+    }
+
+    if (type === bookcarsTypes.UserType.User && nationalId) {
+      user.nationalId = helper.trim(nationalId, ' ')
+    }
+
     if (type) {
       user.type = type as bookcarsTypes.UserType
     }
@@ -1103,6 +1123,7 @@ export const getUser = async (req: Request, res: Response) => {
       license: 1,
       minimumRentalDays: 1,
       nationalId: 1,
+      licenseId: 1,
     }).lean()
 
     if (!user) {

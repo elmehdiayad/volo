@@ -94,6 +94,8 @@ const strings = new LocalizedStrings({
     LICENSE_VERSO: 'Permis de conduire (verso)',
     ID_RECTO: "Pièce d'identité (recto)",
     ID_VERSO: "Pièce d'identité (verso)",
+    LICENSE_ID: 'License ID',
+    LICENSE_ID_INFO: 'Enter your driver license ID',
   },
   en: {
     GENERIC_ERROR: 'An unhandled error occurred.',
@@ -186,6 +188,8 @@ const strings = new LocalizedStrings({
     LICENSE_VERSO: "Driver's License (back)", 
     ID_RECTO: 'ID Card (front)',
     ID_VERSO: 'ID Card (back)',
+    LICENSE_ID: 'License ID',
+    LICENSE_ID_INFO: 'Enter your driver license ID',
   },
   es: {
     GENERIC_ERROR: 'Se ha producido un error no controlado.',

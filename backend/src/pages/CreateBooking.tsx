@@ -68,7 +68,6 @@ const CreateBooking = () => {
   const [additionalDriverBirthDateValid, setAdditionalDriverBirthDateValid] = useState(true)
   const [fromError, setFromError] = useState(false)
   const [toError, setToError] = useState(false)
-  const [nationalId, setNationalId] = useState('')
 
   const handleSupplierChange = (values: bookcarsTypes.Option[]) => {
     setSupplier(values.length > 0 ? values[0]._id : '')
@@ -209,7 +208,6 @@ const CreateBooking = () => {
       collisionDamageWaiver,
       fullInsurance,
       additionalDriver: additionalDriverSet,
-      nationalId
     }
 
     let _additionalDriver: bookcarsTypes.AdditionalDriver
@@ -528,19 +526,6 @@ const CreateBooking = () => {
                 </FormControl>
               </>
             )}
-
-            <FormControl fullWidth margin="dense">
-              <InputLabel>{commonStrings.NATIONAL_ID}</InputLabel>
-              <Input
-                type="text"
-                required
-                onChange={(e) => {
-                  setNationalId(e.target.value)
-                }}
-                autoComplete="off"
-              />
-            </FormControl>
-
             <div>
               <div className="buttons">
                 <Button type="submit" variant="contained" className="btn-primary btn-margin-bottom" size="small">

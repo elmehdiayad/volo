@@ -46,4 +46,5 @@ export const en = {
   FROM: 'From',
   MESSAGE: 'Message',
   LOCATION_IMAGE_NOT_FOUND: 'Location image not found',
+  LICENSE_ID_REQUIRED: 'License ID is required for drivers',
 }

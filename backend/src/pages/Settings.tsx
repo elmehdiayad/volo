@@ -33,7 +33,6 @@ const Settings = () => {
   const [loading, setLoading] = useState(true)
   const [phoneValid, setPhoneValid] = useState(true)
   const [enableEmailNotifications, setEnableEmailNotifications] = useState(false)
-  const [nationalId, setNationalId] = useState('')
 
   const handleFullNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFullName(e.target.value)
@@ -65,10 +64,6 @@ const Settings = () => {
 
   const handleBioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setBio(e.target.value)
-  }
-
-  const handleNationalIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNationalId(e.target.value)
   }
 
   const handleEmailNotificationsChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -130,7 +125,6 @@ const Settings = () => {
         phone,
         location,
         bio,
-        nationalId,
       }
 
       const status = await UserService.updateUser(data)
@@ -153,7 +147,6 @@ const Settings = () => {
       setPhone(_user.phone || '')
       setLocation(_user.location || '')
       setBio(_user.bio || '')
-      setNationalId(_user.nationalId || '')
       setEnableEmailNotifications(_user.enableEmailNotifications || false)
       setVisible(true)
       setLoading(false)
@@ -198,16 +191,6 @@ const Settings = () => {
               <FormControl fullWidth margin="dense">
                 <InputLabel>{commonStrings.BIO}</InputLabel>
                 <Input id="bio" type="text" onChange={handleBioChange} autoComplete="off" value={bio} />
-              </FormControl>
-              <FormControl fullWidth margin="dense">
-                <InputLabel>{commonStrings.NATIONAL_ID}</InputLabel>
-                <Input 
-                  id="national-id" 
-                  type="text" 
-                  onChange={handleNationalIdChange} 
-                  autoComplete="off" 
-                  value={nationalId}
-                />
               </FormControl>
               <div className="buttons">
                 <Button variant="contained" className="btn-primary btn-margin btn-margin-bottom" size="small" href="/change-password">

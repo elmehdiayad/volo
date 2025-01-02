@@ -60,6 +60,7 @@ const CreateUser = () => {
   const [minimumRentalDays, setMinimumRentalDays] = useState('')
   const [license, setLicense] = useState<string | undefined>()
   const [nationalId, setNationalId] = useState('')
+  const [licenseId, setLicenseId] = useState('')
 
   const handleFullNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFullName(e.target.value)
@@ -253,12 +254,16 @@ const CreateUser = () => {
     setLicense(filename)
     // Set fields from extracted data if available
     if (extractedInfo) {
-      console.log(extractedInfo)
+
       if (extractedInfo.fullName && !fullName) {
         setFullName(extractedInfo.fullName)
       }
       if (extractedInfo.nationalId && !nationalId) {
         setNationalId(extractedInfo.nationalId)
+      }
+
+      if(extractedInfo.licenseId && !licenseId) {
+        setLicenseId(extractedInfo.licenseId)
       }
       if (extractedInfo.dateOfBirth && !birthDate) {
         const parsedDate = new Date(extractedInfo.dateOfBirth)
@@ -327,6 +332,7 @@ const CreateUser = () => {
         minimumRentalDays: minimumRentalDays ? Number(minimumRentalDays) : undefined,
         license,
         nationalId,
+        licenseId,
       }
 
       if (type === bookcarsTypes.RecordType.Supplier) {
@@ -344,6 +350,10 @@ const CreateUser = () => {
     } catch (err) {
       helper.error(err)
     }
+  }
+
+  const handleLicenseIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLicenseId(e.target.value)
   }
 
   const supplier = type === bookcarsTypes.RecordType.Supplier
@@ -410,20 +420,35 @@ const CreateUser = () => {
                 </FormHelperText>
               </FormControl>
 
-              <FormControl fullWidth margin="dense">
-                <InputLabel className="required">{commonStrings.NATIONAL_ID}</InputLabel>
-                <Input
-                  id="national-id"
-                  type="text"
-                  onChange={handleNationalIdChange}
-                  autoComplete="off"
-                  value={nationalId}
-                  required
-                />
-                <FormHelperText>
-                  {commonStrings.NATIONAL_ID_INFO}
-                </FormHelperText>
-              </FormControl>
+
+
+              {driver && (
+                <><FormControl fullWidth margin="dense">
+                  <InputLabel className="required">{commonStrings.NATIONAL_ID}</InputLabel>
+                  <Input
+                    id="national-id"
+                    type="text"
+                    onChange={handleNationalIdChange}
+                    autoComplete="off"
+                    value={nationalId}
+                    required />
+                  <FormHelperText>
+                    {commonStrings.NATIONAL_ID_INFO}
+                  </FormHelperText>
+                </FormControl><FormControl fullWidth margin="dense">
+                    <InputLabel className="required">{commonStrings.LICENSE_ID}</InputLabel>
+                    <Input
+                      id="license-id"
+                      type="text"
+                      onChange={handleLicenseIdChange}
+                      autoComplete="off"
+                      value={licenseId}
+                      required />
+                    <FormHelperText>
+                      {commonStrings.LICENSE_ID_INFO}
+                    </FormHelperText>
+                  </FormControl></>
+              )}
 
               {driver && (
                 <>

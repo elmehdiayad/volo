@@ -368,6 +368,62 @@ describe('POST /api/create-user', () => {
   })
 })
 
+describe('POST /api/create-user', () => {
+  it('should create a user with license ID', async () => {
+    const token = await testHelper.signinAsAdmin()
+
+    // test success with license ID
+    const licenseId = nanoid()
+    const email = testHelper.GetRandomEmail()
+    const payload = {
+      email,
+      fullName: 'Test Driver',
+      type: bookcarsTypes.UserType.User,
+      licenseId,
+      password: 'password',
+    }
+
+    const res = await request(app)
+      .post('/api/create-user')
+      .set(env.X_ACCESS_TOKEN, token)
+      .send(payload)
+    expect(res.statusCode).toBe(200)
+
+    const user = await User.findOne({ email })
+    expect(user).not.toBeNull()
+    expect(user?.licenseId).toBe(licenseId)
+    await user?.deleteOne()
+
+    await testHelper.signout(token)
+  })
+})
+
+describe('POST /api/update-user', () => {
+  it('should update user with license ID', async () => {
+    const token = await testHelper.signinAsAdmin()
+
+    // test success updating license ID
+    const licenseId = nanoid()
+    const payload = {
+      _id: USER1_ID,
+      type: bookcarsTypes.UserType.User,
+      licenseId,
+    }
+
+    const res = await request(app)
+      .post('/api/update-user')
+      .set(env.X_ACCESS_TOKEN, token)
+      .send(payload)
+    expect(res.statusCode).toBe(200)
+
+    const user = await User.findById(USER1_ID)
+    expect(user).not.toBeNull()
+    expect(user?.licenseId).toBe(licenseId)
+
+    await testHelper.signout(token)
+  })
+})
+
 describe('GET /api/check-token/:type/:userId/:email/:token', () => {
   it("should check user's token", async () => {
     // init
