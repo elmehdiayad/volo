@@ -1,15 +1,11 @@
 import { Request, Response } from 'express'
 import puppeteer from 'puppeteer'
 import { readFileSync } from 'fs'
-import { join, dirname } from 'path'
-import { fileURLToPath } from 'url'
+import { join } from 'path'
 
 import * as logger from '../common/logger'
 import Booking from '../models/Booking'
 import * as env from '../config/env.config'
-
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
 
 export const generateContract = async (req: Request, res: Response) => {
   let browser = null
@@ -47,8 +43,8 @@ export const generateContract = async (req: Request, res: Response) => {
     }
 
     // Read the HTML template and header image
-    const template = readFileSync(join(__dirname, '..', 'templates', 'contract.html'), 'utf8')
-    const headerImage = readFileSync(join(__dirname, '..', 'templates', 'contract-header.png')).toString('base64')
+    const template = readFileSync(join(process.cwd(), 'src', 'templates', 'contract.html'), 'utf8')
+    const headerImage = readFileSync(join(process.cwd(), 'src', 'templates', 'contract-header.png')).toString('base64')
 
     // Format dates
     const fromDate = new Date(booking.from).toLocaleDateString('fr-FR')
@@ -89,18 +85,18 @@ export const generateContract = async (req: Request, res: Response) => {
         '>Né(e) le:<span class="input-line">',
         `>Né(e) le:<span class="input-line">${booking.driver?.birthDate ? new Date(booking.driver.birthDate).toLocaleDateString('fr-FR') : ''}`,
       )
-      .replace(
-        '> à <span class="input-line">',
-        `> à <span class="input-line">${booking.driver?.birthPlace || ''}`,
-      )
+      // .replace(
+      //   '> à <span class="input-line">',
+      //   `> à <span class="input-line">${booking.driver?.birthPlace || ''}`,
+      // )
       .replace(
         '>N° permis:<span class="input-line">',
         `>N° permis:<span class="input-line">${booking.driver?.licenseId || ''}`,
       )
-      .replace(
-        '>Date d\'obtention:<span class="input-line">',
-        `>Date d'obtention:<span class="input-line">${booking.driver?.licenseDate ? new Date(booking.driver.licenseDate).toLocaleDateString('fr-FR') : ''}`,
-      )
+      // .replace(
+      //   '>Date d\'obtention:<span class="input-line">',
+      //   `>Date d'obtention:<span class="input-line">${booking.driver?.licenseDate ? new Date(booking.driver.licenseDate).toLocaleDateString('fr-FR') : ''}`,
+      // )
       .replace(
         '>Préfecture:<span class="input-line">',
         `>Préfecture:<span class="input-line">${booking.driver?.licenseId || ''}`,
@@ -126,14 +122,14 @@ export const generateContract = async (req: Request, res: Response) => {
         '>N° permis:<span class="input-line">',
         `>N° permis:<span class="input-line">${booking.additionalDriver?.phone || ''}`,
       )
-      .replace(
-        '>Date d\'obtention:<span class="input-line">',
-        `>Date d'obtention:<span class="input-line">${booking.additionalDriver?.licenseId ? new Date(booking.additionalDriver.licenseId).toLocaleDateString('fr-FR') : ''}`,
-      )
-      .replace(
-        '>Préfecture:<span class="input-line">',
-        `>Préfecture:<span class="input-line">${booking.additionalDriver?.licenseId || ''}`,
-      )
+      // .replace(
+      //   '>Date d\'obtention:<span class="input-line">',
+      //   `>Date d'obtention:<span class="input-line">${booking.additionalDriver?.licenseId ? new Date(booking.additionalDriver.licenseId).toLocaleDateString('fr-FR') : ''}`,
+      // )
+      // .replace(
+      //   '>Préfecture:<span class="input-line">',
+      //   `>Préfecture:<span class="input-line">${booking.additionalDriver?.licenseId || ''}`,
+      // )
 
     // Replace vehicle information
     const vehicleHtml = modifiedHtml
@@ -149,13 +145,22 @@ export const generateContract = async (req: Request, res: Response) => {
       .replace('>Total T.T.C:<span class="input-line">', `>Total T.T.C:<span class="input-line">${formatPrice(totalTTC)}`)
       .replace('>Date de départ:<span class="input-line">', `>Date de départ:<span class="input-line">${fromDate}`)
       .replace('>Date de restitution:<span class="input-line">', `>Date de restitution:<span class="input-line">${toDate}`)
-      .replace('>Montant de la caution:<span class="input-line">', `>Montant de la caution:<span class="input-line">${formatPrice(booking.deposit || 0)}`)
+      .replace('>Montant de la caution:<span class="input-line">', `>Montant de la caution:<span class="input-line">${formatPrice(booking.car.deposit || 0)}`)
 
     browser = await puppeteer.launch({
       headless: 'new',
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-gpu',
+      ],
+      timeout: 30000,
+      protocolTimeout: 30000,
     })
     const page = await browser.newPage()
+    await page.setDefaultNavigationTimeout(30000)
+    await page.setDefaultTimeout(30000)
     await page.setContent(finalHtml, { waitUntil: 'networkidle0' })
 
     const pdfBuffer = await page.pdf({
