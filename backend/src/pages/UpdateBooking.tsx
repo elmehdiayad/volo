@@ -85,7 +85,6 @@ const UpdateBooking = () => {
   const [language, setLanguage] = useState(env.DEFAULT_LANGUAGE)
   const [fromError, setFromError] = useState(false)
   const [toError, setToError] = useState(false)
-  const [generatingContract, setGeneratingContract] = useState(false)
 
   const handleSupplierChange = (values: bookcarsTypes.Option[]) => {
     setSupplier(values.length > 0 ? values[0] : undefined)
@@ -306,9 +305,9 @@ const UpdateBooking = () => {
   const handleGenerateContract = async () => {
     if (booking && booking._id) {
       try {
-        setGeneratingContract(true)
+        setLoading(true)
         const response = await ContractService.generateContract(booking._id)
-        setGeneratingContract(false)
+        setLoading(false)
         if (response) {
           const url = window.URL.createObjectURL(response)
           const a = document.createElement('a')
@@ -320,7 +319,7 @@ const UpdateBooking = () => {
           toastErr()
         }
       } catch (err) {
-        setGeneratingContract(false)
+        setLoading(false)
         helper.error(err)
       }
     } else {
@@ -849,7 +848,7 @@ const UpdateBooking = () => {
                     color="info"
                     size="small"
                     onClick={handleGenerateContract}
-                    disabled={generatingContract}
+                    disabled={loading}
                   >
                     {commonStrings.CONTRACT}
                   </Button>
@@ -899,10 +898,9 @@ const UpdateBooking = () => {
         </div>
       )}
 
-      {loading && <Backdrop text={commonStrings.PLEASE_WAIT} />}
+      {loading && <Backdrop text={commonStrings.PLEASE_WAIT} progress />}
       {noMatch && <NoMatch hideHeader />}
       {error && <Error />}
-      {generatingContract && <Backdrop text={commonStrings.PLEASE_WAIT} />}
     </Layout>
   )
 }

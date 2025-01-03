@@ -1,71 +1,54 @@
 import { Request, Response } from 'express'
 import puppeteer from 'puppeteer'
-import { Document } from 'mongoose'
 import { readFileSync } from 'fs'
 import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
-import Booking from '../models/Booking'
+
 import * as logger from '../common/logger'
+import Booking from '../models/Booking'
+import * as env from '../config/env.config'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
-
-interface BookingPopulated extends Document {
-  from: Date;
-  to: Date;
-  price: number;
-  deposit?: number;
-  supplier?: {
-    fullName?: string;
-    phone?: string;
-    email?: string;
-    address?: string;
-    logo?: string;
-  };
-  driver?: {
-    fullName?: string;
-    birthDate?: Date;
-    birthPlace?: string;
-    address?: string;
-    city?: string;
-    postcode?: string;
-    phone?: string;
-    email?: string;
-    licenseNumber?: string;
-    licenseDate?: Date;
-    licensePrefecture?: string;
-  };
-  additionalDriver?: {
-    fullName?: string;
-    birthDate?: Date;
-    birthPlace?: string;
-    licenseNumber?: string;
-    licenseDate?: Date;
-    licensePrefecture?: string;
-  };
-  car?: {
-    name?: string;
-    plateNumber?: string;
-    mileage?: number;
-  };
-}
 
 export const generateContract = async (req: Request, res: Response) => {
   let browser = null
   try {
     const { bookingId, currencySymbol } = req.params
     const booking = await Booking.findById(bookingId)
-      .populate('driver')
-      .populate('car')
-      .populate('supplier')
-      .lean() as BookingPopulated
+    .populate<{ supplier: env.UserInfo }>('supplier')
+    .populate<{ car: env.CarInfo }>({
+      path: 'car',
+      populate: {
+        path: 'supplier',
+        model: 'User',
+      },
+    })
+    .populate<{ driver: env.User }>('driver')
+    .populate<{ pickupLocation: env.LocationInfo }>({
+      path: 'pickupLocation',
+      populate: {
+        path: 'values',
+        model: 'LocationValue',
+      },
+    })
+    .populate<{ dropOffLocation: env.LocationInfo }>({
+      path: 'dropOffLocation',
+      populate: {
+        path: 'values',
+        model: 'LocationValue',
+      },
+    })
+    .populate<{ additionalDriver: env.AdditionalDriver }>('additionalDriver')
+    .lean()
 
     if (!booking) {
       return res.status(404).json({ error: 'Booking not found' })
     }
 
-    // Read the HTML template
+    // Read the HTML template and header image
     const template = readFileSync(join(__dirname, '..', 'templates', 'contract.html'), 'utf8')
+    const headerImage = readFileSync(join(__dirname, '..', 'templates', 'contract-header.png')).toString('base64')
 
     // Format dates
     const fromDate = new Date(booking.from).toLocaleDateString('fr-FR')
@@ -82,11 +65,12 @@ export const generateContract = async (req: Request, res: Response) => {
 
     // Replace placeholders with actual data
     const html = template
-      .replace('src="/api/placeholder/150/80"', `src="${booking.supplier?.logo || ''}"`)
+      .replace('src="contract-header.png"', `src="data:image/png;base64,${headerImage}"`)
+      .replace('src="/api/placeholder/150/80"', `src="${booking.supplier?.avatar || ''}"`)
       .replace('id="contractNumber">', `id="contractNumber">${booking._id}`)
       .replace('id="date">', `id="date">${new Date().toLocaleString('fr-FR', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}`)
-      .replace('id="supplier-name">', `id="supplier-name">${booking.supplier?.fullName?.split(' ')[0] || ''}`)
-      .replace('id="address">', `id="address1">${booking.supplier?.address || ''}`)
+      .replace('id="supplier-name">', `id="supplier-name">${booking.supplier.fullName.split(' ')[0] || ''}`)
+      .replace('id="address">', `id="address1">${booking.supplier?.location || ''}`)
       .replace('id="phone">', `id="phone">${booking.supplier?.phone || ''}`)
       .replace('id="email">', `id="email">${booking.supplier?.email || ''}`)
 
@@ -111,7 +95,7 @@ export const generateContract = async (req: Request, res: Response) => {
       )
       .replace(
         '>N° permis:<span class="input-line">',
-        `>N° permis:<span class="input-line">${booking.driver?.licenseNumber || ''}`,
+        `>N° permis:<span class="input-line">${booking.driver?.licenseId || ''}`,
       )
       .replace(
         '>Date d\'obtention:<span class="input-line">',
@@ -119,7 +103,7 @@ export const generateContract = async (req: Request, res: Response) => {
       )
       .replace(
         '>Préfecture:<span class="input-line">',
-        `>Préfecture:<span class="input-line">${booking.driver?.licensePrefecture || ''}`,
+        `>Préfecture:<span class="input-line">${booking.driver?.licenseId || ''}`,
       )
       // Additional driver info (Conducteur 2)
       .replace(
@@ -136,19 +120,19 @@ export const generateContract = async (req: Request, res: Response) => {
       )
       .replace(
         '> à <span class="input-line">',
-        `> à <span class="input-line">${booking.additionalDriver?.birthPlace || ''}`,
+        `> à <span class="input-line">${booking.additionalDriver?.birthDate || ''}`,
       )
       .replace(
         '>N° permis:<span class="input-line">',
-        `>N° permis:<span class="input-line">${booking.additionalDriver?.licenseNumber || ''}`,
+        `>N° permis:<span class="input-line">${booking.additionalDriver?.phone || ''}`,
       )
       .replace(
         '>Date d\'obtention:<span class="input-line">',
-        `>Date d'obtention:<span class="input-line">${booking.additionalDriver?.licenseDate ? new Date(booking.additionalDriver.licenseDate).toLocaleDateString('fr-FR') : ''}`,
+        `>Date d'obtention:<span class="input-line">${booking.additionalDriver?.licenseId ? new Date(booking.additionalDriver.licenseId).toLocaleDateString('fr-FR') : ''}`,
       )
       .replace(
         '>Préfecture:<span class="input-line">',
-        `>Préfecture:<span class="input-line">${booking.additionalDriver?.licensePrefecture || ''}`,
+        `>Préfecture:<span class="input-line">${booking.additionalDriver?.licenseId || ''}`,
       )
 
     // Replace vehicle information

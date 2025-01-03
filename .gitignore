@@ -7,3 +7,4 @@
 
 bookcars-db/
 .env.dev.docker
+api/ara.traineddata
