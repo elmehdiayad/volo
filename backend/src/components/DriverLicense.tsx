@@ -52,28 +52,14 @@ const DriverLicense = ({
     const scaleX = image.naturalWidth / image.width
     const scaleY = image.naturalHeight / image.height
 
-    // Use original image dimensions for better quality
-    const pixelRatio = window.devicePixelRatio
-    const isRotated = rotation === 90 || rotation === 270
-    canvas.width = (isRotated ? crop.height! : crop.width!) * scaleX
-    canvas.height = (isRotated ? crop.width! : crop.height!) * scaleY
+    canvas.width = crop.width! * scaleX
+    canvas.height = crop.height! * scaleY
 
     const ctx = canvas.getContext('2d')!
-
-    // Enable image smoothing
     ctx.imageSmoothingEnabled = true
     ctx.imageSmoothingQuality = 'high'
 
-    // Center point for rotation
-    const centerX = canvas.width / 2
-    const centerY = canvas.height / 2
-
-    // Transform context
-    ctx.translate(centerX, centerY)
-    ctx.rotate((rotation * Math.PI) / 180)
-    ctx.translate(-centerX, -centerY)
-
-    // Draw image at original resolution
+    // Draw the cropped image
     ctx.drawImage(
       image,
       crop.x! * scaleX,
@@ -92,7 +78,7 @@ const DriverLicense = ({
           resolve(blob!)
         },
         'image/jpeg',
-        1.0  // Maximum quality
+        1.0
       )
     })
   }
@@ -147,6 +133,15 @@ const DriverLicense = ({
         setCropDialogOpen(false)
         setCurrentImage(null)
         setCurrentType('')
+        // Reset crop and rotation states
+        setCrop({
+          unit: '%',
+          width: 90,
+          height: 90,
+          x: 5,
+          y: 5
+        })
+        setRotation(0)
 
         // Check if all images are uploaded and process collage
         if (Object.values(updatedImages).every(img => img !== null)) {
@@ -164,6 +159,15 @@ const DriverLicense = ({
       setCurrentImage(null)
       setCurrentType('')
       setLoading(false)
+      // Reset crop and rotation states here too
+      setCrop({
+        unit: '%',
+        width: 90,
+        height: 90,
+        x: 5,
+        y: 5
+      })
+      setRotation(0)
     }
   }
 
@@ -300,22 +304,6 @@ const DriverLicense = ({
         <div style={{ padding: '20px' }}>
           {currentImage && (
             <>
-              <Box sx={{ mb: 2, display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 2 }}>
-                <Box sx={{ width: 200, display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <RotateIcon />
-                  <Slider
-                    value={rotation}
-                    onChange={handleSliderChange}
-                    min={0}
-                    max={360}
-                    valueLabelDisplay="auto"
-                    valueLabelFormat={(value) => `${value}°`}
-                  />
-                </Box>
-                <IconButton onClick={() => setRotation(0)}>
-                  <RotateIcon />
-                </IconButton>
-              </Box>
               <ReactCrop
                 crop={crop}
                 onChange={c => setCrop(c)}
@@ -325,9 +313,7 @@ const DriverLicense = ({
                   src={currentImage}
                   onLoad={(e) => setImageRef(e.currentTarget)}
                   style={{
-                    maxWidth: '100%',
-                    transform: `rotate(${rotation}deg)`,
-                    transformOrigin: 'center'
+                    maxWidth: '100%'
                   }}
                 />
               </ReactCrop>

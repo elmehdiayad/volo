@@ -35,12 +35,12 @@ services:
     volumes:
       - data:/data/db
 
-  backend:
-    build: 
-      context: .
-      dockerfile: ./backend/Dockerfile.dev
-    ports:
-      - 3001:3001
+  # backend:
+  #   build: 
+  #     context: .
+  #     dockerfile: ./backend/Dockerfile.dev
+  #   ports:
+  #     - 3001:3001
 
   # frontend:
   #   build: 
