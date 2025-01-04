@@ -26,6 +26,8 @@ services:
     image: mongo:latest
     command: mongod --quiet --logpath /dev/null
     restart: always
+    labels:
+      - "com.docker.keep=true"
     environment:
       # Provide your credentials here
       MONGO_INITDB_ROOT_USERNAME: admin

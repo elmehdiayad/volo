@@ -185,7 +185,7 @@ const strings = new LocalizedStrings({
     NATIONAL_ID: 'National ID or passport',
     NATIONAL_ID_INFO: 'National ID or passport number',
     LICENSE_RECTO: "Driver's License (front)",
-    LICENSE_VERSO: "Driver's License (back)", 
+    LICENSE_VERSO: "Driver's License (back)",
     ID_RECTO: 'ID Card (front)',
     ID_VERSO: 'ID Card (back)',
     LICENSE_ID: 'License ID',

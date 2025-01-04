@@ -2,6 +2,7 @@ import { Request, Response } from 'express'
 import puppeteer from 'puppeteer'
 import { readFileSync } from 'fs'
 import { join } from 'path'
+import Handlebars from 'handlebars'
 
 import * as logger from '../common/logger'
 import Booking from '../models/Booking'
@@ -12,141 +13,110 @@ export const generateContract = async (req: Request, res: Response) => {
   try {
     const { bookingId, currencySymbol } = req.params
     const booking = await Booking.findById(bookingId)
-    .populate<{ supplier: env.UserInfo }>('supplier')
-    .populate<{ car: env.CarInfo }>({
-      path: 'car',
-      populate: {
-        path: 'supplier',
-        model: 'User',
-      },
-    })
-    .populate<{ driver: env.User }>('driver')
-    .populate<{ pickupLocation: env.LocationInfo }>({
-      path: 'pickupLocation',
-      populate: {
-        path: 'values',
-        model: 'LocationValue',
-      },
-    })
-    .populate<{ dropOffLocation: env.LocationInfo }>({
-      path: 'dropOffLocation',
-      populate: {
-        path: 'values',
-        model: 'LocationValue',
-      },
-    })
-    .populate<{ additionalDriver: env.AdditionalDriver }>('additionalDriver')
-    .lean()
+      .populate<{ supplier: env.UserInfo }>('supplier')
+      .populate<{ car: env.CarInfo }>({
+        path: 'car',
+        populate: {
+          path: 'supplier',
+          model: 'User',
+        },
+      })
+      .populate<{ driver: env.User }>('driver')
+      .populate<{ pickupLocation: env.LocationInfo }>({
+        path: 'pickupLocation',
+        populate: {
+          path: 'values',
+          model: 'LocationValue',
+        },
+      })
+      .populate<{ dropOffLocation: env.LocationInfo }>({
+        path: 'dropOffLocation',
+        populate: {
+          path: 'values',
+          model: 'LocationValue',
+        },
+      })
+      .populate<{ _additionalDriver: env.AdditionalDriver }>('_additionalDriver')
+      .lean()
 
     if (!booking) {
       return res.status(404).json({ error: 'Booking not found' })
     }
 
-    // Read the HTML template and header image
+    // Read template and header image
     const template = readFileSync(join(process.cwd(), 'src', 'templates', 'contract.html'), 'utf8')
     const headerImage = readFileSync(join(process.cwd(), 'src', 'templates', 'contract-header.png')).toString('base64')
 
-    // Format dates
+    // Read company logo
+    let companyLogo = ''
+    try {
+      const supplierId = booking.supplier?._id?.toString()
+      if (supplierId) {
+        let logoPath = join('/var/www/cdn/bookcars/users', `${supplierId}.jpg`)
+        try {
+          companyLogo = readFileSync(logoPath).toString('base64')
+        } catch {
+          // If .jpg doesn't exist, try .png
+          logoPath = join('/var/www/cdn/bookcars/users', `${supplierId}.png`)
+          companyLogo = readFileSync(logoPath).toString('base64')
+        }
+      }
+    } catch (error: any) {
+      logger.error(`[contract.generateContract] Company logo not found: ${error.message}`)
+    }
+
+    // Format dates and calculate costs
     const fromDate = new Date(booking.from).toLocaleDateString('fr-FR')
     const toDate = new Date(booking.to).toLocaleDateString('fr-FR')
-
-    // Calculate rental duration and costs
     const days = Math.ceil((new Date(booking.to).getTime() - new Date(booking.from).getTime()) / (1000 * 3600 * 24))
     const pricePerDay = booking.price / days
-    const tva = booking.price * 0.20 // Assuming 20% TVA
+    const tva = booking.price * 0.20
     const totalTTC = booking.price + tva
 
-    // Create a function to format price
-    const formatPrice = (price: number) => `${price.toFixed(2)} ${currencySymbol}`
+    // Create template data
+    const templateData = {
+      headerImage: headerImage ? `data:image/png;base64,${headerImage}` : '',
+      companyLogo: companyLogo ? `data:image/png;base64,${companyLogo}` : '',
+      supplierId: booking.supplier._id,
+      contractNumber: booking._id,
+      date: new Date().toLocaleString('fr-FR'),
+      supplier: {
+        name: booking.supplier?.fullName || '',
+        location: booking.supplier?.location || '',
+        phone: booking.supplier?.phone || '',
+        email: booking.supplier?.email || '',
+      },
+      driver1: {
+        fullname: booking.driver?.fullName || '',
+        birthDate: booking.driver?.birthDate ? new Date(booking.driver.birthDate).toLocaleDateString('fr-FR') : '',
+        licenseId: booking.driver?.licenseId || '',
+      },
+      driver2: {
+        fullname: booking._additionalDriver?.fullName || '',
+        birthDate: booking._additionalDriver?.birthDate ? new Date(booking._additionalDriver.birthDate).toLocaleDateString('fr-FR') : '',
+        licenseId: booking._additionalDriver?.phone || '',
+      },
+      vehicle: {
+        brand: booking.car?.name || '',
+        plate: booking.car?.plateNumber || '',
+        mileage: booking.car?.mileage?.toString() || '0',
+      },
+      payment: {
+        pricePerDay: `${pricePerDay.toFixed(2)} ${currencySymbol}`,
+        priceHT: `${booking.price.toFixed(2)} ${currencySymbol}`,
+        TVA: `${tva.toFixed(2)} ${currencySymbol}`,
+        TTC: `${totalTTC.toFixed(2)} ${currencySymbol}`,
+        fromDate,
+        toDate,
+        deposit: `${(booking.car.deposit || 0).toFixed(2)} ${currencySymbol}`,
+      },
+    }
 
-    // Replace placeholders with actual data
-    const html = template
-      .replace('src="contract-header.png"', `src="data:image/png;base64,${headerImage}"`)
-      .replace('src="/api/placeholder/150/80"', `src="${booking.supplier?.avatar || ''}"`)
-      .replace('id="contractNumber">', `id="contractNumber">${booking._id}`)
-      .replace('id="date">', `id="date">${new Date().toLocaleString('fr-FR', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}`)
-      .replace('id="supplier-name">', `id="supplier-name">${booking.supplier.fullName.split(' ')[0] || ''}`)
-      .replace('id="address">', `id="address1">${booking.supplier?.location || ''}`)
-      .replace('id="phone">', `id="phone">${booking.supplier?.phone || ''}`)
-      .replace('id="email">', `id="email">${booking.supplier?.email || ''}`)
+    // Compile and render template
+    const compiledTemplate = Handlebars.compile(template)
+    const html = compiledTemplate(templateData)
 
-    // Add driver info (Conducteur 1)
-    const modifiedHtml = html
-      // Driver info
-      .replace(
-        '>Conducteur (1)</div><div>Nom:<span class="input-line">',
-        `>Conducteur (1)</div><div>Nom:<span class="input-line">${booking.driver?.fullName?.split(' ')[0] || ''}`,
-      )
-      .replace(
-        '>Prénom:<span class="input-line">',
-        `>Prénom:<span class="input-line">${booking.driver?.fullName?.split(' ').slice(1).join(' ') || ''}`,
-      )
-      .replace(
-        '>Né(e) le:<span class="input-line">',
-        `>Né(e) le:<span class="input-line">${booking.driver?.birthDate ? new Date(booking.driver.birthDate).toLocaleDateString('fr-FR') : ''}`,
-      )
-      // .replace(
-      //   '> à <span class="input-line">',
-      //   `> à <span class="input-line">${booking.driver?.birthPlace || ''}`,
-      // )
-      .replace(
-        '>N° permis:<span class="input-line">',
-        `>N° permis:<span class="input-line">${booking.driver?.licenseId || ''}`,
-      )
-      // .replace(
-      //   '>Date d\'obtention:<span class="input-line">',
-      //   `>Date d'obtention:<span class="input-line">${booking.driver?.licenseDate ? new Date(booking.driver.licenseDate).toLocaleDateString('fr-FR') : ''}`,
-      // )
-      .replace(
-        '>Préfecture:<span class="input-line">',
-        `>Préfecture:<span class="input-line">${booking.driver?.licenseId || ''}`,
-      )
-      // Additional driver info (Conducteur 2)
-      .replace(
-        '>Conducteur (2)</div><div>Nom:<span class="input-line">',
-        `>Conducteur (2)</div><div>Nom:<span class="input-line">${booking.additionalDriver?.fullName?.split(' ')[0] || ''}`,
-      )
-      .replace(
-        '>Prénom:<span class="input-line">',
-        `>Prénom:<span class="input-line">${booking.additionalDriver?.fullName?.split(' ').slice(1).join(' ') || ''}`,
-      )
-      .replace(
-        '>Né(e) le:<span class="input-line">',
-        `>Né(e) le:<span class="input-line">${booking.additionalDriver?.birthDate ? new Date(booking.additionalDriver.birthDate).toLocaleDateString('fr-FR') : ''}`,
-      )
-      .replace(
-        '> à <span class="input-line">',
-        `> à <span class="input-line">${booking.additionalDriver?.birthDate || ''}`,
-      )
-      .replace(
-        '>N° permis:<span class="input-line">',
-        `>N° permis:<span class="input-line">${booking.additionalDriver?.phone || ''}`,
-      )
-      // .replace(
-      //   '>Date d\'obtention:<span class="input-line">',
-      //   `>Date d'obtention:<span class="input-line">${booking.additionalDriver?.licenseId ? new Date(booking.additionalDriver.licenseId).toLocaleDateString('fr-FR') : ''}`,
-      // )
-      // .replace(
-      //   '>Préfecture:<span class="input-line">',
-      //   `>Préfecture:<span class="input-line">${booking.additionalDriver?.licenseId || ''}`,
-      // )
-
-    // Replace vehicle information
-    const vehicleHtml = modifiedHtml
-      .replace('>Marque:<span class="input-line">', `>Marque:<span class="input-line">${booking.car?.name || ''}`)
-      .replace('>Immatriculation:<span class="input-line">', `>Immatriculation:<span class="input-line">${booking.car?.plateNumber || ''}`)
-      .replace('>Départ:<span class="input-line">', `>Départ:<span class="input-line">${booking.car?.mileage || '0'}`)
-
-    // Replace payment information
-    const finalHtml = vehicleHtml
-      .replace('>Prix/jours:<span class="input-line">', `>Prix/jours:<span class="input-line">${formatPrice(pricePerDay)}`)
-      .replace('>Total HT:<span class="input-line">', `>Total HT:<span class="input-line">${formatPrice(booking.price)}`)
-      .replace('>T.V.A:<span class="input-line">', `>T.V.A:<span class="input-line">${formatPrice(tva)}`)
-      .replace('>Total T.T.C:<span class="input-line">', `>Total T.T.C:<span class="input-line">${formatPrice(totalTTC)}`)
-      .replace('>Date de départ:<span class="input-line">', `>Date de départ:<span class="input-line">${fromDate}`)
-      .replace('>Date de restitution:<span class="input-line">', `>Date de restitution:<span class="input-line">${toDate}`)
-      .replace('>Montant de la caution:<span class="input-line">', `>Montant de la caution:<span class="input-line">${formatPrice(booking.car.deposit || 0)}`)
-
+    // Launch browser and create PDF
     browser = await puppeteer.launch({
       headless: 'new',
       args: [
@@ -154,24 +124,25 @@ export const generateContract = async (req: Request, res: Response) => {
         '--disable-setuid-sandbox',
         '--disable-dev-shm-usage',
         '--disable-gpu',
+        '--no-first-run',
+        '--no-zygote',
+        '--single-process',
       ],
-      timeout: 30000,
       protocolTimeout: 30000,
+      timeout: 30000,
     })
     const page = await browser.newPage()
     await page.setDefaultNavigationTimeout(30000)
     await page.setDefaultTimeout(30000)
-    await page.setContent(finalHtml, { waitUntil: 'networkidle0' })
+    await page.setContent(html, {
+      waitUntil: 'networkidle0',
+      timeout: 30000,
+    })
 
     const pdfBuffer = await page.pdf({
       format: 'A4',
       printBackground: true,
-      margin: {
-        top: '10px',
-        right: '10px',
-        bottom: '10px',
-        left: '10px',
-      },
+      margin: { top: '10px', right: '10px', bottom: '10px', left: '10px' },
     })
 
     res.setHeader('Content-Type', 'application/pdf')

@@ -1,281 +1,365 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <style>
-        @page {
-            size: A4;
-            margin: 0;
-        }
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.2;
-            margin: 12px;
-            padding: 12px;
-            max-width: 210mm;
-            font-size: 10px;
-        }
-        .logo-section {
-            text-align: left;
-            margin-bottom: 8px;
-            position: relative;
-        }
-        /* Separate styles for company logo */
-        #company-logo {
-            max-width: 120px;
-            max-height: 60px;
-            object-fit: contain;
-        }
-        /* Remove size constraints from header image */
-        .header-image {
-            position: absolute;
-            top: 12px;
-            right: 16px;
-            max-width: 200px;
-            object-fit: contain;
-        }
-        .main-title {
-            text-align: center;
-            font-weight: bold;
-            font-size: 14px;
-            margin-bottom: 12px;
-        }
-        .header-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-bottom: 8px;
-        }
-        .input-line {
-            padding: 1px 4px;
-            display: inline-block;
-        }
-        .drivers-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin: 8px 0;
-            border: 1px solid black;
-            padding: 8px;
-        }
-        .driver-section {
-            display: grid;
-            gap: 4px;
-        }
-        .driver-header {
-            font-weight: bold;
-            margin-bottom: 6px;
-        }
-        .payment-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin: 12px 0;
-        }
-        .payment-options {
-            display: flex;
-            gap: 12px;
-            margin: 6px 0;
-        }
-        .checkbox-container {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .vehicle-section {
-            border: 1px solid black;
-            padding: 8px;
-            margin: 12px 0;
-        }
-        .signature-section {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-top: 12px;
-        }
-        .signature-box {
-            border: 1px solid black;
-            height: 30px;
-            margin-top: 4px;
-        }
-        .footer {
-            text-align: center;
-            margin-top: 12px;
-            font-size: 10px;
-        }
-        .terms-box {
-            border: 1px solid black;
-            padding: 8px;
-            margin: 12px 0;
-            font-size: 9px;
-        }
-        .observation-section {
-            margin: 8px 0;
-        }
-        .observation-section .input-line {
-            height: 30px;
-        }
-        .vehicle-status {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
-            margin-top: 8px;
-        }
-        .status-checkbox {
-            display: flex;
-            gap: 8px;
-        }
+      @page {
+        size: A4;
+        margin: 0;
+      }
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.2;
+        padding: 50px 12px;
+        max-width: 210mm;
+        font-size: 12px;
+      }
+
+      /* Separate styles for company logo */
+      .company-logo {
+        position: absolute;
+        top: 12px;
+        left: 18px;
+        max-height: 70px;
+        max-width: 150px;
+        object-fit: contain;
+      }
+      /* Remove size constraints from header image */
+      .car-image {
+        position: absolute;
+        top: 12px;
+        right: 24px;
+        max-height: 125px;
+        object-fit: contain;
+      }
+      .main-title {
+        text-align: center;
+        font-weight: bold;
+        font-size: 14px;
+      }
+      .header-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin: 8px 0;
+      }
+      .input-line {
+        padding: 1px 4px;
+        display: inline-block;
+      }
+      .drivers-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin: 8px 0;
+        border: 1px solid black;
+        padding: 8px;
+      }
+      .driver-section {
+        display: grid;
+        gap: 4px;
+      }
+      .driver-header {
+        font-weight: bold;
+        margin-bottom: 6px;
+      }
+      .payment-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin: 12px 0;
+      }
+      .payment-options {
+        display: flex;
+        gap: 12px;
+        margin: 6px 0;
+      }
+      .checkbox-container {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .vehicle-section {
+        border: 1px solid black;
+        padding: 8px;
+        margin: 12px 0;
+      }
+      .signature-section {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-top: 12px;
+      }
+      .signature-box {
+        border: 1px solid black;
+        height: 30px;
+        margin-top: 4px;
+      }
+      .footer {
+        text-align: center;
+        margin-top: 12px;
+        font-size: 10px;
+      }
+      .terms-box {
+        border: 1px solid black;
+        padding: 8px;
+        margin: 12px 0;
+        font-size: 9px;
+      }
+      .observation-section {
+        margin: 8px 0;
+      }
+      .observation-section .input-line {
+        height: 30px;
+      }
+      .vehicle-status {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        margin-top: 8px;
+      }
+      .status-checkbox {
+        display: flex;
+        gap: 8px;
+      }
     </style>
-</head>
-<body>
-    <img class="header-image" src="contract-header.png" alt="Header image" />
-    <div class="logo-section">
-        <img id="company-logo" src="/api/placeholder/150/80" alt="Logo entreprise" />
-    </div>
-    
+  </head>
+  <body>
+    <img
+      class="car-image"
+      src="{{headerImage}}"
+      onerror="this.style.display='none'"
+    />
+    <img
+      class="company-logo"
+      src="{{companyLogo}}"
+      onerror="this.style.display='none'"
+    />
+
     <div class="main-title">CONTRAT DE LOCATION VEHICULE</div>
 
     <div class="header-grid">
-        <div>CONTRAT N°<span class="input-line" id="contractNumber"></span></div>
-        <div>DATE:<span class="input-line" id="date"></span></div>
+      <div>CONTRAT N°<span class="input-line">{{contractNumber}}</span></div>
+      <div>DATE:<span class="input-line">{{date}}</span></div>
     </div>
 
+    <div>NOM SOCIETE:<span class="input-line">{{supplier.name}}</span></div>
     <div>
-        NOM SOCIETE:<span class="input-line" id="supplier-name"></span>
+      ADRESSE:<span class="input-line" id="address">{{supplier.location}}</span>
     </div>
+    <div>TEL:<span class="input-line" id="phone">{{supplier.phone}}</span></div>
     <div>
-        ADRESSE:<span class="input-line" id="address"></span>
-    </div>
-    <div>
-        TEL:<span class="input-line" id="phone"></span>
-    </div>
-    <div>
-        MAIL:<span class="input-line" id="email"></span>
+      MAIL:<span class="input-line" id="email">{{supplier.email}}</span>
     </div>
 
     <div class="drivers-grid">
-        <div class="driver-section">
-            <div class="driver-header">Conducteur (1)</div>
-            <div>Nom:<span class="input-line"></span></div>
-            <div>Prénom:<span class="input-line"></span></div>
-            <div>Né(e) le:<span class="input-line"></span> à <span class="input-line"></span></div>
-            <div>N° permis:<span class="input-line"></span></div>
-            <div>Date d'obtention:<span class="input-line"></span></div>
-            <div>Préfecture:<span class="input-line"></span></div>
+      <div class="driver-section">
+        <div class="driver-header">Conducteur (1)</div>
+        <div>
+          Nom:<span class="input-line" id="driver1-fullname"
+            >{{driver1.fullname}}</span
+          >
         </div>
-        <div class="driver-section">
-            <div class="driver-header">Conducteur (2)</div>
-            <div>Nom:<span class="input-line"></span></div>
-            <div>Prénom:<span class="input-line"></span></div>
-            <div>Né(e) le:<span class="input-line"></span> à <span class="input-line"></span></div>
-            <div>N° permis:<span class="input-line"></span></div>
-            <div>Date d'obtention:<span class="input-line"></span></div>
-            <div>Préfecture:<span class="input-line"></span></div>
+        <div>
+          Né(e) le:<span class="input-line" id="driver1-birthdate"
+            >{{driver1.birthDate}}</span
+          >
+          à <span class="input-line" id="driver1-birthplace"></span>
         </div>
+        <div>
+          N° permis:<span class="input-line" id="driver1-license"
+            >{{driver1.licenseId}}</span
+          >
+        </div>
+        <div>
+          Date d'obtention:<span
+            class="input-line"
+            id="driver1-license-date"
+          ></span>
+        </div>
+        <div>
+          Préfecture:<span class="input-line" id="driver1-prefecture"></span>
+        </div>
+      </div>
+      <div class="driver-section">
+        <div class="driver-header">Conducteur (2)</div>
+        <div>
+          Nom:<span class="input-line" id="driver2-fullname"
+            >{{driver2.fullname}}</span
+          >
+        </div>
+        <div>
+          Né(e) le:<span class="input-line" id="driver2-birthdate"
+            >{{driver2.birthDate}}</span
+          >
+          à <span class="input-line" id="driver2-birthplace"></span>
+        </div>
+        <div>
+          N° permis:<span class="input-line" id="driver2-license"
+            >{{driver2.licenseId}}</span
+          >
+        </div>
+        <div>
+          Date d'obtention:<span
+            class="input-line"
+            id="driver2-license-date"
+          ></span>
+        </div>
+        <div>
+          Préfecture:<span class="input-line" id="driver2-prefecture"></span>
+        </div>
+      </div>
     </div>
 
     <div class="payment-grid">
+      <div>
         <div>
-            <div>Prix/jours:<span class="input-line"></span></div>
-            <div>Total HT:<span class="input-line"></span></div>
-            <div>T.V.A:<span class="input-line"></span></div>
-            <div>Total T.T.C:<span class="input-line"></span></div>
+          Prix/jours:<span class="input-line" id="price-per-day"
+            >{{payment.pricePerDay}}</span
+          >
         </div>
         <div>
-            <div>Date de départ:<span class="input-line"></span></div>
-            <div>Date de restitution:<span class="input-line"></span></div>
-            <div>Montant de la caution:<span class="input-line"></span></div>
+          Total HT:<span class="input-line" id="price-ht"
+            >{{payment.priceHT}}</span
+          >
         </div>
+        <div>
+          T.V.A:<span class="input-line" id="price-tva">{{payment.TVA}}</span>
+        </div>
+        <div>
+          Total T.T.C:<span class="input-line" id="price-ttc"
+            >{{payment.TTC}}</span
+          >
+        </div>
+      </div>
+      <div>
+        <div>
+          Date de départ:<span class="input-line" id="departure-date"
+            >{{payment.fromDate}}</span
+          >
+        </div>
+        <div>
+          Date de restitution:<span class="input-line" id="return-date"
+            >{{payment.toDate}}</span
+          >
+        </div>
+        <div>
+          Montant de la caution:<span class="input-line" id="deposit-amount"
+            >{{payment.deposit}}</span
+          >
+        </div>
+      </div>
     </div>
 
     <div>Mode de règlement: Nature:</div>
     <div class="payment-options">
-        <div class="checkbox-container">
-            <input type="checkbox" id="cb">
-            <label for="cb">CB</label>
-        </div>
-        <div class="checkbox-container">
-            <input type="checkbox" id="cheque">
-            <label for="cheque">Chèque</label>
-        </div>
-        <div class="checkbox-container">
-            <input type="checkbox" id="especes">
-            <label for="especes">Espèces</label>
-        </div>
+      <div class="checkbox-container">
+        <input type="checkbox" id="cb" />
+        <label for="cb">CB</label>
+      </div>
+      <div class="checkbox-container">
+        <input type="checkbox" id="cheque" />
+        <label for="cheque">Chèque</label>
+      </div>
+      <div class="checkbox-container">
+        <input type="checkbox" id="especes" />
+        <label for="especes">Espèces</label>
+      </div>
     </div>
 
     <div class="vehicle-section">
-        <div style="font-weight: bold;">VEHICULE</div>
-        <div style="margin-top: 10px;">
-            <span>Marque:<span class="input-line"></span></span>
-            <span>Immatriculation:<span class="input-line"></span></span>
-        </div>
-        <div>
-            <span>Kilométrages:</span>
-            <span>Carburant: Sans plomb</span>
-        </div>
+      <div style="font-weight: bold">VEHICULE</div>
+      <div style="margin-top: 10px">
+        <span
+          >Marque:<span class="input-line" id="vehicle-brand"
+            >{{vehicle.brand}}</span
+          ></span
+        >
+        <span
+          >Immatriculation:<span class="input-line" id="vehicle-plate"
+            >{{vehicle.plate}}</span
+          ></span
+        >
+      </div>
+      <div>
+        <span
+          >Kilométrages:<span class="input-line" id="vehicle-mileage"
+            >{{vehicle.mileage}}</span
+          ></span
+        >
+        <span>Carburant: Sans plomb</span>
+      </div>
     </div>
 
     <div class="observation-section">
-        <div>Observations:</div>
-        <div class="input-line" style="height: 40px;"></div>
+      <div>Observations:</div>
+      <div class="input-line" style="height: 40px"></div>
     </div>
 
     <div class="terms-box">
-        FACTURATION / CAUTION / FRANCHISE<br>
-        La caution est égale au montant de la franchise<br><br>
-        Le locataire s'expose à des poursuites judiciaires si l'heure et la date
-        de restitution du véhicule consentie ne sont pas respectées.<br>
-        L'assurance ne couvre aucun risque en cas d'utilisation du
-        véhicule par un conducteur non désigné sur le contrat, le client
-        reconnait être responsable des frais de réparation non couvert par
-        l'assurance. En cas de prolongation un nouveau contrat sera établi.
+      FACTURATION / CAUTION / FRANCHISE<br />
+      La caution est égale au montant de la franchise<br /><br />
+      Le locataire s'expose à des poursuites judiciaires si l'heure et la date
+      de restitution du véhicule consentie ne sont pas respectées.<br />
+      L'assurance ne couvre aucun risque en cas d'utilisation du véhicule par un
+      conducteur non désigné sur le contrat, le client reconnait être
+      responsable des frais de réparation non couvert par l'assurance. En cas de
+      prolongation un nouveau contrat sera établi.
     </div>
 
     <div class="checkbox-container">
-        <input type="checkbox" id="terms">
-        <label for="terms">J'ai pris connaissance et j'accepte les termes et conditions imprimées aux deux faces de ce contrat.</label>
+      <input type="checkbox" id="terms" />
+      <label for="terms"
+        >J'ai pris connaissance et j'accepte les termes et conditions imprimées
+        aux deux faces de ce contrat.</label
+      >
     </div>
 
-    <div>Je reconnais être responsable des amendes, des violations du code de la route et de leurs conséquences éventuelles.</div>
-    <div>En cas de vol ou d'accident responsable, la caution reste acquise au loueur</div>
+    <div>
+      Je reconnais être responsable des amendes, des violations du code de la
+      route et de leurs conséquences éventuelles.
+    </div>
+    <div>
+      En cas de vol ou d'accident responsable, la caution reste acquise au
+      loueur
+    </div>
 
     <div class="signature-section">
-        <div>
-            <div>Signature client:</div>
-            <div class="signature-box"></div>
-        </div>
-        <div>
-            <div>Signature loueur:</div>
-            <div class="signature-box"></div>
-        </div>
+      <div>
+        <div>Signature client:</div>
+        <div class="signature-box"></div>
+      </div>
+      <div>
+        <div>Signature loueur:</div>
+        <div class="signature-box"></div>
+      </div>
     </div>
 
     <div class="vehicle-status">
-        <div>
-            <div>Véhicule restitué en état</div>
-            <div class="status-checkbox">
-                <div>
-                    <input type="checkbox" id="stateYes">
-                    <label for="stateYes">Oui</label>
-                </div>
-                <div>
-                    <input type="checkbox" id="stateNo">
-                    <label for="stateNo">Non</label>
-                </div>
-            </div>
+      <div>
+        <div>Véhicule restitué en état</div>
+        <div class="status-checkbox">
+          <div>
+            <input type="checkbox" id="stateYes" />
+            <label for="stateYes">Oui</label>
+          </div>
+          <div>
+            <input type="checkbox" id="stateNo" />
+            <label for="stateNo">Non</label>
+          </div>
         </div>
-        <div>
-            <div>Signature client:</div>
-            <div class="signature-box"></div>
-        </div>
+      </div>
+      <div>
+        <div>Signature client:</div>
+        <div class="signature-box"></div>
+      </div>
     </div>
 
     <div class="footer">
-        13 Rue Docteur Joseph PITAT<br>
-        GISSAC – 97160 Le Moule<br>
-        Tél : 06 90 23 87 62 / 05 90 68 08 36<br>
-        E-mail : alma.location@orange.fr
+      13 Rue Docteur Joseph PITAT<br />
+      GISSAC – 97160 Le Moule<br />
+      Tél : 06 90 23 87 62 / 05 90 68 08 36<br />
+      E-mail : alma.location@orange.fr
     </div>
-</body>
+  </body>
 </html>
