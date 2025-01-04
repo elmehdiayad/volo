@@ -50,16 +50,10 @@ export const generateContract = async (req: Request, res: Response) => {
     // Read company logo
     let companyLogo = ''
     try {
-      const supplierId = booking.supplier?._id?.toString()
-      if (supplierId) {
-        let logoPath = join('/var/www/cdn/bookcars/users', `${supplierId}.jpg`)
-        try {
-          companyLogo = readFileSync(logoPath).toString('base64')
-        } catch {
-          // If .jpg doesn't exist, try .png
-          logoPath = join('/var/www/cdn/bookcars/users', `${supplierId}.png`)
-          companyLogo = readFileSync(logoPath).toString('base64')
-        }
+      const supplierLogo = booking.supplier?.avatar?.toString()
+      if (supplierLogo) {
+        const logoPath = join('/var/www/cdn/bookcars/users', `${supplierLogo}`)
+        companyLogo = readFileSync(logoPath).toString('base64')
       }
     } catch (error: any) {
       logger.error(`[contract.generateContract] Company logo not found: ${error.message}`)
@@ -126,7 +120,6 @@ export const generateContract = async (req: Request, res: Response) => {
         '--disable-gpu',
         '--no-first-run',
         '--no-zygote',
-        '--single-process',
       ],
       protocolTimeout: 30000,
       timeout: 30000,
