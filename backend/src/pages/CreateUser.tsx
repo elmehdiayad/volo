@@ -12,6 +12,14 @@ import {
   Switch,
   SelectChangeEvent
 } from '@mui/material'
+import {
+  BtnBold,
+  Editor,
+  BtnItalic,
+  EditorProvider,
+  Toolbar,
+  ContentEditableEvent,
+} from 'react-simple-wysiwyg'
 import { Info as InfoIcon } from '@mui/icons-material'
 import validator from 'validator'
 import { intervalToDuration } from 'date-fns'
@@ -205,7 +213,7 @@ const CreateUser = () => {
     setLocation(e.target.value)
   }
 
-  const handleBioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleBioChange = (e: ContentEditableEvent) => {
     setBio(e.target.value)
   }
 
@@ -541,13 +549,9 @@ const CreateUser = () => {
                 <Input id="location" type="text" onChange={handleLocationChange} autoComplete="off" />
               </FormControl>
 
-              <FormControl fullWidth margin="dense">
-                <InputLabel>{commonStrings.BIO}</InputLabel>
-                <Input id="bio" type="text" onChange={handleBioChange} autoComplete="off" />
-              </FormControl>
-
               {supplier && (
                 <>
+
                   <FormControl fullWidth margin="dense">
                     <FormControlLabel
                       control={(
@@ -562,7 +566,6 @@ const CreateUser = () => {
                       label={commonStrings.PAY_LATER}
                     />
                   </FormControl>
-
                   <FormControl fullWidth margin="dense">
                     <FormControlLabel
                       control={(
@@ -582,6 +585,15 @@ const CreateUser = () => {
                     <InputLabel>{commonStrings.MIN_RENTAL_DAYS}</InputLabel>
                     <Input type="text" onChange={handleMinimumRentalDaysChange} autoComplete="off" slotProps={{ input: { inputMode: 'numeric', pattern: '^\\d+$' } }} />
                   </FormControl>
+                  <h4>{commonStrings.BIO}</h4>
+                  <EditorProvider>
+                    <Editor value={bio} onChange={handleBioChange}>
+                      <Toolbar>
+                        <BtnBold />
+                        <BtnItalic />
+                      </Toolbar>
+                    </Editor>
+                  </EditorProvider>
                 </>
               )}
 

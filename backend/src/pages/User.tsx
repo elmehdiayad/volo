@@ -174,11 +174,6 @@ const User = () => {
             <Typography variant="h4" className="user-name">
               {user.fullName}
             </Typography>
-            {user.bio && (
-              <Typography variant="h6" className="user-info">
-                {user.bio}
-              </Typography>
-            )}
             {user.location && (
               <Typography variant="h6" className="user-info">
                 {user.location}

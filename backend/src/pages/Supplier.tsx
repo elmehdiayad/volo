@@ -8,7 +8,6 @@ import {
   DialogContent,
   DialogActions,
   Tooltip,
-  Link
 } from '@mui/material'
 import { Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material'
 import { useNavigate } from 'react-router-dom'
@@ -166,14 +165,6 @@ const Supplier = () => {
               <Typography variant="h4" className="supplier-name">
                 {supplier.fullName}
               </Typography>
-            )}
-            {supplier.bio && (
-              helper.isValidURL(supplier.bio)
-                ? (<Link href={supplier.bio} className="supplier-bio-link">{supplier.bio}</Link>) : (
-                  <Typography variant="h6" className="supplier-info">
-                    {supplier.bio}
-                  </Typography>
-                )
             )}
             {supplier.location && supplier.location !== '' && (
               <Typography variant="h6" className="supplier-info">

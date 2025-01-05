@@ -14,6 +14,7 @@ interface UserSelectListProps {
   required?: boolean
   variant?: TextFieldVariants
   onChange?: (values: bookcarsTypes.Option[]) => void
+  currentUser?: bookcarsTypes.User
 }
 
 const UserSelectList = ({
@@ -22,7 +23,8 @@ const UserSelectList = ({
   label,
   required,
   variant,
-  onChange
+  onChange,
+  currentUser
 }: UserSelectListProps) => {
   const [init, setInit] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -48,8 +50,12 @@ const UserSelectList = ({
   const fetchData = async (_page: number, _keyword: string, onFetch?: bookcarsTypes.DataEvent<bookcarsTypes.User>) => {
     try {
       setLoading(true)
+      const payload: bookcarsTypes.GetUsersBody = {
+        user: (currentUser && currentUser._id) || '',
+        types: [bookcarsTypes.UserType.User]
+      }
 
-      const data = await UserService.getDrivers(_keyword, _page, env.PAGE_SIZE)
+      const data = await UserService.getUsers(payload, keyword, _page, env.PAGE_SIZE)
 
       const _data = data && data.length > 0 ? data[0] : { pageInfo: { totalRecord: 0 }, resultData: [] }
       if (!_data) {

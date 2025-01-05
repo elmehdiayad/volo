@@ -11,6 +11,14 @@ import {
 } from '@mui/material'
 import { Info as InfoIcon } from '@mui/icons-material'
 import validator from 'validator'
+import {
+  BtnBold,
+  Editor,
+  BtnItalic,
+  EditorProvider,
+  Toolbar,
+  ContentEditableEvent,
+} from 'react-simple-wysiwyg'
 import * as bookcarsTypes from ':bookcars-types'
 import * as bookcarsHelper from ':bookcars-helper'
 import Layout from '@/components/Layout'
@@ -24,7 +32,6 @@ import Error from '@/components/Error'
 import Backdrop from '@/components/SimpleBackdrop'
 import NoMatch from './NoMatch'
 import Avatar from '@/components/Avatar'
-import ContractList from '@/components/ContractList'
 
 import '@/assets/css/update-supplier.css'
 
@@ -124,7 +131,7 @@ const UpdateSupplier = () => {
     setLocation(e.target.value)
   }
 
-  const handleBioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleBioChange = (e: ContentEditableEvent) => {
     setBio(e.target.value)
   }
 
@@ -357,13 +364,19 @@ const UpdateSupplier = () => {
                 <InputLabel>{commonStrings.LOCATION}</InputLabel>
                 <Input type="text" onChange={handleLocationChange} autoComplete="off" value={location} />
               </FormControl>
-              <FormControl fullWidth margin="dense">
-                <InputLabel>{commonStrings.BIO}</InputLabel>
-                <Input type="text" onChange={handleBioChange} autoComplete="off" value={bio} />
-              </FormControl>
-              <FormControl fullWidth margin="dense">
+              <h4>{commonStrings.BIO}</h4>
+              <EditorProvider>
+                <Editor value={bio} onChange={handleBioChange}>
+                  <Toolbar>
+                    <BtnBold />
+                    <BtnItalic />
+                  </Toolbar>
+                </Editor>
+              </EditorProvider>
+
+              {/* <FormControl fullWidth margin="dense">
                 <ContractList supplier={supplier} />
-              </FormControl>
+              </FormControl> */}
 
               {admin && (
                 <FormControl fullWidth margin="dense" className="resend-activation-link">

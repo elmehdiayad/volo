@@ -598,6 +598,7 @@ const UpdateBooking = () => {
                 variant="standard"
                 onChange={handleDriverChange}
                 value={driver}
+                currentUser={user}
               />
 
               <FormControl fullWidth margin="dense">

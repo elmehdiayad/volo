@@ -11,7 +11,9 @@ import * as env from '../config/env.config'
 export const generateContract = async (req: Request, res: Response) => {
   let browser = null
   try {
-    const { bookingId, currencySymbol } = req.params
+    const { bookingId } = req.params
+    const currencySymbol = req.query.currencySymbol as string || 'DH'
+    const clientTimezone = req.query.clientTimezone as string || 'Africa/Casablanca'
     const booking = await Booking.findById(bookingId)
       .populate<{ supplier: env.UserInfo }>('supplier')
       .populate<{ car: env.CarInfo }>({
@@ -60,8 +62,8 @@ export const generateContract = async (req: Request, res: Response) => {
     }
 
     // Format dates and calculate costs
-    const fromDate = new Date(booking.from).toLocaleDateString('fr-FR')
-    const toDate = new Date(booking.to).toLocaleDateString('fr-FR')
+    const fromDate = new Date(booking.from).toLocaleDateString('fr-FR', { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: clientTimezone })
+    const toDate = new Date(booking.to).toLocaleDateString('fr-FR', { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: clientTimezone })
     const days = Math.ceil((new Date(booking.to).getTime() - new Date(booking.from).getTime()) / (1000 * 3600 * 24))
     const pricePerDay = booking.price / days
     const tva = booking.price * 0.20
@@ -78,6 +80,7 @@ export const generateContract = async (req: Request, res: Response) => {
         location: booking.supplier?.location || '',
         phone: booking.supplier?.phone || '',
         email: booking.supplier?.email || '',
+        bio: booking.supplier?.bio || '',
       },
       driver1: {
         fullname: booking.driver?.fullName || '',
@@ -107,7 +110,8 @@ export const generateContract = async (req: Request, res: Response) => {
       },
       payment: {
         pricePerDay: `${pricePerDay.toFixed(2)} ${currencySymbol}`,
-        priceHT: `${booking.price.toFixed(2)} ${currencySymbol}`,
+        totalPrice: `${booking.price.toFixed(2)} ${currencySymbol}`,
+        numberOfDays: days,
         TVA: `${tva.toFixed(2)} ${currencySymbol}`,
         TTC: `${totalTTC.toFixed(2)} ${currencySymbol}`,
         fromDate,

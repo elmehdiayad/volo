@@ -187,7 +187,7 @@
           >
         </div>
         <div>
-          N° permis:<span class="input-line" id="driver1-license"
+          N° Permis:<span class="input-line" id="driver1-license"
             >{{driver1.licenseId}}</span
           >
         </div>
@@ -233,7 +233,7 @@
           >
         </div>
         <div>
-          N° permis:<span class="input-line" id="driver2-license"
+          N° Permis:<span class="input-line" id="driver2-license"
             >{{driver2.licenseId}}</span
           >
         </div>
@@ -260,18 +260,22 @@
           >
         </div>
         <div>
-          Total HT:<span class="input-line" id="price-ht"
-            >{{payment.priceHT}}</span
-          >
+          Nombre de jours:<span class="input-line" id="total-price"
+            >{{payment.numberOfDays}} Jours</span>
         </div>
         <div>
+          Total:<span class="input-line" id="total-price"
+            >{{payment.totalPrice}}</span
+          >
+        </div>
+        <!-- <div>
           T.V.A:<span class="input-line" id="price-tva">{{payment.TVA}}</span>
         </div>
         <div>
           Total T.T.C:<span class="input-line" id="price-ttc"
             >{{payment.TTC}}</span
           >
-        </div>
+        </div> -->
       </div>
       <div>
         <div>
@@ -403,11 +407,8 @@
       </div>
     </div>
 
-    <div class="footer">
-      13 Rue Docteur Joseph PITAT<br />
-      GISSAC – 97160 Le Moule<br />
-      Tél : 06 90 23 87 62 / 05 90 68 08 36<br />
-      E-mail : alma.location@orange.fr
+    <div class="footer"> 
+      {{{supplier.bio}}}
     </div>
   </body>
 </html>
