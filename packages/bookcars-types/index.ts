@@ -126,7 +126,12 @@ export interface AdditionalDriver {
   fullName: string
   email: string
   phone: string
-  birthDate: Date
+  location?: string
+  birthDate?: Date
+  licenseId?: string
+  licenseDeliveryDate?: Date
+  nationalId?: string
+  nationalIdExpirationDate?: Date
 }
 
 export interface UpsertBookingPayload {
@@ -254,7 +259,7 @@ export interface CreateUserPayload {
   fullName: string
   type?: string
   avatar?: string
-  birthDate?: number | Date
+  birthDate?: Date | number
   language?: string
   password?: string
   verified?: boolean
@@ -267,6 +272,8 @@ export interface CreateUserPayload {
   license?: string
   licenseId?: string
   nationalId?: string
+  nationalIdExpirationDate?: Date | number
+  licenseDeliveryDate?: Date | number
 }
 
 export interface UpdateUserPayload extends CreateUserPayload {
@@ -370,6 +377,8 @@ export interface User {
   minimumRentalDays?: number,
   nationalId?: string
   licenseId?: string
+  nationalIdExpirationDate?: Date
+  licenseDeliveryDate?: Date
 }
 
 export interface Option {
@@ -576,4 +585,6 @@ export interface LicenseExtractedData {
   expiryDate: string | null
   nationalId: string | null
   licenseId: string | null
+  licenseDeliveryDate: string | null
+  nationalIdExpirationDate: string | null
 }

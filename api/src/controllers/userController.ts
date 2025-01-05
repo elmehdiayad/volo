@@ -975,7 +975,10 @@ export const update = async (req: Request, res: Response) => {
       payLater,
       licenseRequired,
       minimumRentalDays,
-      licenseId } = body
+      licenseId,
+      nationalIdExpirationDate,
+      licenseDeliveryDate,
+    } = body
 
     if (fullName) {
       user.fullName = fullName
@@ -986,6 +989,8 @@ export const update = async (req: Request, res: Response) => {
     user.birthDate = birthDate ? new Date(birthDate) : undefined
     user.minimumRentalDays = minimumRentalDays
     user.nationalId = nationalId
+    user.nationalIdExpirationDate = nationalIdExpirationDate ? new Date(nationalIdExpirationDate) : undefined
+    user.licenseDeliveryDate = licenseDeliveryDate ? new Date(licenseDeliveryDate) : undefined
 
     // Handle licenseId update for driver type
     if (type === bookcarsTypes.UserType.User && licenseId) {
@@ -1124,6 +1129,8 @@ export const getUser = async (req: Request, res: Response) => {
       minimumRentalDays: 1,
       nationalId: 1,
       licenseId: 1,
+      nationalIdExpirationDate: 1,
+      licenseDeliveryDate: 1,
     }).lean()
 
     if (!user) {

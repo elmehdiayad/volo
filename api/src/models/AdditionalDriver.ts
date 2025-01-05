@@ -36,6 +36,29 @@ const additionalDriverSchema = new Schema<env.AdditionalDriver>(
     },
     birthDate: {
       type: Date,
+      required: false,
+    },
+    location: {
+      type: String,
+      required: false,
+      trim: true,
+    },
+    licenseId: {
+      type: String,
+      required: [true, "can't be blank"],
+      trim: true,
+    },
+    licenseDeliveryDate: {
+      type: Date,
+      required: [true, "can't be blank"],
+    },
+    nationalId: {
+      type: String,
+      required: [true, "can't be blank"],
+      trim: true,
+    },
+    nationalIdExpirationDate: {
+      type: Date,
       required: [true, "can't be blank"],
     },
   },

@@ -45,7 +45,7 @@ export const generateContract = async (req: Request, res: Response) => {
 
     // Read template and header image
     const template = readFileSync(join(process.cwd(), 'src', 'templates', 'contract.html'), 'utf8')
-    const headerImage = readFileSync(join(process.cwd(), 'src', 'templates', 'contract-header.png')).toString('base64')
+    const carImage = readFileSync(join(process.cwd(), 'src', 'templates', 'contract-header.png')).toString('base64')
 
     // Read company logo
     let companyLogo = ''
@@ -69,9 +69,8 @@ export const generateContract = async (req: Request, res: Response) => {
 
     // Create template data
     const templateData = {
-      headerImage: headerImage ? `data:image/png;base64,${headerImage}` : '',
+      carImage: carImage ? `data:image/png;base64,${carImage}` : '',
       companyLogo: companyLogo ? `data:image/png;base64,${companyLogo}` : '',
-      supplierId: booking.supplier._id,
       contractNumber: booking._id,
       date: new Date().toLocaleString('fr-FR'),
       supplier: {
@@ -84,15 +83,26 @@ export const generateContract = async (req: Request, res: Response) => {
         fullname: booking.driver?.fullName || '',
         birthDate: booking.driver?.birthDate ? new Date(booking.driver.birthDate).toLocaleDateString('fr-FR') : '',
         licenseId: booking.driver?.licenseId || '',
+        nationalId: booking.driver?.nationalId || '',
+        nationalIdExpirationDate: booking.driver?.nationalIdExpirationDate ? new Date(booking.driver.nationalIdExpirationDate).toLocaleDateString('fr-FR') : '',
+        licenseDeliveryDate: booking.driver?.licenseDeliveryDate ? new Date(booking.driver.licenseDeliveryDate).toLocaleDateString('fr-FR') : '',
+        address: booking.driver?.location || '',
+        phone: booking.driver?.phone || '',
       },
       driver2: {
         fullname: booking._additionalDriver?.fullName || '',
         birthDate: booking._additionalDriver?.birthDate ? new Date(booking._additionalDriver.birthDate).toLocaleDateString('fr-FR') : '',
-        licenseId: booking._additionalDriver?.phone || '',
+        licenseId: booking._additionalDriver?.licenseId || '',
+        phone: booking._additionalDriver?.phone || '',
+        address: booking._additionalDriver?.location || '',
+        nationalId: booking._additionalDriver?.nationalId || '',
+        nationalIdExpirationDate: booking._additionalDriver?.nationalIdExpirationDate ? new Date(booking._additionalDriver.nationalIdExpirationDate).toLocaleDateString('fr-FR') : '',
+        licenseDeliveryDate: booking._additionalDriver?.licenseDeliveryDate ? new Date(booking._additionalDriver.licenseDeliveryDate).toLocaleDateString('fr-FR') : '',
       },
       vehicle: {
         brand: booking.car?.name || '',
         plate: booking.car?.plateNumber || '',
+        type: booking.car?.type || '',
         mileage: booking.car?.mileage?.toString() || '0',
       },
       payment: {

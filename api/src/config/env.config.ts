@@ -413,7 +413,9 @@ export interface User extends Document {
   minimumRentalDays?: number
   expireAt?: Date
   nationalId?: string
+  nationalIdExpirationDate?: Date
   licenseId?: string
+  licenseDeliveryDate?: Date
 }
 
 /**
@@ -457,7 +459,12 @@ export interface AdditionalDriver {
   fullName: string
   email: string
   phone: string
-  birthDate: Date
+  location?: string
+  birthDate?: Date
+  licenseId?: string
+  licenseDeliveryDate?: Date
+  nationalId?: string
+  nationalIdExpirationDate?: Date
 }
 
 /**

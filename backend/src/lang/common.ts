@@ -96,6 +96,8 @@ const strings = new LocalizedStrings({
     ID_VERSO: "Pièce d'identité (verso)",
     LICENSE_ID: 'License ID',
     LICENSE_ID_INFO: 'Enter your driver license ID',
+    LICENSE_DELIVERY_DATE: 'Date de délivrance de permis de conduire',
+    NATIONAL_ID_EXPIRATION_DATE: 'Date d\'expiration de la carte d\'identité',
   },
   en: {
     GENERIC_ERROR: 'An unhandled error occurred.',
@@ -190,6 +192,8 @@ const strings = new LocalizedStrings({
     ID_VERSO: 'ID Card (back)',
     LICENSE_ID: 'License ID',
     LICENSE_ID_INFO: 'Enter your driver license ID',
+    LICENSE_DELIVERY_DATE: 'Driver license deivery date',
+    NATIONAL_ID_EXPIRATION_DATE: 'National ID expiration date',
   },
   es: {
     GENERIC_ERROR: 'Se ha producido un error no controlado.',

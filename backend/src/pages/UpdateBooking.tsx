@@ -81,6 +81,11 @@ const UpdateBooking = () => {
   const [additionalDriverEmailValid, setAdditionalDriverEmailValid] = useState(true)
   const [additionalDriverPhoneValid, setAdditionalDriverPhoneValid] = useState(true)
   const [additionalDriverBirthDateValid, setAdditionalDriverBirthDateValid] = useState(true)
+  const [additionalDriverLocation, setAdditionalDriverLocation] = useState('')
+  const [additionalDriverLicenseId, setAdditionalDriverLicenseId] = useState('')
+  const [additionalDriverLicenseDeliveryDate, setAdditionalDriverLicenseDeliveryDate] = useState<Date>()
+  const [additionalDriverNationalId, setAdditionalDriverNationalId] = useState('')
+  const [additionalDriverNationalIdExpirationDate, setAdditionalDriverNationalIdExpirationDate] = useState<Date>()
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
   const [language, setLanguage] = useState(env.DEFAULT_LANGUAGE)
   const [fromError, setFromError] = useState(false)
@@ -428,6 +433,11 @@ const UpdateBooking = () => {
           email: addtionalDriverEmail,
           phone: additionalDriverPhone,
           birthDate: addtionalDriverBirthDate,
+          licenseId: additionalDriverLicenseId,
+          location: additionalDriverLocation,
+          licenseDeliveryDate: additionalDriverLicenseDeliveryDate,
+          nationalId: additionalDriverNationalId,
+          nationalIdExpirationDate: additionalDriverNationalIdExpirationDate,
         }
 
         payload = {
@@ -446,6 +456,11 @@ const UpdateBooking = () => {
           setAdditionalDriverEmail('')
           setAdditionalDriverPhone('')
           setAdditionalDriverBirthDate(undefined)
+          setAdditionalDriverLocation('')
+          setAdditionalDriverLicenseId('')
+          setAdditionalDriverLicenseDeliveryDate(undefined)
+          setAdditionalDriverNationalId('')
+          setAdditionalDriverNationalIdExpirationDate(undefined)
         }
         helper.info(commonStrings.UPDATED)
       } else {
@@ -528,9 +543,14 @@ const UpdateBooking = () => {
               if (_booking.additionalDriver && _booking._additionalDriver) {
                 const _additionalDriver = _booking._additionalDriver as bookcarsTypes.AdditionalDriver
                 setAdditionalDriverFullName(_additionalDriver.fullName)
-                setAdditionalDriverEmail(_additionalDriver.email)
+                setAdditionalDriverEmail(_additionalDriver.email || '')
                 setAdditionalDriverPhone(_additionalDriver.phone)
-                setAdditionalDriverBirthDate(new Date(_additionalDriver.birthDate))
+                setAdditionalDriverBirthDate(_additionalDriver.birthDate ? new Date(_additionalDriver.birthDate) : undefined)
+                setAdditionalDriverLocation(_additionalDriver.location || '')
+                setAdditionalDriverLicenseId(_additionalDriver.licenseId || '')
+                setAdditionalDriverLicenseDeliveryDate(_additionalDriver.licenseDeliveryDate ? new Date(_additionalDriver.licenseDeliveryDate) : undefined)
+                setAdditionalDriverNationalId(_additionalDriver.nationalId || '')
+                setAdditionalDriverNationalIdExpirationDate(_additionalDriver.nationalIdExpirationDate ? new Date(_additionalDriver.nationalIdExpirationDate) : undefined)
               }
             } else {
               setLoading(false)
@@ -836,6 +856,58 @@ const UpdateBooking = () => {
                       language={UserService.getLanguage()}
                     />
                     <FormHelperText error={!additionalDriverBirthDateValid}>{(!additionalDriverBirthDateValid && helper.getBirthDateError(env.MINIMUM_AGE)) || ''}</FormHelperText>
+                  </FormControl>
+                  <FormControl fullWidth margin="dense">
+                    <InputLabel>{commonStrings.LOCATION}</InputLabel>
+                    <Input
+                      id="location"
+                      type="text"
+                      value={additionalDriverLocation}
+                      onChange={(e) => {
+                        setAdditionalDriverLocation(e.target.value)
+                      }}
+                      autoComplete="off"
+                    />
+                  </FormControl>
+                  <FormControl fullWidth margin="dense">
+                    <InputLabel className="required">{commonStrings.LICENSE_ID}</InputLabel>
+                    <Input
+                      id="license-id"
+                      type="text"
+                      value={additionalDriverLicenseId}
+                      onChange={(e) => setAdditionalDriverLicenseId(e.target.value)}
+                      autoComplete="off"
+                      required
+                    />
+                  </FormControl>
+                  <FormControl fullWidth margin="dense">
+                    <DatePicker
+                      label={commonStrings.LICENSE_DELIVERY_DATE}
+                      value={additionalDriverLicenseDeliveryDate}
+                      onChange={(date) => date && setAdditionalDriverLicenseDeliveryDate(date)}
+                      language={(user && user.language) || env.DEFAULT_LANGUAGE}
+                      required
+                    />
+                  </FormControl>
+                  <FormControl fullWidth margin="dense">
+                    <InputLabel className="required">{commonStrings.NATIONAL_ID}</InputLabel>
+                    <Input
+                      id="national-id"
+                      type="text"
+                      onChange={(e) => setAdditionalDriverNationalId(e.target.value)}
+                      value={additionalDriverNationalId}
+                      autoComplete="off"
+                      required
+                    />
+                  </FormControl>
+                  <FormControl fullWidth margin="dense">
+                    <DatePicker
+                      label={commonStrings.NATIONAL_ID_EXPIRATION_DATE}
+                      value={additionalDriverNationalIdExpirationDate}
+                      onChange={(date) => date && setAdditionalDriverNationalIdExpirationDate(date)}
+                      language={(user && user.language) || env.DEFAULT_LANGUAGE}
+                      required
+                    />
                   </FormControl>
                 </>
               )}

@@ -10,7 +10,7 @@
       body {
         font-family: Arial, sans-serif;
         line-height: 1.2;
-        padding: 50px 12px;
+        padding: 20px 12px;
         max-width: 210mm;
         font-size: 12px;
       }
@@ -83,6 +83,14 @@
         border: 1px solid black;
         padding: 8px;
         margin: 12px 0;
+        height: 130px;
+        position: relative;
+      }
+      .vehicle-section-info {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 4px;
+        margin-top: 10px;
       }
       .signature-section {
         display: grid;
@@ -92,7 +100,7 @@
       }
       .signature-box {
         border: 1px solid black;
-        height: 30px;
+        height: 60px;
         margin-top: 4px;
       }
       .footer {
@@ -126,11 +134,6 @@
   </head>
   <body>
     <img
-      class="car-image"
-      src="{{headerImage}}"
-      onerror="this.style.display='none'"
-    />
-    <img
       class="company-logo"
       src="{{companyLogo}}"
       onerror="this.style.display='none'"
@@ -160,11 +163,28 @@
             >{{driver1.fullname}}</span
           >
         </div>
-        <div>
+        <!-- <div>
           Né(e) le:<span class="input-line" id="driver1-birthdate"
             >{{driver1.birthDate}}</span
           >
           à <span class="input-line" id="driver1-birthplace"></span>
+        </div> -->
+        <div>
+          Adresse:<span class="input-line" id="driver1-address"
+            >{{driver1.address}}</span
+          >
+        </div>
+        <div>
+          N° CIN:<span class="input-line" id="driver1-nationalId"
+            >{{driver1.nationalId}}</span
+          >
+        </div>
+        <div>
+          Valable jusqu'au:<span
+            class="input-line"
+            id="driver1-nationalIdExpirationDate"
+            >{{driver1.nationalIdExpirationDate}}</span
+          >
         </div>
         <div>
           N° permis:<span class="input-line" id="driver1-license"
@@ -172,13 +192,14 @@
           >
         </div>
         <div>
-          Date d'obtention:<span
-            class="input-line"
-            id="driver1-license-date"
-          ></span>
+          Date d'obtention:<span class="input-line" id="driver1-license-date"
+            >{{driver1.licenseDeliveryDate}}</span
+          >
         </div>
         <div>
-          Préfecture:<span class="input-line" id="driver1-prefecture"></span>
+          N° Télephone:<span class="input-line" id="driver1-phone"
+            >{{driver1.phone}}</span
+          >
         </div>
       </div>
       <div class="driver-section">
@@ -189,10 +210,27 @@
           >
         </div>
         <div>
+          Adresse:<span class="input-line" id="driver2-address"
+            >{{driver2.address}}</span
+          >
+        </div>
+         <!-- <div>
           Né(e) le:<span class="input-line" id="driver2-birthdate"
             >{{driver2.birthDate}}</span
           >
           à <span class="input-line" id="driver2-birthplace"></span>
+        </div> -->
+        <div>
+          N° CIN:<span class="input-line" id="driver2-nationalId"
+            >{{driver2.nationalId}}</span
+          >
+        </div>
+        <div>
+          Valable jusqu'au:<span
+            class="input-line"
+            id="driver2-nationalIdExpirationDate"
+            >{{driver2.nationalIdExpirationDate}}</span
+          >
         </div>
         <div>
           N° permis:<span class="input-line" id="driver2-license"
@@ -200,13 +238,16 @@
           >
         </div>
         <div>
-          Date d'obtention:<span
-            class="input-line"
-            id="driver2-license-date"
-          ></span>
+          Date d'obtention:<span class="input-line" id="driver2-license-date"
+            >{{driver2.licenseDeliveryDate}}</span
+          >
         </div>
+        
         <div>
-          Préfecture:<span class="input-line" id="driver2-prefecture"></span>
+          N° Télephone:<span class="input-line" id="driver2-phone"
+            >{{driver2.phone}}</span
+          >
+        </div>
         </div>
       </div>
     </div>
@@ -251,7 +292,7 @@
       </div>
     </div>
 
-    <div>Mode de règlement: Nature:</div>
+    <div>Mode de règlement:</div>
     <div class="payment-options">
       <div class="checkbox-container">
         <input type="checkbox" id="cb" />
@@ -269,7 +310,7 @@
 
     <div class="vehicle-section">
       <div style="font-weight: bold">VEHICULE</div>
-      <div style="margin-top: 10px">
+      <div class="vehicle-section-info">
         <span
           >Marque:<span class="input-line" id="vehicle-brand"
             >{{vehicle.brand}}</span
@@ -280,15 +321,22 @@
             >{{vehicle.plate}}</span
           ></span
         >
-      </div>
-      <div>
         <span
           >Kilométrages:<span class="input-line" id="vehicle-mileage"
             >{{vehicle.mileage}}</span
           ></span
         >
-        <span>Carburant: Sans plomb</span>
+        <span
+          >Carburant:<span class="input-line" id="vehicle-type"
+            >{{vehicle.type}}</span
+          ></span
+        >
       </div>
+      <img
+        class="car-image"
+        src="{{carImage}}"
+        onerror="this.style.display='none'"
+      />
     </div>
 
     <div class="observation-section">
@@ -326,11 +374,11 @@
 
     <div class="signature-section">
       <div>
-        <div>Signature client:</div>
+        <div>Signature conducteur:</div>
         <div class="signature-box"></div>
       </div>
       <div>
-        <div>Signature loueur:</div>
+        <div>Signature 2éme conducteur:</div>
         <div class="signature-box"></div>
       </div>
     </div>
@@ -350,7 +398,7 @@
         </div>
       </div>
       <div>
-        <div>Signature client:</div>
+        <div>Visa de la direction:</div>
         <div class="signature-box"></div>
       </div>
     </div>

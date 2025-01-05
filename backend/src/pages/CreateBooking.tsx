@@ -41,6 +41,7 @@ import '@/assets/css/create-booking.css'
 
 const CreateBooking = () => {
   const navigate = useNavigate()
+  const [user, setUser] = useState<bookcarsTypes.User>()
   const [isSupplier, setIsSupplier] = useState(false)
   const [visible, setVisible] = useState(false)
   const [supplier, setSupplier] = useState('')
@@ -68,6 +69,11 @@ const CreateBooking = () => {
   const [additionalDriverBirthDateValid, setAdditionalDriverBirthDateValid] = useState(true)
   const [fromError, setFromError] = useState(false)
   const [toError, setToError] = useState(false)
+  const [additionalDriverLocation, setAdditionalDriverLocation] = useState('')
+  const [additionalDriverLicenseId, setAdditionalDriverLicenseId] = useState('')
+  const [additionalDriverLicenseDeliveryDate, setAdditionalDriverLicenseDeliveryDate] = useState<Date>()
+  const [additionalDriverNationalId, setAdditionalDriverNationalId] = useState('')
+  const [additionalDriverNationalIdExpirationDate, setAdditionalDriverNationalIdExpirationDate] = useState<Date>()
 
   const handleSupplierChange = (values: bookcarsTypes.Option[]) => {
     setSupplier(values.length > 0 ? values[0]._id : '')
@@ -162,7 +168,19 @@ const CreateBooking = () => {
     return true
   }
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const validateLicenseDeliveryDate = (date?: Date): boolean => {
+    if (!date) return false
+    const now = new Date()
+    return date < now
+  }
+
+  const validateNationalIdExpirationDate = (date?: Date): boolean => {
+    if (!date) return false
+    const now = new Date()
+    return date > now
+  }
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
     if (!car || !from || !to || !status) {
@@ -189,6 +207,11 @@ const CreateBooking = () => {
 
       const birthDateValid = _validateBirthDate(addtionalDriverBirthDate)
       if (!birthDateValid) {
+        return
+      }
+
+      if (!validateLicenseDeliveryDate(additionalDriverLicenseDeliveryDate) || !validateNationalIdExpirationDate(additionalDriverNationalIdExpirationDate)) {
+        helper.error()
         return
       }
     }
@@ -222,6 +245,11 @@ const CreateBooking = () => {
         email: addtionalDriverEmail,
         phone: additionalDriverPhone,
         birthDate: addtionalDriverBirthDate,
+        licenseId: additionalDriverLicenseId,
+        location: additionalDriverLocation,
+        licenseDeliveryDate: additionalDriverLicenseDeliveryDate,
+        nationalId: additionalDriverNationalId,
+        nationalIdExpirationDate: additionalDriverNationalIdExpirationDate,
       }
     }
 
@@ -251,12 +279,13 @@ const CreateBooking = () => {
     )
   }
 
-  const onLoad = (user?: bookcarsTypes.User) => {
-    if (user) {
+  const onLoad = (loadedUser?: bookcarsTypes.User) => {
+    if (loadedUser) {
+      setUser(loadedUser)
       setVisible(true)
 
-      if (user.type === bookcarsTypes.RecordType.Supplier) {
-        setSupplier(user._id as string)
+      if (loadedUser.type === bookcarsTypes.RecordType.Supplier) {
+        setSupplier(loadedUser._id as string)
         setIsSupplier(true)
       }
     }
@@ -523,6 +552,55 @@ const CreateBooking = () => {
                   >
                     {(!additionalDriverBirthDateValid && helper.getBirthDateError(env.MINIMUM_AGE)) || ''}
                   </FormHelperText>
+                </FormControl>
+                <FormControl fullWidth margin="dense">
+                  <InputLabel>{commonStrings.LOCATION}</InputLabel>
+                  <Input
+                    id="location"
+                    type="text"
+                    onChange={(e) => {
+                      setAdditionalDriverLocation(e.target.value)
+                    }}
+                    autoComplete="off"
+                  />
+                </FormControl>
+                <FormControl fullWidth margin="dense">
+                  <InputLabel className="required">{commonStrings.LICENSE_ID}</InputLabel>
+                  <Input
+                    id="license-id"
+                    type="text"
+                    onChange={(e) => setAdditionalDriverLicenseId(e.target.value)}
+                    autoComplete="off"
+                    required
+                  />
+                </FormControl>
+                <FormControl fullWidth margin="dense">
+                  <DatePicker
+                    label={commonStrings.LICENSE_DELIVERY_DATE}
+                    value={additionalDriverLicenseDeliveryDate}
+                    onChange={(date) => date && setAdditionalDriverLicenseDeliveryDate(date)}
+                    language={(user && user.language) || env.DEFAULT_LANGUAGE}
+                    required
+                  />
+                </FormControl>
+                <FormControl fullWidth margin="dense">
+                  <InputLabel className="required">{commonStrings.NATIONAL_ID}</InputLabel>
+                  <Input
+                    id="national-id"
+                    type="text"
+                    onChange={(e) => setAdditionalDriverNationalId(e.target.value)}
+                    autoComplete="off"
+                    required
+                  />
+                </FormControl>
+                <FormControl fullWidth margin="dense">
+                  <DatePicker
+                    label={commonStrings.NATIONAL_ID_EXPIRATION_DATE}
+                    value={additionalDriverNationalIdExpirationDate}
+                    onChange={(date) => date && setAdditionalDriverNationalIdExpirationDate(date)}
+                    language={(user && user.language) || env.DEFAULT_LANGUAGE}
+                    required
+                  />
                 </FormControl>
               </>
             )}

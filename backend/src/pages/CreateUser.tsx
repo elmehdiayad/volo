@@ -61,6 +61,8 @@ const CreateUser = () => {
   const [license, setLicense] = useState<string | undefined>()
   const [nationalId, setNationalId] = useState('')
   const [licenseId, setLicenseId] = useState('')
+  const [nationalIdExpirationDate, setNationalIdExpirationDate] = useState<Date>()
+  const [licenseDeliveryDate, setLicenseDeliveryDate] = useState<Date>()
 
   const handleFullNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFullName(e.target.value)
@@ -254,7 +256,6 @@ const CreateUser = () => {
     setLicense(filename)
     // Set fields from extracted data if available
     if (extractedInfo) {
-
       if (extractedInfo.fullName && !fullName) {
         setFullName(extractedInfo.fullName)
       }
@@ -262,24 +263,61 @@ const CreateUser = () => {
         setNationalId(extractedInfo.nationalId)
       }
 
-      if(extractedInfo.licenseId && !licenseId) {
+      if (extractedInfo.licenseId && !licenseId) {
         setLicenseId(extractedInfo.licenseId)
       }
       if (extractedInfo.dateOfBirth && !birthDate) {
         const parsedDate = new Date(extractedInfo.dateOfBirth)
-        if (!isNaN(parsedDate.getTime())) {
+        if (!Number.isNaN(parsedDate.getTime())) {
           setBirthDate(parsedDate)
           validateBirthDate(parsedDate)
         }
       }
+      if (extractedInfo.nationalIdExpirationDate && !nationalIdExpirationDate) {
+        const parsedDate = new Date(extractedInfo.nationalIdExpirationDate)
+        if (!Number.isNaN(parsedDate.getTime())) {
+          setNationalIdExpirationDate(parsedDate)
+        }
+      }
+
+      if (extractedInfo.licenseDeliveryDate && !licenseDeliveryDate) {
+        const parsedDate = new Date(extractedInfo.licenseDeliveryDate)
+        if (!Number.isNaN(parsedDate.getTime())) {
+          setLicenseDeliveryDate(parsedDate)
+        }
+      }
     }
+  }
+
+  const handleLicenseIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLicenseId(e.target.value)
+  }
+
+  const handleLicenseDeliveryDateChange = (date: Date | null) => {
+    if (date) setLicenseDeliveryDate(date)
+  }
+
+  const handleNationalIdExpirationDateChange = (date: Date | null) => {
+    if (date) setNationalIdExpirationDate(date)
+  }
+
+  const validateNationalIdExpirationDate = (date?: Date): boolean => {
+    if (!date) return false
+    const now = new Date()
+    return date > now
+  }
+
+  const validateLicenseDeliveryDate = (date?: Date): boolean => {
+    if (!date) return false
+    const now = new Date()
+    return date < now
   }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     try {
       e.preventDefault()
 
-      if (!user) {
+      if (!user || !validateNationalIdExpirationDate(nationalIdExpirationDate) || !validateLicenseDeliveryDate(licenseDeliveryDate)) {
         helper.error()
         return
       }
@@ -333,6 +371,8 @@ const CreateUser = () => {
         license,
         nationalId,
         licenseId,
+        nationalIdExpirationDate,
+        licenseDeliveryDate,
       }
 
       if (type === bookcarsTypes.RecordType.Supplier) {
@@ -352,10 +392,6 @@ const CreateUser = () => {
     }
   }
 
-  const handleLicenseIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLicenseId(e.target.value)
-  }
-
   const supplier = type === bookcarsTypes.RecordType.Supplier
   const driver = type === bookcarsTypes.RecordType.User
 
@@ -370,19 +406,24 @@ const CreateUser = () => {
               {' '}
             </h1>
             <form onSubmit={handleSubmit}>
-              {supplier && (<><Avatar
-                type={type}
-                mode="create"
-                record={null}
-                size="large"
-                readonly={false}
-                onBeforeUpload={onBeforeUpload}
-                onChange={onAvatarChange}
-                color="disabled"
-                className="avatar-ctn" /><div className="info">
-                  <InfoIcon />
-                  <span>{ccStrings.RECOMMENDED_IMAGE_SIZE}</span>
-                </div></>
+              {supplier && (
+                <>
+                  <Avatar
+                    type={type}
+                    mode="create"
+                    record={null}
+                    size="large"
+                    readonly={false}
+                    onBeforeUpload={onBeforeUpload}
+                    onChange={onAvatarChange}
+                    color="disabled"
+                    className="avatar-ctn"
+                  />
+                  <div className="info">
+                    <InfoIcon />
+                    <span>{ccStrings.RECOMMENDED_IMAGE_SIZE}</span>
+                  </div>
+                </>
               )}
 
               {admin && (
@@ -396,14 +437,16 @@ const CreateUser = () => {
                 </FormControl>
               )}
 
-              {driver &&
-                <DriverLicense
-                  className="driver-license-field"
-                  onUpload={(filename: string, extractedInfo?: bookcarsTypes.LicenseExtractedData) => {
-                    console.log(extractedInfo)
-                    handleLicenseUpload(filename, extractedInfo)
-                  }}
-                />}
+              {driver
+                && (
+                  <DriverLicense
+                    className="driver-license-field"
+                    onUpload={(filename: string, extractedInfo?: bookcarsTypes.LicenseExtractedData) => {
+                      console.log(extractedInfo)
+                      handleLicenseUpload(filename, extractedInfo)
+                    }}
+                  />
+                )}
 
               <FormControl fullWidth margin="dense">
                 <InputLabel className="required">{commonStrings.FULL_NAME}</InputLabel>
@@ -420,22 +463,32 @@ const CreateUser = () => {
                 </FormHelperText>
               </FormControl>
 
-
-
               {driver && (
-                <><FormControl fullWidth margin="dense">
-                  <InputLabel className="required">{commonStrings.NATIONAL_ID}</InputLabel>
-                  <Input
-                    id="national-id"
-                    type="text"
-                    onChange={handleNationalIdChange}
-                    autoComplete="off"
-                    value={nationalId}
-                    required />
-                  <FormHelperText>
-                    {commonStrings.NATIONAL_ID_INFO}
-                  </FormHelperText>
-                </FormControl><FormControl fullWidth margin="dense">
+                <>
+                  <FormControl fullWidth margin="dense">
+                    <InputLabel className="required">{commonStrings.NATIONAL_ID}</InputLabel>
+                    <Input
+                      id="national-id"
+                      type="text"
+                      onChange={handleNationalIdChange}
+                      autoComplete="off"
+                      value={nationalId}
+                      required
+                    />
+                    <FormHelperText>
+                      {commonStrings.NATIONAL_ID_INFO}
+                    </FormHelperText>
+                  </FormControl>
+                  <FormControl fullWidth margin="dense">
+                    <DatePicker
+                      label={commonStrings.NATIONAL_ID_EXPIRATION_DATE}
+                      value={nationalIdExpirationDate}
+                      onChange={handleNationalIdExpirationDateChange}
+                      required
+                    />
+                  </FormControl>
+
+                  <FormControl fullWidth margin="dense">
                     <InputLabel className="required">{commonStrings.LICENSE_ID}</InputLabel>
                     <Input
                       id="license-id"
@@ -443,15 +496,20 @@ const CreateUser = () => {
                       onChange={handleLicenseIdChange}
                       autoComplete="off"
                       value={licenseId}
-                      required />
+                      required
+                    />
                     <FormHelperText>
                       {commonStrings.LICENSE_ID_INFO}
                     </FormHelperText>
-                  </FormControl></>
-              )}
-
-              {driver && (
-                <>
+                  </FormControl>
+                  <FormControl fullWidth margin="dense">
+                    <DatePicker
+                      label={commonStrings.LICENSE_DELIVERY_DATE}
+                      value={licenseDeliveryDate}
+                      onChange={handleLicenseDeliveryDateChange}
+                      required
+                    />
+                  </FormControl>
                   <FormControl fullWidth margin="dense">
                     <DatePicker
                       label={strings.BIRTH_DATE}

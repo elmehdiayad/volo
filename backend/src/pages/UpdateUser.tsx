@@ -1,4 +1,6 @@
-import React, { useState } from 'react'
+import React, {
+  useState
+} from 'react'
 import {
   Input,
   InputLabel,
@@ -61,6 +63,8 @@ const UpdateUser = () => {
   const [minimumRentalDays, setMinimumRentalDays] = useState('')
   const [nationalId, setNationalId] = useState('')
   const [licenseId, setLicenseId] = useState('')
+  const [nationalIdExpirationDate, setNationalIdExpirationDate] = useState<Date>()
+  const [licenseDeliveryDate, setLicenseDeliveryDate] = useState<Date>()
 
   const validateFullName = async (_fullName: string, strict = true) => {
     const __fullName = _fullName || fullName
@@ -215,6 +219,26 @@ const UpdateUser = () => {
     setLicenseId(e.target.value)
   }
 
+  const validateNationalIdExpirationDate = (date?: Date): boolean => {
+    if (!date) return false
+    const now = new Date()
+    return date > now
+  }
+
+  const validateLicenseDeliveryDate = (date?: Date): boolean => {
+    if (!date) return false
+    const now = new Date()
+    return date < now
+  }
+
+  const handleNationalIdExpirationDateChange = (date: Date | null) => {
+    if (date) setNationalIdExpirationDate(date)
+  }
+
+  const handleLicenseIdExpirationDateChange = (date: Date | null) => {
+    if (date) setLicenseDeliveryDate(date)
+  }
+
   const onLoad = async (_loggedUser?: bookcarsTypes.User) => {
     if (_loggedUser && _loggedUser.verified) {
       setLoading(true)
@@ -225,7 +249,6 @@ const UpdateUser = () => {
         if (id && id !== '') {
           try {
             const _user = await UserService.getUser(id)
-            console.log(_user)
             if (_user) {
               setLoggedUser(_loggedUser)
               setUser(_user)
@@ -243,6 +266,8 @@ const UpdateUser = () => {
               setMinimumRentalDays(_user.minimumRentalDays?.toString() || '')
               setNationalId(_user.nationalId || '')
               setLicenseId(_user.licenseId || '')
+              setNationalIdExpirationDate(_user && _user.nationalIdExpirationDate ? new Date(_user.nationalIdExpirationDate) : undefined)
+              setLicenseDeliveryDate(_user && _user.licenseDeliveryDate ? new Date(_user.licenseDeliveryDate) : undefined)
               setVisible(true)
               setLoading(false)
             } else {
@@ -269,7 +294,7 @@ const UpdateUser = () => {
     try {
       e.preventDefault()
 
-      if (!user) {
+      if (!user || !validateNationalIdExpirationDate(nationalIdExpirationDate) || !validateLicenseDeliveryDate(licenseDeliveryDate)) {
         helper.error()
         return
       }
@@ -314,6 +339,8 @@ const UpdateUser = () => {
         nationalId,
         licenseId,
         minimumRentalDays: minimumRentalDays ? Number(minimumRentalDays) : undefined,
+        nationalIdExpirationDate,
+        licenseDeliveryDate,
       }
 
       if (type === bookcarsTypes.RecordType.Supplier) {
@@ -342,7 +369,7 @@ const UpdateUser = () => {
   const supplier = type === bookcarsTypes.RecordType.Supplier
   const driver = type === bookcarsTypes.RecordType.User
   const activate = admin
-    || (loggedUser && user && loggedUser.type === bookcarsTypes.RecordType.Supplier && user.type === bookcarsTypes.RecordType.User && user.supplier as string === loggedUser._id)
+    // || (loggedUser && user && loggedUser.type === bookcarsTypes.RecordType.Supplier && user.type === bookcarsTypes.RecordType.User && user.supplier as string === loggedUser._id)
 
   return (
     <Layout onLoad={onLoad} user={loggedUser} strict>
@@ -464,36 +491,55 @@ const UpdateUser = () => {
                 </>
               )}
 
-              <FormControl fullWidth margin="dense">
-                <InputLabel className="required">{commonStrings.NATIONAL_ID}</InputLabel>
-                <Input
-                  id="national-id"
-                  type="text"
-                  onChange={handleNationalIdChange}
-                  autoComplete="off"
-                  value={nationalId}
-                  required
-                />
-                <FormHelperText>
-                  {commonStrings.NATIONAL_ID_INFO}
-                </FormHelperText>
-              </FormControl>
-
               {driver && (
-                <FormControl fullWidth margin="dense">
-                  <InputLabel className="required">{commonStrings.LICENSE_ID}</InputLabel>
-                  <Input
-                    id="license-id"
-                    type="text"
-                    onChange={handleLicenseIdChange}
-                    autoComplete="off"
-                    value={licenseId}
-                    required
-                  />
-                  <FormHelperText>
-                    {commonStrings.LICENSE_ID_INFO}
-                  </FormHelperText>
-                </FormControl>
+                <>
+                  <FormControl fullWidth margin="dense">
+                    <InputLabel className="required">{commonStrings.NATIONAL_ID}</InputLabel>
+                    <Input
+                      id="national-id"
+                      type="text"
+                      onChange={handleNationalIdChange}
+                      autoComplete="off"
+                      value={nationalId}
+                      required
+                    />
+                    <FormHelperText>
+                      {commonStrings.NATIONAL_ID_INFO}
+                    </FormHelperText>
+                  </FormControl>
+                  <FormControl fullWidth margin="dense">
+                    <DatePicker
+                      label={commonStrings.NATIONAL_ID_EXPIRATION_DATE}
+                      value={nationalIdExpirationDate}
+                      onChange={handleNationalIdExpirationDateChange}
+                      required
+                      language={(user && user.language) || env.DEFAULT_LANGUAGE}
+                    />
+                  </FormControl>
+                  <FormControl fullWidth margin="dense">
+                    <InputLabel className="required">{commonStrings.LICENSE_ID}</InputLabel>
+                    <Input
+                      id="license-id"
+                      type="text"
+                      onChange={handleLicenseIdChange}
+                      autoComplete="off"
+                      value={licenseId}
+                      required
+                    />
+                    <FormHelperText>
+                      {commonStrings.LICENSE_ID_INFO}
+                    </FormHelperText>
+                  </FormControl>
+                  <FormControl fullWidth margin="dense">
+                    <DatePicker
+                      label={commonStrings.LICENSE_DELIVERY_DATE}
+                      value={licenseDeliveryDate}
+                      onChange={handleLicenseIdExpirationDateChange}
+                      required
+                      language={(user && user.language) || env.DEFAULT_LANGUAGE}
+                    />
+                  </FormControl>
+                </>
               )}
 
               <div className="info">
