@@ -1,6 +1,4 @@
-import React, {
-  useState
-} from 'react'
+import React, { useState } from 'react'
 import {
   Input,
   InputLabel,
@@ -14,209 +12,139 @@ import {
   Switch,
   SelectChangeEvent
 } from '@mui/material'
+import {
+  BtnBold,
+  Editor,
+  BtnItalic,
+  EditorProvider,
+  Toolbar,
+  ContentEditableEvent,
+} from 'react-simple-wysiwyg'
 import { Info as InfoIcon } from '@mui/icons-material'
-import { intervalToDuration } from 'date-fns'
 import validator from 'validator'
-import { useNavigate } from 'react-router-dom'
+import { intervalToDuration } from 'date-fns'
+import { useNavigate, useParams } from 'react-router-dom'
+import { Formik, Form, Field, ErrorMessage } from 'formik'
+import * as Yup from 'yup'
 import * as bookcarsTypes from ':bookcars-types'
 import * as bookcarsHelper from ':bookcars-helper'
 import Layout from '@/components/Layout'
 import env from '@/config/env.config'
 import { strings as commonStrings } from '@/lang/common'
 import { strings as ccStrings } from '@/lang/create-supplier'
-import { strings as cuStrings } from '@/lang/create-user'
 import { strings } from '@/lang/update-user'
 import * as helper from '@/common/helper'
 import * as UserService from '@/services/UserService'
 import * as SupplierService from '@/services/SupplierService'
-import NoMatch from './NoMatch'
-import Error from '@/components/Error'
 import Backdrop from '@/components/SimpleBackdrop'
 import Avatar from '@/components/Avatar'
 import DatePicker from '@/components/DatePicker'
+import DriverLicense from '@/components/DriverLicense'
 
 import '@/assets/css/update-user.css'
 
+const CustomErrorMessage = ({ name }: { name: string }) => (
+  <ErrorMessage name={name}>
+    {(msg) => <FormHelperText error>{msg}</FormHelperText>}
+  </ErrorMessage>
+)
+
 const UpdateUser = () => {
   const navigate = useNavigate()
-  const [loggedUser, setLoggedUser] = useState<bookcarsTypes.User>()
+  const { id } = useParams<{ id: string }>()
   const [user, setUser] = useState<bookcarsTypes.User>()
-  const [visible, setVisible] = useState(false)
-  const [noMatch, setNoMatch] = useState(false)
   const [admin, setAdmin] = useState(false)
-  const [fullName, setFullName] = useState('')
-  const [email, setEmail] = useState('')
-  const [phone, setPhone] = useState('')
-  const [location, setLocation] = useState('')
-  const [bio, setBio] = useState('')
-  const [error, setError] = useState(false)
+  const [visible, setVisible] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [fullNameError, setFullNameError] = useState(false)
   const [avatar, setAvatar] = useState('')
-  const [avatarError, setAvatarError] = useState(false)
+  const [license, setLicense] = useState('')
   const [type, setType] = useState('')
-  const [birthDate, setBirthDate] = useState<Date>()
-  const [birthDateValid, setBirthDateValid] = useState(true)
-  const [phoneValid, setPhoneValid] = useState(true)
-  const [payLater, setPayLater] = useState(false)
-  const [licenseRequired, setLicenseRequired] = useState(true)
-  const [minimumRentalDays, setMinimumRentalDays] = useState('')
-  const [nationalId, setNationalId] = useState('')
-  const [licenseId, setLicenseId] = useState('')
-  const [nationalIdExpirationDate, setNationalIdExpirationDate] = useState<Date>()
-  const [licenseDeliveryDate, setLicenseDeliveryDate] = useState<Date>()
 
-  const validateFullName = async (_fullName: string, strict = true) => {
-    const __fullName = _fullName || fullName
+  const isSupplier = type === bookcarsTypes.RecordType.Supplier
+  const isDriver = type === bookcarsTypes.RecordType.User
 
-    if (__fullName && (strict || (!strict && __fullName !== user?.fullName))) {
+  const onLoad = async () => {
+    if (id && id !== '') {
       try {
-        const status = await SupplierService.validate({ fullName: __fullName })
+        const _user = await UserService.getUser(id)
+        if (_user) {
+          setUser(_user)
+          setAdmin(helper.admin(_user))
+          setType(_user.type || '')
+          setAvatar(_user.avatar || '')
+          setLicense(_user.license || '')
+          setVisible(true)
+        } else {
+          navigate('/users')
+        }
+      } catch (err) {
+        helper.error(err)
+      }
+    } else {
+      setLoading(false)
+    }
+  }
+
+  const initialValues = {
+    fullName: user?.fullName || '',
+    email: user?.email || '',
+    phone: user?.phone || '',
+    location: user?.location || '',
+    bio: user?.bio || '',
+    birthDate: user?.birthDate ? new Date(user.birthDate) : new Date(),
+    minimumRentalDays: user?.minimumRentalDays || '',
+    nationalId: user?.nationalId || '',
+    licenseId: user?.licenseId || '',
+    nationalIdExpirationDate: user?.nationalIdExpirationDate ? new Date(user.nationalIdExpirationDate) : new Date(),
+    licenseDeliveryDate: user?.licenseDeliveryDate ? new Date(user.licenseDeliveryDate) : new Date(),
+    payLater: user?.payLater || false,
+    licenseRequired: user?.licenseRequired || false,
+  }
+
+  const validationSchema = Yup.object().shape({
+    fullName: Yup.string().required(commonStrings.REQUIRED_FIELD),
+    email: Yup.string().email(commonStrings.EMAIL_NOT_VALID).required(commonStrings.REQUIRED_FIELD),
+    phone: isDriver ? Yup.string().required(commonStrings.REQUIRED_FIELD) : Yup.string(),
+    location: isDriver ? Yup.string().required(commonStrings.REQUIRED_FIELD) : Yup.string(),
+    birthDate: isDriver ? Yup.date().required(commonStrings.REQUIRED_FIELD) : Yup.date(),
+    nationalId: isDriver ? Yup.string().required(commonStrings.REQUIRED_FIELD) : Yup.string(),
+    licenseId: isDriver ? Yup.string().required(commonStrings.REQUIRED_FIELD) : Yup.string(),
+    nationalIdExpirationDate: isDriver ? Yup.date().required(commonStrings.REQUIRED_FIELD) : Yup.date(),
+    licenseDeliveryDate: isDriver ? Yup.date().required(commonStrings.REQUIRED_FIELD) : Yup.date(),
+  })
+
+  const validateFullName = async (_fullName: string) => {
+    if (_fullName !== user?.fullName) {
+      try {
+        const status = await SupplierService.validate({ fullName: _fullName })
 
         if (status === 200) {
-          setFullNameError(false)
-          setError(false)
           return true
         }
-        setFullNameError(true)
-        setAvatarError(false)
-        setError(false)
         return false
       } catch (err) {
         helper.error(err)
         return true
       }
     } else {
-      setFullNameError(false)
       return true
-    }
-  }
-
-  const handleUserTypeChange = async (e: SelectChangeEvent<string>) => {
-    const _type = e.target.value
-
-    setType(e.target.value)
-
-    if (_type === bookcarsTypes.RecordType.Supplier) {
-      await validateFullName(fullName)
-    } else {
-      setFullNameError(false)
-    }
-  }
-
-  const handleFullNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFullName(e.target.value)
-
-    if (!e.target.value) {
-      setFullNameError(false)
-    }
-  }
-
-  const handleFullNameBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
-    if (type === bookcarsTypes.RecordType.Supplier) {
-      await validateFullName(e.target.value)
-    } else {
-      setFullNameError(false)
-    }
-  }
-
-  const handleMinimumRentalDaysChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setMinimumRentalDays(e.target.value)
-  }
-
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPhone(e.target.value)
-
-    if (!e.target.value) {
-      setPhoneValid(true)
     }
   }
 
   const validatePhone = (_phone?: string) => {
     if (_phone) {
-      const _phoneValid = validator.isMobilePhone(_phone)
-      setPhoneValid(_phoneValid)
-
-      return _phoneValid
+      return validator.isMobilePhone(_phone)
     }
-    setPhoneValid(true)
-
     return true
-  }
-
-  const handlePhoneBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    validatePhone(e.target.value)
   }
 
   const validateBirthDate = (date?: Date) => {
-    if (date && bookcarsHelper.isDate(date) && type === bookcarsTypes.RecordType.User) {
+    if (date && bookcarsHelper.isDate(date) && isDriver) {
       const now = new Date()
       const sub = intervalToDuration({ start: date, end: now }).years ?? 0
-      const _birthDateValid = sub >= env.MINIMUM_AGE
-
-      setBirthDateValid(_birthDateValid)
-      return _birthDateValid
+      return sub >= env.MINIMUM_AGE
     }
-    setBirthDateValid(true)
     return true
-  }
-
-  const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLocation(e.target.value)
-  }
-
-  const handleBioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setBio(e.target.value)
-  }
-
-  const onBeforeUpload = () => {
-    setLoading(true)
-  }
-
-  const onAvatarChange = (_avatar: string) => {
-    if (loggedUser && user && loggedUser._id === user._id) {
-      const _loggedUser = bookcarsHelper.clone(loggedUser)
-      _loggedUser.avatar = _avatar
-
-      setLoggedUser(_loggedUser)
-    }
-
-    const _user = bookcarsHelper.clone(user)
-    _user.avatar = _avatar
-
-    setLoading(false)
-    setUser(_user)
-    setAvatar(_avatar)
-
-    if (_avatar !== null && type === bookcarsTypes.RecordType.Supplier) {
-      setAvatarError(false)
-    }
-  }
-
-  const handleCancel = async () => {
-    navigate('/users')
-  }
-
-  const handleResendActivationLink = async () => {
-    try {
-      const status = await UserService.resend(email, false, type === bookcarsTypes.RecordType.User ? 'frontend' : 'backend')
-
-      if (status === 200) {
-        helper.info(commonStrings.ACTIVATION_EMAIL_SENT)
-      } else {
-        helper.error()
-      }
-    } catch (err) {
-      helper.error(err)
-    }
-  }
-
-  const handleNationalIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNationalId(e.target.value)
-  }
-
-  const handleLicenseIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLicenseId(e.target.value)
   }
 
   const validateNationalIdExpirationDate = (date?: Date): boolean => {
@@ -231,373 +159,302 @@ const UpdateUser = () => {
     return date < now
   }
 
-  const handleNationalIdExpirationDateChange = (date: Date | null) => {
-    if (date) setNationalIdExpirationDate(date)
+  const onBeforeUpload = () => {
+    setLoading(true)
   }
 
-  const handleLicenseIdExpirationDateChange = (date: Date | null) => {
-    if (date) setLicenseDeliveryDate(date)
+  const onAvatarChange = (_avatar: string) => {
+    setLoading(false)
+    setAvatar(_avatar)
   }
 
-  const onLoad = async (_loggedUser?: bookcarsTypes.User) => {
-    if (_loggedUser && _loggedUser.verified) {
-      setLoading(true)
-
-      const params = new URLSearchParams(window.location.search)
-      if (params.has('u')) {
-        const id = params.get('u')
-        if (id && id !== '') {
-          try {
-            const _user = await UserService.getUser(id)
-            if (_user) {
-              setLoggedUser(_loggedUser)
-              setUser(_user)
-              setAdmin(helper.admin(_loggedUser))
-              setType(_user.type || '')
-              setEmail(_user.email || '')
-              setAvatar(_user.avatar || '')
-              setFullName(_user.fullName || '')
-              setPhone(_user.phone || '')
-              setLocation(_user.location || '')
-              setBio(_user.bio || '')
-              setBirthDate(_user && _user.birthDate ? new Date(_user.birthDate) : undefined)
-              setPayLater(_user.payLater || false)
-              setLicenseRequired(_user.licenseRequired || false)
-              setMinimumRentalDays(_user.minimumRentalDays?.toString() || '')
-              setNationalId(_user.nationalId || '')
-              setLicenseId(_user.licenseId || '')
-              setNationalIdExpirationDate(_user && _user.nationalIdExpirationDate ? new Date(_user.nationalIdExpirationDate) : undefined)
-              setLicenseDeliveryDate(_user && _user.licenseDeliveryDate ? new Date(_user.licenseDeliveryDate) : undefined)
-              setVisible(true)
-              setLoading(false)
-            } else {
-              setLoading(false)
-              setNoMatch(true)
-            }
-          } catch (err) {
-            helper.error(err)
-            setLoading(false)
-            setVisible(false)
-          }
-        } else {
-          setLoading(false)
-          setNoMatch(true)
-        }
-      } else {
-        setLoading(false)
-        setNoMatch(true)
-      }
-    }
-  }
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (values: typeof initialValues, { setSubmitting, setErrors }: any) => {
     try {
-      e.preventDefault()
+      const errors: { [key: string]: string } = {}
 
-      if (!user || !validateNationalIdExpirationDate(nationalIdExpirationDate) || !validateLicenseDeliveryDate(licenseDeliveryDate)) {
-        helper.error()
-        return
-      }
+      const nationalIdExpirationDate = new Date(values.nationalIdExpirationDate)
+      const licenseDeliveryDate = new Date(values.licenseDeliveryDate)
+      const birthDate = new Date(values.birthDate)
 
-      if (type === bookcarsTypes.RecordType.Supplier) {
-        const fullNameValid = await validateFullName(fullName, false)
-
+      if (isSupplier) {
+        const fullNameValid = await validateFullName(values.fullName)
         if (!fullNameValid) {
-          return
+          errors.fullName = ccStrings.INVALID_SUPPLIER_NAME
         }
-      } else {
-        setFullNameError(false)
+        if (!avatar) {
+          errors.avatar = commonStrings.IMAGE_REQUIRED
+        }
       }
 
-      const _phoneValid = validatePhone(phone)
-      if (!_phoneValid) {
-        return
+      if (!validatePhone(values.phone)) {
+        errors.phone = commonStrings.PHONE_NOT_VALID
       }
 
-      const _birthDateValid = validateBirthDate(birthDate)
-      if (!_birthDateValid) {
-        return
+      if (!validateBirthDate(birthDate)) {
+        errors.birthDate = commonStrings.BIRTH_DATE_NOT_VALID
+      }
+      if (isDriver) {
+        if (!validateNationalIdExpirationDate(nationalIdExpirationDate)) {
+          errors.nationalIdExpirationDate = commonStrings.NATIONAL_ID_EXPIRATION_DATE_INVALID
+        }
+        if (!validateLicenseDeliveryDate(licenseDeliveryDate)) {
+          errors.licenseDeliveryDate = commonStrings.LICENSE_DELIVERY_DATE_INVALID
+        }
       }
 
-      if (type === bookcarsTypes.RecordType.Supplier && !avatar) {
-        setAvatarError(true)
-        setError(false)
+      if (Object.keys(errors).length > 0) {
+        setErrors(errors)
+        setSubmitting(false)
         return
       }
 
       const language = UserService.getLanguage()
+      const supplier = admin ? undefined : user?._id
+
       const data: bookcarsTypes.UpdateUserPayload = {
-        _id: user._id as string,
-        phone,
-        location,
-        bio,
-        fullName,
-        language,
+        _id: user?._id as string,
+        email: values.email,
+        phone: values.phone,
+        location: values.location,
+        bio: values.bio,
+        fullName: values.fullName,
         type,
         avatar,
         birthDate,
-        nationalId,
-        licenseId,
-        minimumRentalDays: minimumRentalDays ? Number(minimumRentalDays) : undefined,
+        language,
+        supplier,
+        minimumRentalDays: values.minimumRentalDays ? Number(values.minimumRentalDays) : undefined,
+        license,
+        nationalId: values.nationalId,
+        licenseId: values.licenseId,
         nationalIdExpirationDate,
         licenseDeliveryDate,
       }
-
       if (type === bookcarsTypes.RecordType.Supplier) {
-        data.payLater = payLater
-        data.licenseRequired = licenseRequired
+        data.payLater = values.payLater
+        data.licenseRequired = values.licenseRequired
       }
-
       const status = await UserService.updateUser(data)
 
       if (status === 200) {
-        const _user = bookcarsHelper.clone(user) as bookcarsTypes.User
-        _user.fullName = fullName
-        _user.type = type
-        setUser(_user)
-        helper.info(commonStrings.UPDATED)
+        navigate('/users')
       } else {
-        helper.error()
-
-        setError(false)
+        helper.error(commonStrings.GENERIC_ERROR)
       }
     } catch (err) {
       helper.error(err)
     }
+    setSubmitting(false)
   }
 
-  const supplier = type === bookcarsTypes.RecordType.Supplier
-  const driver = type === bookcarsTypes.RecordType.User
-  const activate = admin
-    // || (loggedUser && user && loggedUser.type === bookcarsTypes.RecordType.Supplier && user.type === bookcarsTypes.RecordType.User && user.supplier as string === loggedUser._id)
+  const handleCancel = async () => {
+    navigate('/users')
+  }
+
+  const handleUserTypeChange = async (e: SelectChangeEvent<string>) => {
+    const _type = e.target.value
+    setType(_type)
+  }
 
   return (
-    <Layout onLoad={onLoad} user={loggedUser} strict>
-      {loggedUser && user && visible && (
+    <Layout onLoad={onLoad} strict>
+      {user && (
         <div className="update-user">
-          <Paper className="user-form user-form-wrapper" elevation={10}>
+          <Paper className="user-form user-form-wrapper" elevation={10} style={visible ? {} : { display: 'none' }}>
             <h1 className="user-form-title">
-              {' '}
               {strings.UPDATE_USER_HEADING}
-              {' '}
             </h1>
-            <form onSubmit={handleSubmit}>
-              <Avatar
-                type={type}
-                mode="update"
-                record={user}
-                size="large"
-                readonly={false}
-                onBeforeUpload={onBeforeUpload}
-                onChange={onAvatarChange}
-                color="disabled"
-                className="avatar-ctn"
-                hideDelete={type === bookcarsTypes.RecordType.Supplier}
-              />
+            <Formik
+              initialValues={initialValues}
+              validationSchema={validationSchema}
+              onSubmit={handleSubmit}
+              enableReinitialize
+            >
+              {({ isSubmitting, setFieldValue }) => (
+                <Form>
+                  {isSupplier && (
+                    <>
+                      <Avatar
+                        type={type}
+                        mode="update"
+                        record={user}
+                        size="large"
+                        readonly={false}
+                        onBeforeUpload={onBeforeUpload}
+                        onChange={onAvatarChange}
+                        color="disabled"
+                        className="avatar-ctn"
+                      />
+                      <div className="info">
+                        <InfoIcon />
+                        <span>{ccStrings.RECOMMENDED_IMAGE_SIZE}</span>
+                      </div>
+                    </>
+                  )}
 
-              {supplier && (
-                <div className="info">
-                  <InfoIcon />
-                  <span>{ccStrings.RECOMMENDED_IMAGE_SIZE}</span>
-                </div>
-              )}
+                  {admin && (
+                    <FormControl fullWidth margin="dense" style={{ marginTop: isSupplier ? 0 : 39 }}>
+                      <InputLabel className="required">{commonStrings.TYPE}</InputLabel>
+                      <Select label={commonStrings.TYPE} value={type} onChange={handleUserTypeChange} variant="standard" required fullWidth>
+                        <MenuItem value={bookcarsTypes.RecordType.Admin}>{helper.getUserType(bookcarsTypes.UserType.Admin)}</MenuItem>
+                        <MenuItem value={bookcarsTypes.RecordType.Supplier}>{helper.getUserType(bookcarsTypes.UserType.Supplier)}</MenuItem>
+                        <MenuItem value={bookcarsTypes.RecordType.User}>{helper.getUserType(bookcarsTypes.UserType.User)}</MenuItem>
+                      </Select>
+                    </FormControl>
+                  )}
 
-              {admin && (
-                <FormControl fullWidth margin="dense" style={{ marginTop: supplier ? 0 : 39 }}>
-                  <InputLabel className="required">{commonStrings.TYPE}</InputLabel>
-                  <Select label={commonStrings.TYPE} value={type} onChange={handleUserTypeChange} variant="standard" required fullWidth>
-                    <MenuItem value={bookcarsTypes.RecordType.Admin}>{helper.getUserType(bookcarsTypes.UserType.Admin)}</MenuItem>
-                    <MenuItem value={bookcarsTypes.RecordType.Supplier}>{helper.getUserType(bookcarsTypes.UserType.Supplier)}</MenuItem>
-                    <MenuItem value={bookcarsTypes.RecordType.User}>{helper.getUserType(bookcarsTypes.UserType.User)}</MenuItem>
-                  </Select>
-                </FormControl>
-              )}
-
-              <FormControl fullWidth margin="dense">
-                <InputLabel className="required">{commonStrings.FULL_NAME}</InputLabel>
-                <Input id="full-name" type="text" error={fullNameError} required onBlur={handleFullNameBlur} onChange={handleFullNameChange} autoComplete="off" value={fullName} />
-                <FormHelperText error={fullNameError}>{(fullNameError && ccStrings.INVALID_SUPPLIER_NAME) || ''}</FormHelperText>
-              </FormControl>
-
-              <FormControl fullWidth margin="dense">
-                <InputLabel className="required">{commonStrings.EMAIL}</InputLabel>
-                <Input id="email" type="text" value={email} disabled />
-              </FormControl>
-
-              {driver && (
-                <>
-                  <FormControl fullWidth margin="dense">
-                    <DatePicker
-                      label={cuStrings.BIRTH_DATE}
-                      value={birthDate}
-                      required
-                      onChange={(_birthDate) => {
-                        if (_birthDate) {
-                          const _birthDateValid = validateBirthDate(_birthDate)
-
-                          setBirthDate(_birthDate)
-                          setBirthDateValid(_birthDateValid)
+                  {isDriver && (
+                    <DriverLicense
+                      className="driver-license-field"
+                      onUpload={(filename: string, extractedInfo?: bookcarsTypes.LicenseExtractedData) => {
+                        setLicense(filename)
+                        if (extractedInfo) {
+                          if (extractedInfo.fullName) setFieldValue('fullName', extractedInfo.fullName)
+                          if (extractedInfo.nationalId) setFieldValue('nationalId', extractedInfo.nationalId)
+                          if (extractedInfo.licenseId) setFieldValue('licenseId', extractedInfo.licenseId)
+                          if (extractedInfo.dateOfBirth) setFieldValue('birthDate', new Date(extractedInfo.dateOfBirth).toISOString().split('T')[0])
+                          if (extractedInfo.nationalIdExpirationDate) setFieldValue('nationalIdExpirationDate', new Date(extractedInfo.nationalIdExpirationDate).toISOString().split('T')[0])
+                          if (extractedInfo.licenseDeliveryDate) setFieldValue('licenseDeliveryDate', new Date(extractedInfo.licenseDeliveryDate).toISOString().split('T')[0])
                         }
                       }}
-                      language={(user && user.language) || env.DEFAULT_LANGUAGE}
                     />
-                    <FormHelperText error={!birthDateValid}>{(!birthDateValid && commonStrings.BIRTH_DATE_NOT_VALID) || ''}</FormHelperText>
-                  </FormControl>
-                </>
-              )}
+                  )}
 
-              {supplier && (
-                <>
                   <FormControl fullWidth margin="dense">
-                    <FormControlLabel
-                      control={(
-                        <Switch
-                          checked={payLater}
-                          onChange={(e) => {
-                            setPayLater(e.target.checked)
-                          }}
-                          color="primary"
+                    <InputLabel className="required">{commonStrings.FULL_NAME}</InputLabel>
+                    <Field as={Input} id="full-name" name="fullName" type="text" autoComplete="off" />
+                    <CustomErrorMessage name="fullName" />
+                  </FormControl>
+
+                  <FormControl fullWidth margin="dense">
+                    <InputLabel className="required">{commonStrings.EMAIL}</InputLabel>
+                    <Field as={Input} id="email" name="email" type="text" autoComplete="off" disabled />
+                  </FormControl>
+
+                  {isDriver && (
+                    <>
+                      <FormControl fullWidth margin="dense">
+                        <InputLabel className="required">{commonStrings.NATIONAL_ID}</InputLabel>
+                        <Field as={Input} id="national-id" name="nationalId" type="text" autoComplete="off" />
+                        <CustomErrorMessage name="nationalId" />
+                      </FormControl>
+                      <FormControl fullWidth margin="dense">
+                        <DatePicker
+                          label={commonStrings.NATIONAL_ID_EXPIRATION_DATE}
+                          value={initialValues.nationalIdExpirationDate}
+                          onChange={(date) => setFieldValue('nationalIdExpirationDate', date)}
+                          required
                         />
-                      )}
-                      label={commonStrings.PAY_LATER}
-                    />
-                  </FormControl>
-
-                  <FormControl fullWidth margin="dense">
-                    <FormControlLabel
-                      control={(
-                        <Switch
-                          checked={licenseRequired}
-                          onChange={(e) => {
-                            setLicenseRequired(e.target.checked)
-                          }}
-                          color="primary"
+                        <CustomErrorMessage name="nationalIdExpirationDate" />
+                      </FormControl>
+                      <FormControl fullWidth margin="dense">
+                        <InputLabel className="required">{commonStrings.LICENSE_ID}</InputLabel>
+                        <Field as={Input} id="license-id" name="licenseId" type="text" autoComplete="off" />
+                        <CustomErrorMessage name="licenseId" />
+                      </FormControl>
+                      <FormControl fullWidth margin="dense">
+                        <DatePicker
+                          label={commonStrings.LICENSE_DELIVERY_DATE}
+                          value={initialValues.licenseDeliveryDate}
+                          onChange={(date) => setFieldValue('licenseDeliveryDate', date)}
+                          required
                         />
-                      )}
-                      label={commonStrings.LICENSE_REQUIRED}
-                    />
+                        <CustomErrorMessage name="licenseDeliveryDate" />
+                      </FormControl>
+                      <FormControl fullWidth margin="dense">
+                        <DatePicker
+                          label={commonStrings.BIRTH_DATE}
+                          value={initialValues.birthDate}
+                          onChange={(date) => setFieldValue('birthDate', date)}
+                          required
+                          language={(user && user.language) || env.DEFAULT_LANGUAGE}
+                        />
+                        <CustomErrorMessage name="birthDate" />
+                      </FormControl>
+                    </>
+                  )}
+
+                  <FormControl fullWidth margin="dense">
+                    <InputLabel className={isDriver ? 'required' : ''}>{commonStrings.PHONE}</InputLabel>
+                    <Field as={Input} id="phone" name="phone" type="text" autoComplete="off" />
+                    <CustomErrorMessage name="phone" />
                   </FormControl>
 
                   <FormControl fullWidth margin="dense">
-                    <InputLabel>{commonStrings.MIN_RENTAL_DAYS}</InputLabel>
-                    <Input
-                      type="text"
-                      onChange={handleMinimumRentalDaysChange}
-                      autoComplete="off"
-                      slotProps={{ input: { inputMode: 'numeric', pattern: '^\\d+$' } }}
-                      value={minimumRentalDays}
-                    />
+                    <InputLabel className={isDriver ? 'required' : ''}>{commonStrings.LOCATION}</InputLabel>
+                    <Field as={Input} id="location" name="location" type="text" autoComplete="off" />
+                    <CustomErrorMessage name="location" />
                   </FormControl>
-                </>
+
+                  {isSupplier && (
+                    <>
+                      <FormControl fullWidth margin="dense">
+                        <FormControlLabel
+                          control={(
+                            <Field name="payLater">
+                              {({ field }: { field: any }) => (
+                                <Switch
+                                  {...field}
+                                  checked={field.value}
+                                  color="primary"
+                                />
+                              )}
+                            </Field>
+                          )}
+                          label={commonStrings.PAY_LATER}
+                        />
+                      </FormControl>
+                      <FormControl fullWidth margin="dense">
+                        <FormControlLabel
+                          control={(
+                            <Field name="licenseRequired">
+                              {({ field }: { field: any }) => (
+                                <Switch
+                                  {...field}
+                                  checked={field.value}
+                                  color="primary"
+                                />
+                              )}
+                            </Field>
+                          )}
+                          label={commonStrings.LICENSE_REQUIRED}
+                        />
+                        <CustomErrorMessage name="licenseRequired" />
+                      </FormControl>
+
+                      <FormControl fullWidth margin="dense">
+                        <InputLabel>{commonStrings.MIN_RENTAL_DAYS}</InputLabel>
+                        <Field as={Input} name="minimumRentalDays" type="text" autoComplete="off" inputProps={{ inputMode: 'numeric', pattern: '^\\d+$' }} />
+                        <CustomErrorMessage name="minimumRentalDays" />
+                      </FormControl>
+                      <h4>{commonStrings.BIO}</h4>
+                      <EditorProvider>
+                        <Editor value={initialValues.bio} onChange={(e: ContentEditableEvent) => setFieldValue('bio', e.target.value)}>
+                          <Toolbar>
+                            <BtnBold />
+                            <BtnItalic />
+                          </Toolbar>
+                        </Editor>
+                        <CustomErrorMessage name="bio" />
+                      </EditorProvider>
+                    </>
+                  )}
+
+                  <div className="buttons">
+                    <Button type="submit" variant="contained" className="btn-primary btn-margin-bottom" size="small" disabled={isSubmitting}>
+                      {commonStrings.UPDATE}
+                    </Button>
+                    <Button variant="contained" className="btn-secondary btn-margin-bottom" size="small" onClick={handleCancel}>
+                      {commonStrings.CANCEL}
+                    </Button>
+                  </div>
+                </Form>
               )}
-
-              {driver && (
-                <>
-                  <FormControl fullWidth margin="dense">
-                    <InputLabel className="required">{commonStrings.NATIONAL_ID}</InputLabel>
-                    <Input
-                      id="national-id"
-                      type="text"
-                      onChange={handleNationalIdChange}
-                      autoComplete="off"
-                      value={nationalId}
-                      required
-                    />
-                    <FormHelperText>
-                      {commonStrings.NATIONAL_ID_INFO}
-                    </FormHelperText>
-                  </FormControl>
-                  <FormControl fullWidth margin="dense">
-                    <DatePicker
-                      label={commonStrings.NATIONAL_ID_EXPIRATION_DATE}
-                      value={nationalIdExpirationDate}
-                      onChange={handleNationalIdExpirationDateChange}
-                      required
-                      language={(user && user.language) || env.DEFAULT_LANGUAGE}
-                    />
-                  </FormControl>
-                  <FormControl fullWidth margin="dense">
-                    <InputLabel className="required">{commonStrings.LICENSE_ID}</InputLabel>
-                    <Input
-                      id="license-id"
-                      type="text"
-                      onChange={handleLicenseIdChange}
-                      autoComplete="off"
-                      value={licenseId}
-                      required
-                    />
-                    <FormHelperText>
-                      {commonStrings.LICENSE_ID_INFO}
-                    </FormHelperText>
-                  </FormControl>
-                  <FormControl fullWidth margin="dense">
-                    <DatePicker
-                      label={commonStrings.LICENSE_DELIVERY_DATE}
-                      value={licenseDeliveryDate}
-                      onChange={handleLicenseIdExpirationDateChange}
-                      required
-                      language={(user && user.language) || env.DEFAULT_LANGUAGE}
-                    />
-                  </FormControl>
-                </>
-              )}
-
-              <div className="info">
-                <InfoIcon />
-                <span>{commonStrings.OPTIONAL}</span>
-              </div>
-
-              <FormControl fullWidth margin="dense">
-                <InputLabel>{commonStrings.PHONE}</InputLabel>
-                <Input id="phone" type="text" onChange={handlePhoneChange} onBlur={handlePhoneBlur} autoComplete="off" value={phone} error={!phoneValid} />
-                <FormHelperText error={!phoneValid}>{(!phoneValid && commonStrings.PHONE_NOT_VALID) || ''}</FormHelperText>
-              </FormControl>
-
-              <FormControl fullWidth margin="dense">
-                <InputLabel>{commonStrings.LOCATION}</InputLabel>
-                <Input id="location" type="text" onChange={handleLocationChange} autoComplete="off" value={location} />
-              </FormControl>
-
-              <FormControl fullWidth margin="dense">
-                <InputLabel>{commonStrings.BIO}</InputLabel>
-                <Input id="bio" type="text" onChange={handleBioChange} autoComplete="off" value={bio} />
-              </FormControl>
-
-              {activate && (
-                <FormControl fullWidth margin="dense" className="resend-activation-link">
-                  <Button
-                    variant="outlined"
-                    onClick={handleResendActivationLink}
-                  >
-                    {commonStrings.RESEND_ACTIVATION_LINK}
-                  </Button>
-                </FormControl>
-              )}
-
-              <div className="buttons">
-                <Button type="submit" variant="contained" className="btn-primary btn-margin btn-margin-bottom" size="small" href={`/change-password?u=${user._id}`}>
-                  {commonStrings.RESET_PASSWORD}
-                </Button>
-
-                <Button type="submit" variant="contained" className="btn-primary btn-margin-bottom" size="small">
-                  {commonStrings.SAVE}
-                </Button>
-
-                <Button variant="contained" className="btn-secondary btn-margin-bottom" size="small" onClick={handleCancel}>
-                  {commonStrings.CANCEL}
-                </Button>
-              </div>
-
-              <div className="form-error">
-                {error && <Error message={commonStrings.GENERIC_ERROR} />}
-                {avatarError && <Error message={commonStrings.IMAGE_REQUIRED} />}
-              </div>
-            </form>
+            </Formik>
           </Paper>
         </div>
       )}
       {loading && <Backdrop text={commonStrings.PLEASE_WAIT} />}
-      {noMatch && <NoMatch hideHeader />}
     </Layout>
   )
 }

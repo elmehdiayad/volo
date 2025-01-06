@@ -24,6 +24,8 @@ import { Info as InfoIcon } from '@mui/icons-material'
 import validator from 'validator'
 import { intervalToDuration } from 'date-fns'
 import { useNavigate } from 'react-router-dom'
+import { Formik, Form, Field, ErrorMessage } from 'formik'
+import * as Yup from 'yup'
 import * as bookcarsTypes from ':bookcars-types'
 import * as bookcarsHelper from ':bookcars-helper'
 import Layout from '@/components/Layout'
@@ -34,7 +36,6 @@ import { strings } from '@/lang/create-user'
 import * as helper from '@/common/helper'
 import * as UserService from '@/services/UserService'
 import * as SupplierService from '@/services/SupplierService'
-import Error from '@/components/Error'
 import Backdrop from '@/components/SimpleBackdrop'
 import Avatar from '@/components/Avatar'
 import DatePicker from '@/components/DatePicker'
@@ -42,43 +43,52 @@ import DriverLicense from '@/components/DriverLicense'
 
 import '@/assets/css/create-user.css'
 
+const CustomErrorMessage = ({ name }: { name: string }) => (
+  <ErrorMessage name={name}>
+    {(msg) => <FormHelperText error>{msg}</FormHelperText>}
+  </ErrorMessage>
+)
+
 const CreateUser = () => {
   const navigate = useNavigate()
   const [user, setUser] = useState<bookcarsTypes.User>()
   const [admin, setAdmin] = useState(false)
-  const [fullName, setFullName] = useState('')
-  const [email, setEmail] = useState('')
-  const [phone, setPhone] = useState('')
-  const [location, setLocation] = useState('')
-  const [bio, setBio] = useState('')
-  const [error, setError] = useState(false)
-  const [emailError, setEmailError] = useState(false)
   const [visible, setVisible] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [fullNameError, setFullNameError] = useState(false)
   const [avatar, setAvatar] = useState('')
-  const [avatarError, setAvatarError] = useState(false)
+  const [license, setLicense] = useState('')
   const [type, setType] = useState('')
-  const [emailValid, setEmailValid] = useState(true)
-  const [phoneValid, setPhoneValid] = useState(true)
-  const [payLater, setPayLater] = useState(false)
-  const [licenseRequired, setLicenseRequired] = useState(false)
-  const [birthDate, setBirthDate] = useState<Date>()
-  const [birthDateValid, setBirthDateValid] = useState(true)
-  const [minimumRentalDays, setMinimumRentalDays] = useState('')
-  const [license, setLicense] = useState<string | undefined>()
-  const [nationalId, setNationalId] = useState('')
-  const [licenseId, setLicenseId] = useState('')
-  const [nationalIdExpirationDate, setNationalIdExpirationDate] = useState<Date>()
-  const [licenseDeliveryDate, setLicenseDeliveryDate] = useState<Date>()
 
-  const handleFullNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFullName(e.target.value)
-
-    if (!e.target.value) {
-      setFullNameError(false)
-    }
+  const initialValues = {
+    fullName: '',
+    email: '',
+    phone: '',
+    location: '',
+    bio: '',
+    birthDate: new Date(),
+    minimumRentalDays: '',
+    nationalId: '',
+    licenseId: '',
+    nationalIdExpirationDate: new Date(),
+    licenseDeliveryDate: new Date(),
+    payLater: false,
+    licenseRequired: false,
   }
+
+  const validationSchema = Yup.object().shape({
+    fullName: Yup.string().required(commonStrings.REQUIRED_FIELD),
+    email: Yup.string().email(commonStrings.EMAIL_NOT_VALID).required(commonStrings.REQUIRED_FIELD),
+    phone: Yup.string().required(commonStrings.REQUIRED_FIELD),
+    location: Yup.string().required(commonStrings.REQUIRED_FIELD),
+    birthDate: Yup.date().required(commonStrings.REQUIRED_FIELD),
+    nationalId: Yup.string().required(commonStrings.REQUIRED_FIELD),
+    licenseId: Yup.string().required(commonStrings.REQUIRED_FIELD),
+    nationalIdExpirationDate: Yup.date().required(commonStrings.REQUIRED_FIELD),
+    licenseDeliveryDate: Yup.date().required(commonStrings.REQUIRED_FIELD),
+  })
+
+  const isSupplier = type === bookcarsTypes.RecordType.Supplier
+  const isDriver = type === bookcarsTypes.RecordType.User
 
   const validateFullName = async (_fullName: string) => {
     if (_fullName) {
@@ -86,50 +96,15 @@ const CreateUser = () => {
         const status = await SupplierService.validate({ fullName: _fullName })
 
         if (status === 200) {
-          setFullNameError(false)
-          setError(false)
           return true
         }
-        setFullNameError(true)
-        setAvatarError(false)
-        setError(false)
         return false
       } catch (err) {
         helper.error(err)
         return true
       }
     } else {
-      setFullNameError(false)
       return true
-    }
-  }
-
-  const handleUserTypeChange = async (e: SelectChangeEvent<string>) => {
-    const _type = e.target.value
-
-    setType(_type)
-
-    if (_type === bookcarsTypes.RecordType.Supplier) {
-      await validateFullName(fullName)
-    } else {
-      setFullNameError(false)
-    }
-  }
-
-  const handleFullNameBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
-    if (type === bookcarsTypes.RecordType.Supplier) {
-      await validateFullName(e.target.value)
-    } else {
-      setFullNameError(false)
-    }
-  }
-
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value)
-
-    if (!e.target.value) {
-      setEmailError(false)
-      setEmailValid(true)
     }
   }
 
@@ -139,82 +114,47 @@ const CreateUser = () => {
         try {
           const status = await UserService.validateEmail({ email: _email })
           if (status === 200) {
-            setEmailError(false)
-            setEmailValid(true)
             return true
           }
-          setEmailError(true)
-          setEmailValid(true)
-          setAvatarError(false)
-          setError(false)
           return false
         } catch (err) {
           helper.error(err)
           return true
         }
       } else {
-        setEmailError(false)
-        setEmailValid(false)
         return false
       }
     } else {
-      setEmailError(false)
-      setEmailValid(true)
       return false
-    }
-  }
-
-  const handleEmailBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
-    await validateEmail(e.target.value)
-  }
-
-  const handleMinimumRentalDaysChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setMinimumRentalDays(e.target.value)
-  }
-
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPhone(e.target.value)
-
-    if (!e.target.value) {
-      setPhoneValid(true)
     }
   }
 
   const validatePhone = (_phone?: string) => {
     if (_phone) {
-      const _phoneValid = validator.isMobilePhone(_phone)
-      setPhoneValid(_phoneValid)
-
-      return _phoneValid
+      return validator.isMobilePhone(_phone)
     }
-    setPhoneValid(true)
-
     return true
-  }
-
-  const handlePhoneBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    validatePhone(e.target.value)
   }
 
   const validateBirthDate = (date?: Date) => {
-    if (date && bookcarsHelper.isDate(date) && type === bookcarsTypes.RecordType.User) {
+    if (date && bookcarsHelper.isDate(date) && isDriver) {
       const now = new Date()
       const sub = intervalToDuration({ start: date, end: now }).years ?? 0
-      const _birthDateValid = sub >= env.MINIMUM_AGE
-
-      setBirthDateValid(_birthDateValid)
-      return _birthDateValid
+      return sub >= env.MINIMUM_AGE
     }
-    setBirthDateValid(true)
     return true
   }
 
-  const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLocation(e.target.value)
+  const validateNationalIdExpirationDate = (date?: Date): boolean => {
+    if (!date) return false
+    const now = new Date()
+    return date > now
   }
 
-  const handleBioChange = (e: ContentEditableEvent) => {
-    setBio(e.target.value)
+  const validateLicenseDeliveryDate = (date?: Date): boolean => {
+    if (!date) return false
+    const now = new Date()
+    return date < now
   }
 
   const onBeforeUpload = () => {
@@ -224,10 +164,90 @@ const CreateUser = () => {
   const onAvatarChange = (_avatar: string) => {
     setLoading(false)
     setAvatar(_avatar)
+  }
 
-    if (_avatar !== null && type === bookcarsTypes.RecordType.Supplier) {
-      setAvatarError(false)
+  const handleSubmit = async (values: typeof initialValues, { setSubmitting, setErrors }: any) => {
+    try {
+      const errors: { [key: string]: string } = {}
+
+      const nationalIdExpirationDate = new Date(values.nationalIdExpirationDate)
+      const licenseDeliveryDate = new Date(values.licenseDeliveryDate)
+      const birthDate = new Date(values.birthDate)
+
+      if (isSupplier) {
+        const fullNameValid = await validateFullName(values.fullName)
+        if (!fullNameValid) {
+          errors.fullName = ccStrings.INVALID_SUPPLIER_NAME
+        }
+        if (!avatar) {
+          errors.avatar = commonStrings.IMAGE_REQUIRED
+        }
+      }
+
+      const _emailValid = await validateEmail(values.email)
+      if (!_emailValid) {
+        errors.email = commonStrings.EMAIL_ALREADY_REGISTERED
+      }
+
+      if (!validatePhone(values.phone)) {
+        errors.phone = commonStrings.PHONE_NOT_VALID
+      }
+
+      if (!validateBirthDate(birthDate)) {
+        errors.birthDate = commonStrings.BIRTH_DATE_NOT_VALID
+      }
+
+      if (!validateNationalIdExpirationDate(nationalIdExpirationDate)) {
+        errors.nationalIdExpirationDate = commonStrings.NATIONAL_ID_EXPIRATION_DATE_INVALID
+      }
+      if (!validateLicenseDeliveryDate(licenseDeliveryDate)) {
+        errors.licenseDeliveryDate = commonStrings.LICENSE_DELIVERY_DATE_INVALID
+      }
+
+      if (Object.keys(errors).length > 0) {
+        setErrors(errors)
+        setSubmitting(false)
+        return
+      }
+
+      const language = UserService.getLanguage()
+      const supplier = admin ? undefined : user?._id
+
+      const data: bookcarsTypes.CreateUserPayload = {
+        email: values.email,
+        phone: values.phone,
+        location: values.location,
+        bio: values.bio,
+        fullName: values.fullName,
+        type,
+        avatar,
+        birthDate,
+        language,
+        supplier,
+        minimumRentalDays: values.minimumRentalDays ? Number(values.minimumRentalDays) : undefined,
+        license,
+        nationalId: values.nationalId,
+        licenseId: values.licenseId,
+        nationalIdExpirationDate,
+        licenseDeliveryDate,
+      }
+
+      if (type === bookcarsTypes.RecordType.Supplier) {
+        data.payLater = values.payLater
+        data.licenseRequired = values.licenseRequired
+      }
+
+      const status = await UserService.create(data)
+
+      if (status === 200) {
+        navigate('/users')
+      } else {
+        helper.error(commonStrings.GENERIC_ERROR)
+      }
+    } catch (err) {
+      helper.error(err)
     }
+    setSubmitting(false)
   }
 
   const handleCancel = async () => {
@@ -235,11 +255,9 @@ const CreateUser = () => {
       if (avatar) {
         await UserService.deleteTempAvatar(avatar)
       }
-
       if (license) {
         await UserService.deleteTempLicense(license)
       }
-
       navigate('/users')
     } catch {
       navigate('/users')
@@ -256,152 +274,10 @@ const CreateUser = () => {
     }
   }
 
-  const handleNationalIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNationalId(e.target.value)
+  const handleUserTypeChange = async (e: SelectChangeEvent<string>) => {
+    const _type = e.target.value
+    setType(_type)
   }
-
-  const handleLicenseUpload = async (filename: string, extractedInfo?: bookcarsTypes.LicenseExtractedData) => {
-    setLicense(filename)
-    // Set fields from extracted data if available
-    if (extractedInfo) {
-      if (extractedInfo.fullName && !fullName) {
-        setFullName(extractedInfo.fullName)
-      }
-      if (extractedInfo.nationalId && !nationalId) {
-        setNationalId(extractedInfo.nationalId)
-      }
-
-      if (extractedInfo.licenseId && !licenseId) {
-        setLicenseId(extractedInfo.licenseId)
-      }
-      if (extractedInfo.dateOfBirth && !birthDate) {
-        const parsedDate = new Date(extractedInfo.dateOfBirth)
-        if (!Number.isNaN(parsedDate.getTime())) {
-          setBirthDate(parsedDate)
-          validateBirthDate(parsedDate)
-        }
-      }
-      if (extractedInfo.nationalIdExpirationDate && !nationalIdExpirationDate) {
-        const parsedDate = new Date(extractedInfo.nationalIdExpirationDate)
-        if (!Number.isNaN(parsedDate.getTime())) {
-          setNationalIdExpirationDate(parsedDate)
-        }
-      }
-
-      if (extractedInfo.licenseDeliveryDate && !licenseDeliveryDate) {
-        const parsedDate = new Date(extractedInfo.licenseDeliveryDate)
-        if (!Number.isNaN(parsedDate.getTime())) {
-          setLicenseDeliveryDate(parsedDate)
-        }
-      }
-    }
-  }
-
-  const handleLicenseIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLicenseId(e.target.value)
-  }
-
-  const handleLicenseDeliveryDateChange = (date: Date | null) => {
-    if (date) setLicenseDeliveryDate(date)
-  }
-
-  const handleNationalIdExpirationDateChange = (date: Date | null) => {
-    if (date) setNationalIdExpirationDate(date)
-  }
-
-  const validateNationalIdExpirationDate = (date?: Date): boolean => {
-    if (!date) return false
-    const now = new Date()
-    return date > now
-  }
-
-  const validateLicenseDeliveryDate = (date?: Date): boolean => {
-    if (!date) return false
-    const now = new Date()
-    return date < now
-  }
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    try {
-      e.preventDefault()
-
-      if (!user || !validateNationalIdExpirationDate(nationalIdExpirationDate) || !validateLicenseDeliveryDate(licenseDeliveryDate)) {
-        helper.error()
-        return
-      }
-
-      if (type === bookcarsTypes.RecordType.Supplier) {
-        const fullNameValid = await validateFullName(fullName)
-
-        if (!fullNameValid) {
-          return
-        }
-      } else {
-        setFullNameError(false)
-      }
-
-      const _emailValid = await validateEmail(email)
-      if (!_emailValid) {
-        return
-      }
-
-      const _phoneValid = validatePhone(phone)
-      if (!_phoneValid) {
-        return
-      }
-
-      const _birthDateValid = validateBirthDate(birthDate)
-      if (!_birthDateValid) {
-        return
-      }
-
-      if (type === bookcarsTypes.RecordType.Supplier && !avatar) {
-        setAvatarError(true)
-        setError(false)
-        return
-      }
-
-      const language = UserService.getLanguage()
-      const supplier = admin ? undefined : user._id
-
-      const data: bookcarsTypes.CreateUserPayload = {
-        email,
-        phone,
-        location,
-        bio,
-        fullName,
-        type,
-        avatar,
-        birthDate,
-        language,
-        supplier,
-        minimumRentalDays: minimumRentalDays ? Number(minimumRentalDays) : undefined,
-        license,
-        nationalId,
-        licenseId,
-        nationalIdExpirationDate,
-        licenseDeliveryDate,
-      }
-
-      if (type === bookcarsTypes.RecordType.Supplier) {
-        data.payLater = payLater
-        data.licenseRequired = licenseRequired
-      }
-
-      const status = await UserService.create(data)
-
-      if (status === 200) {
-        navigate('/users')
-      } else {
-        setError(true)
-      }
-    } catch (err) {
-      helper.error(err)
-    }
-  }
-
-  const supplier = type === bookcarsTypes.RecordType.Supplier
-  const driver = type === bookcarsTypes.RecordType.User
 
   return (
     <Layout onLoad={onLoad} strict>
@@ -409,208 +285,179 @@ const CreateUser = () => {
         <div className="create-user">
           <Paper className="user-form user-form-wrapper" elevation={10} style={visible ? {} : { display: 'none' }}>
             <h1 className="user-form-title">
-              {' '}
               {strings.CREATE_USER_HEADING}
-              {' '}
             </h1>
-            <form onSubmit={handleSubmit}>
-              {supplier && (
-                <>
-                  <Avatar
-                    type={type}
-                    mode="create"
-                    record={null}
-                    size="large"
-                    readonly={false}
-                    onBeforeUpload={onBeforeUpload}
-                    onChange={onAvatarChange}
-                    color="disabled"
-                    className="avatar-ctn"
-                  />
-                  <div className="info">
-                    <InfoIcon />
-                    <span>{ccStrings.RECOMMENDED_IMAGE_SIZE}</span>
-                  </div>
-                </>
-              )}
+            <Formik
+              initialValues={initialValues}
+              validationSchema={validationSchema}
+              onSubmit={handleSubmit}
+            >
+              {({ isSubmitting, setFieldValue }) => (
+                <Form>
+                  {isSupplier && (
+                    <>
+                      <Avatar
+                        type={type}
+                        mode="create"
+                        record={null}
+                        size="large"
+                        readonly={false}
+                        onBeforeUpload={onBeforeUpload}
+                        onChange={onAvatarChange}
+                        color="disabled"
+                        className="avatar-ctn"
+                      />
+                      <div className="info">
+                        <InfoIcon />
+                        <span>{ccStrings.RECOMMENDED_IMAGE_SIZE}</span>
+                      </div>
+                    </>
+                  )}
 
-              {admin && (
-                <FormControl fullWidth margin="dense" style={{ marginTop: supplier ? 0 : 39 }}>
-                  <InputLabel className="required">{commonStrings.TYPE}</InputLabel>
-                  <Select label={commonStrings.TYPE} value={type} onChange={handleUserTypeChange} variant="standard" required fullWidth>
-                    <MenuItem value={bookcarsTypes.RecordType.Admin}>{helper.getUserType(bookcarsTypes.UserType.Admin)}</MenuItem>
-                    <MenuItem value={bookcarsTypes.RecordType.Supplier}>{helper.getUserType(bookcarsTypes.UserType.Supplier)}</MenuItem>
-                    <MenuItem value={bookcarsTypes.RecordType.User}>{helper.getUserType(bookcarsTypes.UserType.User)}</MenuItem>
-                  </Select>
-                </FormControl>
-              )}
+                  {admin && (
+                    <FormControl fullWidth margin="dense" style={{ marginTop: isSupplier ? 0 : 39 }}>
+                      <InputLabel className="required">{commonStrings.TYPE}</InputLabel>
+                      <Select label={commonStrings.TYPE} value={type} onChange={handleUserTypeChange} variant="standard" required fullWidth>
+                        <MenuItem value={bookcarsTypes.RecordType.Admin}>{helper.getUserType(bookcarsTypes.UserType.Admin)}</MenuItem>
+                        <MenuItem value={bookcarsTypes.RecordType.Supplier}>{helper.getUserType(bookcarsTypes.UserType.Supplier)}</MenuItem>
+                        <MenuItem value={bookcarsTypes.RecordType.User}>{helper.getUserType(bookcarsTypes.UserType.User)}</MenuItem>
+                      </Select>
+                    </FormControl>
+                  )}
 
-              {driver
-                && (
-                  <DriverLicense
-                    className="driver-license-field"
-                    onUpload={(filename: string, extractedInfo?: bookcarsTypes.LicenseExtractedData) => {
-                      console.log(extractedInfo)
-                      handleLicenseUpload(filename, extractedInfo)
-                    }}
-                  />
-                )}
-
-              <FormControl fullWidth margin="dense">
-                <InputLabel className="required">{commonStrings.FULL_NAME}</InputLabel>
-                <Input id="full-name" type="text" value={fullName} error={fullNameError} required onBlur={handleFullNameBlur} onChange={handleFullNameChange} autoComplete="off" />
-                <FormHelperText error={fullNameError}>{(fullNameError && ccStrings.INVALID_SUPPLIER_NAME) || ''}</FormHelperText>
-              </FormControl>
-
-              <FormControl fullWidth margin="dense">
-                <InputLabel className="required">{commonStrings.EMAIL}</InputLabel>
-                <Input id="email" type="text" error={!emailValid || emailError} onBlur={handleEmailBlur} onChange={handleEmailChange} autoComplete="off" required />
-                <FormHelperText error={!emailValid || emailError}>
-                  {(!emailValid && commonStrings.EMAIL_NOT_VALID) || ''}
-                  {(emailError && commonStrings.EMAIL_ALREADY_REGISTERED) || ''}
-                </FormHelperText>
-              </FormControl>
-
-              {driver && (
-                <>
-                  <FormControl fullWidth margin="dense">
-                    <InputLabel className="required">{commonStrings.NATIONAL_ID}</InputLabel>
-                    <Input
-                      id="national-id"
-                      type="text"
-                      onChange={handleNationalIdChange}
-                      autoComplete="off"
-                      value={nationalId}
-                      required
-                    />
-                    <FormHelperText>
-                      {commonStrings.NATIONAL_ID_INFO}
-                    </FormHelperText>
-                  </FormControl>
-                  <FormControl fullWidth margin="dense">
-                    <DatePicker
-                      label={commonStrings.NATIONAL_ID_EXPIRATION_DATE}
-                      value={nationalIdExpirationDate}
-                      onChange={handleNationalIdExpirationDateChange}
-                      required
-                    />
-                  </FormControl>
-
-                  <FormControl fullWidth margin="dense">
-                    <InputLabel className="required">{commonStrings.LICENSE_ID}</InputLabel>
-                    <Input
-                      id="license-id"
-                      type="text"
-                      onChange={handleLicenseIdChange}
-                      autoComplete="off"
-                      value={licenseId}
-                      required
-                    />
-                    <FormHelperText>
-                      {commonStrings.LICENSE_ID_INFO}
-                    </FormHelperText>
-                  </FormControl>
-                  <FormControl fullWidth margin="dense">
-                    <DatePicker
-                      label={commonStrings.LICENSE_DELIVERY_DATE}
-                      value={licenseDeliveryDate}
-                      onChange={handleLicenseDeliveryDateChange}
-                      required
-                    />
-                  </FormControl>
-                  <FormControl fullWidth margin="dense">
-                    <DatePicker
-                      label={strings.BIRTH_DATE}
-                      value={birthDate}
-                      required
-                      onChange={(_birthDate) => {
-                        if (_birthDate) {
-                          const _birthDateValid = validateBirthDate(_birthDate)
-
-                          setBirthDate(_birthDate)
-                          setBirthDateValid(_birthDateValid)
+                  {isDriver && (
+                    <DriverLicense
+                      className="driver-license-field"
+                      onUpload={(filename: string, extractedInfo?: bookcarsTypes.LicenseExtractedData) => {
+                        setLicense(filename)
+                        if (extractedInfo) {
+                          if (extractedInfo.fullName) setFieldValue('fullName', extractedInfo.fullName)
+                          if (extractedInfo.nationalId) setFieldValue('nationalId', extractedInfo.nationalId)
+                          if (extractedInfo.licenseId) setFieldValue('licenseId', extractedInfo.licenseId)
+                          if (extractedInfo.dateOfBirth) setFieldValue('birthDate', new Date(extractedInfo.dateOfBirth).toISOString().split('T')[0])
+                          if (extractedInfo.nationalIdExpirationDate) setFieldValue('nationalIdExpirationDate', new Date(extractedInfo.nationalIdExpirationDate).toISOString().split('T')[0])
+                          if (extractedInfo.licenseDeliveryDate) setFieldValue('licenseDeliveryDate', new Date(extractedInfo.licenseDeliveryDate).toISOString().split('T')[0])
                         }
                       }}
-                      language={(user && user.language) || env.DEFAULT_LANGUAGE}
                     />
-                    <FormHelperText error={!birthDateValid}>{(!birthDateValid && commonStrings.BIRTH_DATE_NOT_VALID) || ''}</FormHelperText>
-                  </FormControl>
-                </>
-              )}
-
-              <FormControl fullWidth margin="dense">
-                <InputLabel className={driver ? 'required' : ''}>{commonStrings.PHONE}</InputLabel>
-                <Input id="phone" type="text" onBlur={handlePhoneBlur} onChange={handlePhoneChange} error={!phoneValid} required={!!driver} autoComplete="off" />
-                <FormHelperText error={!phoneValid}>{(!phoneValid && commonStrings.PHONE_NOT_VALID) || ''}</FormHelperText>
-              </FormControl>
-
-              <FormControl fullWidth margin="dense">
-                <InputLabel>{commonStrings.LOCATION}</InputLabel>
-                <Input id="location" type="text" onChange={handleLocationChange} autoComplete="off" />
-              </FormControl>
-
-              {supplier && (
-                <>
+                  )}
 
                   <FormControl fullWidth margin="dense">
-                    <FormControlLabel
-                      control={(
-                        <Switch
-                          checked={payLater}
-                          onChange={(e) => {
-                            setPayLater(e.target.checked)
-                          }}
-                          color="primary"
+                    <InputLabel className="required">{commonStrings.FULL_NAME}</InputLabel>
+                    <Field as={Input} id="full-name" name="fullName" type="text" autoComplete="off" />
+                    <CustomErrorMessage name="fullName" />
+                  </FormControl>
+
+                  <FormControl fullWidth margin="dense">
+                    <InputLabel className="required">{commonStrings.EMAIL}</InputLabel>
+                    <Field as={Input} id="email" name="email" type="text" autoComplete="off" />
+                    <CustomErrorMessage name="email" />
+                  </FormControl>
+
+                  {isDriver && (
+                    <>
+                      <FormControl fullWidth margin="dense">
+                        <InputLabel className="required">{commonStrings.NATIONAL_ID}</InputLabel>
+                        <Field as={Input} id="national-id" name="nationalId" type="text" autoComplete="off" />
+                        <CustomErrorMessage name="nationalId" />
+                      </FormControl>
+                      <FormControl fullWidth margin="dense">
+                        <DatePicker
+                          label={commonStrings.NATIONAL_ID_EXPIRATION_DATE}
+                          value={initialValues.nationalIdExpirationDate}
+                          onChange={(date) => setFieldValue('nationalIdExpirationDate', date)}
+                          required
                         />
-                      )}
-                      label={commonStrings.PAY_LATER}
-                    />
-                  </FormControl>
-                  <FormControl fullWidth margin="dense">
-                    <FormControlLabel
-                      control={(
-                        <Switch
-                          checked={licenseRequired}
-                          onChange={(e) => {
-                            setLicenseRequired(e.target.checked)
-                          }}
-                          color="primary"
+                        <CustomErrorMessage name="nationalIdExpirationDate" />
+                      </FormControl>
+                      <FormControl fullWidth margin="dense">
+                        <InputLabel className="required">{commonStrings.LICENSE_ID}</InputLabel>
+                        <Field as={Input} id="license-id" name="licenseId" type="text" autoComplete="off" />
+                        <CustomErrorMessage name="licenseId" />
+                      </FormControl>
+                      <FormControl fullWidth margin="dense">
+                        <DatePicker
+                          label={commonStrings.LICENSE_DELIVERY_DATE}
+                          value={initialValues.licenseDeliveryDate}
+                          onChange={(date) => setFieldValue('licenseDeliveryDate', date)}
+                          required
                         />
-                      )}
-                      label={commonStrings.LICENSE_REQUIRED}
-                    />
+                        <CustomErrorMessage name="licenseDeliveryDate" />
+                      </FormControl>
+                      <FormControl fullWidth margin="dense">
+                        <DatePicker
+                          label={strings.BIRTH_DATE}
+                          value={initialValues.birthDate}
+                          onChange={(date) => setFieldValue('birthDate', date)}
+                          required
+                          language={(user && user.language) || env.DEFAULT_LANGUAGE}
+                        />
+                        <CustomErrorMessage name="birthDate" />
+                      </FormControl>
+                    </>
+                  )}
+
+                  <FormControl fullWidth margin="dense">
+                    <InputLabel className={isDriver ? 'required' : ''}>{commonStrings.PHONE}</InputLabel>
+                    <Field as={Input} id="phone" name="phone" type="text" autoComplete="off" />
+                    <CustomErrorMessage name="phone" />
                   </FormControl>
 
                   <FormControl fullWidth margin="dense">
-                    <InputLabel>{commonStrings.MIN_RENTAL_DAYS}</InputLabel>
-                    <Input type="text" onChange={handleMinimumRentalDaysChange} autoComplete="off" slotProps={{ input: { inputMode: 'numeric', pattern: '^\\d+$' } }} />
+                    <InputLabel className={isDriver ? 'required' : ''}>{commonStrings.LOCATION}</InputLabel>
+                    <Field as={Input} id="location" name="location" type="text" autoComplete="off" />
+                    <CustomErrorMessage name="location" />
                   </FormControl>
-                  <h4>{commonStrings.BIO}</h4>
-                  <EditorProvider>
-                    <Editor value={bio} onChange={handleBioChange}>
-                      <Toolbar>
-                        <BtnBold />
-                        <BtnItalic />
-                      </Toolbar>
-                    </Editor>
-                  </EditorProvider>
-                </>
+
+                  {isSupplier && (
+                    <>
+                      <FormControl fullWidth margin="dense">
+                        <FormControlLabel
+                          control={(
+                            <Field as={Switch} name="payLater" color="primary" />
+                          )}
+                          label={commonStrings.PAY_LATER}
+                        />
+                      </FormControl>
+                      <FormControl fullWidth margin="dense">
+                        <FormControlLabel
+                          control={(
+                            <Field as={Switch} name="licenseRequired" color="primary" />
+                          )}
+                          label={commonStrings.LICENSE_REQUIRED}
+                        />
+                        <CustomErrorMessage name="licenseRequired" />
+                      </FormControl>
+
+                      <FormControl fullWidth margin="dense">
+                        <InputLabel>{commonStrings.MIN_RENTAL_DAYS}</InputLabel>
+                        <Field as={Input} name="minimumRentalDays" type="text" autoComplete="off" inputProps={{ inputMode: 'numeric', pattern: '^\\d+$' }} />
+                        <CustomErrorMessage name="minimumRentalDays" />
+                      </FormControl>
+                      <h4>{commonStrings.BIO}</h4>
+                      <EditorProvider>
+                        <Editor value={initialValues.bio} onChange={(e: ContentEditableEvent) => setFieldValue('bio', e.target.value)}>
+                          <Toolbar>
+                            <BtnBold />
+                            <BtnItalic />
+                          </Toolbar>
+                        </Editor>
+                        <CustomErrorMessage name="bio" />
+                      </EditorProvider>
+                    </>
+                  )}
+
+                  <div className="buttons">
+                    <Button type="submit" variant="contained" className="btn-primary btn-margin-bottom" size="small" disabled={isSubmitting}>
+                      {commonStrings.CREATE}
+                    </Button>
+                    <Button variant="contained" className="btn-secondary btn-margin-bottom" size="small" onClick={handleCancel}>
+                      {commonStrings.CANCEL}
+                    </Button>
+                  </div>
+                </Form>
               )}
-
-              <div className="buttons">
-                <Button type="submit" variant="contained" className="btn-primary btn-margin-bottom" size="small">
-                  {commonStrings.CREATE}
-                </Button>
-                <Button variant="contained" className="btn-secondary btn-margin-bottom" size="small" onClick={handleCancel}>
-                  {commonStrings.CANCEL}
-                </Button>
-              </div>
-
-              <div className="form-error">
-                {error && <Error message={commonStrings.GENERIC_ERROR} />}
-                {avatarError && <Error message={commonStrings.IMAGE_REQUIRED} />}
-              </div>
-            </form>
+            </Formik>
           </Paper>
         </div>
       )}

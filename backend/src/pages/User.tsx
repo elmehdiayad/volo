@@ -195,7 +195,7 @@ const User = () => {
             <div className="user-actions">
               {edit && (
                 <Tooltip title={commonStrings.UPDATE}>
-                  <IconButton href={`/update-user?u=${user._id}`}>
+                  <IconButton href={`/update-user/${user._id}`}>
                     <EditIcon />
                   </IconButton>
                 </Tooltip>

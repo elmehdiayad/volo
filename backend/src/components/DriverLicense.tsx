@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import { IconButton, Input, OutlinedInput, Box, Dialog, Button, Slider } from '@mui/material'
-import { Upload as UploadIcon, Delete as DeleteIcon, Visibility as ViewIcon, Rotate90DegreesCcw as RotateIcon } from '@mui/icons-material'
+import { IconButton, Input, OutlinedInput, Box, Dialog, Button } from '@mui/material'
+import { Upload as UploadIcon, Delete as DeleteIcon, Visibility as ViewIcon } from '@mui/icons-material'
 import ReactCrop, { Crop } from 'react-image-crop'
 import 'react-image-crop/dist/ReactCrop.css'
 import * as bookcarsTypes from ':bookcars-types'
@@ -44,10 +44,9 @@ const DriverLicense = ({
     y: 5
   })
   const [imageRef, setImageRef] = useState<HTMLImageElement | null>(null)
-  const [rotation, setRotation] = useState(0)
   const [loading, setLoading] = useState(false)
 
-  const getCroppedImg = (image: HTMLImageElement, crop: Crop): Promise<Blob> => {
+  const getCroppedImg = (image: HTMLImageElement): Promise<Blob> => {
     const canvas = document.createElement('canvas')
     const scaleX = image.naturalWidth / image.width
     const scaleY = image.naturalHeight / image.height
@@ -105,7 +104,7 @@ const DriverLicense = ({
     if (!imageRef || !currentImage) return
 
     try {
-      const croppedBlob = await getCroppedImg(imageRef, crop)
+      const croppedBlob = await getCroppedImg(imageRef)
       const file = new File([croppedBlob], 'cropped.jpg', { type: 'image/jpeg' })
 
       let uploadResult = null
@@ -141,10 +140,9 @@ const DriverLicense = ({
           x: 5,
           y: 5
         })
-        setRotation(0)
 
         // Check if all images are uploaded and process collage
-        if (Object.values(updatedImages).every(img => img !== null)) {
+        if (Object.values(updatedImages).every((img) => img !== null)) {
           setLoading(true)
           const collageResult = await UserService.createCollage(Object.values(updatedImages) as string[])
           if (onUpload) {
@@ -167,7 +165,6 @@ const DriverLicense = ({
         x: 5,
         y: 5
       })
-      setRotation(0)
     }
   }
 
@@ -177,11 +174,6 @@ const DriverLicense = ({
     setTimeout(() => {
       upload.click()
     }, 0)
-  }
-
-
-  const handleSliderChange = (_event: Event, newValue: number | number[]) => {
-    setRotation(newValue as number)
   }
 
   const documentTypes = [
@@ -211,7 +203,7 @@ const DriverLicense = ({
               <h3>{commonStrings.PLEASE_WAIT}</h3>
             </Box>
           )}
-          {documentTypes.map(doc => (
+          {documentTypes.map((doc) => (
             <div key={doc.key}>
               <div className="document-upload">
                 {variant === 'standard' ? (
@@ -243,7 +235,6 @@ const DriverLicense = ({
                         size="small"
                         onClick={() => {
                           const url = `${bookcarsHelper.trimEnd(user ? env.CDN_LICENSES : env.CDN_TEMP_LICENSES, '/')}/${images[doc.key]}`
-                          console.log(url);
                           helper.downloadURI(url)
                         }}
                       >
@@ -261,7 +252,7 @@ const DriverLicense = ({
                             }
 
                             if (status === 200) {
-                              setImages(prev => ({
+                              setImages((prev) => ({
                                 ...prev,
                                 [doc.key]: null
                               }))
@@ -306,7 +297,7 @@ const DriverLicense = ({
             <>
               <ReactCrop
                 crop={crop}
-                onChange={c => setCrop(c)}
+                onChange={(c) => setCrop(c)}
                 aspect={43 / 27}
               >
                 <img
@@ -315,6 +306,7 @@ const DriverLicense = ({
                   style={{
                     maxWidth: '100%'
                   }}
+                  alt=""
                 />
               </ReactCrop>
             </>

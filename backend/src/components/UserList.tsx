@@ -256,7 +256,7 @@ const UserList = ({
           return _user.type === bookcarsTypes.RecordType.Admin || __user.supplier === _user._id ? (
             <div>
               <Tooltip title={commonStrings.UPDATE}>
-                <IconButton href={`update-user?u=${row._id}`}>
+                <IconButton href={`update-user/${row._id}`}>
                   <EditIcon />
                 </IconButton>
               </Tooltip>
