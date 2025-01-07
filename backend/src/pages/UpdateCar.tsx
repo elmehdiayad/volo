@@ -1,7 +1,5 @@
 import React, { useState } from 'react'
 import {
-  Input,
-  InputLabel,
   FormControl,
   Button,
   Paper,
@@ -200,27 +198,6 @@ const UpdateCar = () => {
   const handleFuelPolicyChange = (value: string) => {
     setFuelPolicy(value)
   }
-
-  const handleCancellationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setCancellation(e.target.value)
-  }
-
-  const handleAmendmentsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setAmendments(e.target.value)
-  }
-
-  const handleTheftProtectionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTheftProtection(e.target.value)
-  }
-
-  const handleCollisionDamageWaiverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setCollisionDamageWaiver(e.target.value)
-  }
-
-  const handleFullinsuranceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFullInsurance(e.target.value)
-  }
-
   const handleAdditionalDriverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setAdditionalDriver(e.target.value)
   }
@@ -416,13 +393,36 @@ const UpdateCar = () => {
               </div>
 
               <FormControl fullWidth margin="dense">
-                <InputLabel className="required">{strings.NAME}</InputLabel>
-                <Input type="text" required value={name} autoComplete="off" onChange={handleNameChange} />
+                <TextField
+                  label={strings.NAME}
+                  required
+                  value={name}
+                  autoComplete="off"
+                  onChange={handleNameChange}
+                  variant="standard"
+                />
               </FormControl>
 
               <FormControl fullWidth margin="dense">
-                <InputLabel className="required">{strings.PLATE_NUMBER}</InputLabel>
-                <Input type="text" required value={plateNumber} autoComplete="off" onChange={handlePlateNumberChange} />
+                <TextField
+                  label={strings.PLATE_NUMBER}
+                  required
+                  value={plateNumber}
+                  autoComplete="off"
+                  onChange={handlePlateNumberChange}
+                  variant="standard"
+                />
+              </FormControl>
+
+              <FormControl fullWidth margin="dense">
+                <TextField
+                  label={`${csStrings.MILEAGE} (${csStrings.MILEAGE_UNIT})`}
+                  slotProps={{ htmlInput: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
+                  onChange={handleMileageChange}
+                  variant="standard"
+                  autoComplete="off"
+                  value={mileage}
+                />
               </FormControl>
 
               {admin && (
@@ -438,16 +438,17 @@ const UpdateCar = () => {
               )}
 
               <FormControl fullWidth margin="dense">
-                <InputLabel className="required">{strings.MINIMUM_AGE}</InputLabel>
-                <Input
-                  type="text"
+                <TextField
+                  label={strings.MINIMUM_AGE}
                   required
                   error={!minimumAgeValid}
                   value={minimumAge}
                   autoComplete="off"
                   onChange={handleMinimumAgeChange}
-                  inputProps={{ inputMode: 'numeric', pattern: '^\\d{2}$' }}
+                  variant="standard"
+                  slotProps={{ htmlInput: { inputMode: 'numeric', pattern: '^\\d{2}$' } }}
                 />
+
                 <FormHelperText error={!minimumAgeValid}>{(!minimumAgeValid && strings.MINIMUM_AGE_NOT_VALID) || ''}</FormHelperText>
               </FormControl>
 
@@ -688,73 +689,6 @@ const UpdateCar = () => {
               <FormControl fullWidth margin="dense" className="checkbox-fc">
                 <FormControlLabel control={<Switch checked={aircon} onChange={handleAirconChange} color="primary" />} label={strings.AIRCON} className="checkbox-fcl" />
               </FormControl>
-
-              <FormControl fullWidth margin="dense">
-                <TextField
-                  label={`${csStrings.MILEAGE} (${csStrings.MILEAGE_UNIT})`}
-                  slotProps={{ htmlInput: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
-                  onChange={handleMileageChange}
-                  variant="standard"
-                  autoComplete="off"
-                  value={mileage}
-                />
-              </FormControl>
-
-              <FormControl fullWidth margin="dense">
-                <TextField
-                  label={`${csStrings.CANCELLATION} (${commonStrings.CURRENCY})`}
-                  slotProps={{ htmlInput: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
-                  onChange={handleCancellationChange}
-                  variant="standard"
-                  autoComplete="off"
-                  value={cancellation}
-                />
-              </FormControl>
-
-              <FormControl fullWidth margin="dense">
-                <TextField
-                  label={`${csStrings.AMENDMENTS} (${commonStrings.CURRENCY})`}
-                  slotProps={{ htmlInput: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
-                  onChange={handleAmendmentsChange}
-                  variant="standard"
-                  autoComplete="off"
-                  value={amendments}
-                />
-              </FormControl>
-
-              <FormControl fullWidth margin="dense">
-                <TextField
-                  label={`${csStrings.THEFT_PROTECTION} (${csStrings.CAR_CURRENCY})`}
-                  slotProps={{ htmlInput: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
-                  onChange={handleTheftProtectionChange}
-                  variant="standard"
-                  autoComplete="off"
-                  value={theftProtection}
-                />
-              </FormControl>
-
-              <FormControl fullWidth margin="dense">
-                <TextField
-                  label={`${csStrings.COLLISION_DAMAGE_WAVER} (${csStrings.CAR_CURRENCY})`}
-                  slotProps={{ htmlInput: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
-                  onChange={handleCollisionDamageWaiverChange}
-                  variant="standard"
-                  autoComplete="off"
-                  value={collisionDamageWaiver}
-                />
-              </FormControl>
-
-              <FormControl fullWidth margin="dense">
-                <TextField
-                  label={`${csStrings.FULL_INSURANCE} (${csStrings.CAR_CURRENCY})`}
-                  slotProps={{ htmlInput: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
-                  onChange={handleFullinsuranceChange}
-                  variant="standard"
-                  autoComplete="off"
-                  value={fullInsurance}
-                />
-              </FormControl>
-
               <FormControl fullWidth margin="dense">
                 <TextField
                   label={`${csStrings.ADDITIONAL_DRIVER} (${csStrings.CAR_CURRENCY})`}

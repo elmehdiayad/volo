@@ -74,7 +74,7 @@ export const generateContract = async (req: Request, res: Response) => {
       carImage: carImage ? `data:image/png;base64,${carImage}` : '',
       companyLogo: companyLogo ? `data:image/png;base64,${companyLogo}` : '',
       contractNumber: booking._id,
-      date: new Date().toLocaleString('fr-FR'),
+      date: new Date(booking.from).toLocaleDateString('fr-FR', { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: clientTimezone }),
       supplier: {
         name: booking.supplier?.fullName || '',
         location: booking.supplier?.location || '',
@@ -139,9 +139,9 @@ export const generateContract = async (req: Request, res: Response) => {
       timeout: 30000,
     })
     const page = await browser.newPage()
-    await page.setDefaultNavigationTimeout(30000)
-    await page.setDefaultTimeout(30000)
-    await page.setContent(html, {
+    page.setDefaultNavigationTimeout(30000)
+    page.setDefaultTimeout(30000)
+    page.setContent(html, {
       waitUntil: 'networkidle0',
       timeout: 30000,
     })
@@ -150,6 +150,7 @@ export const generateContract = async (req: Request, res: Response) => {
       format: 'A4',
       printBackground: true,
       margin: { top: '10px', right: '10px', bottom: '10px', left: '10px' },
+      preferCSSPageSize: true,
     })
 
     res.setHeader('Content-Type', 'application/pdf')

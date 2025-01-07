@@ -54,11 +54,6 @@ const CreateBooking = () => {
   const [minDate, setMinDate] = useState<Date>()
   const [maxDate, setMaxDate] = useState<Date>()
   const [status, setStatus] = useState<bookcarsTypes.BookingStatus>()
-  const [cancellation, setCancellation] = useState(false)
-  const [amendments, setAmendments] = useState(false)
-  const [theftProtection, setTheftProtection] = useState(false)
-  const [collisionDamageWaiver, setCollisionDamageWaiver] = useState(false)
-  const [fullInsurance, setFullInsurance] = useState(false)
   const [additionalDriver, setAdditionalDriver] = useState(false)
   const [additionalDriverfullName, setAdditionalDriverFullName] = useState('')
   const [addtionalDriverEmail, setAdditionalDriverEmail] = useState('')
@@ -104,26 +99,6 @@ const CreateBooking = () => {
 
   const handleStatusChange = (value: bookcarsTypes.BookingStatus) => {
     setStatus(value)
-  }
-
-  const handleCancellationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setCancellation(e.target.checked)
-  }
-
-  const handleAmendmentsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setAmendments(e.target.checked)
-  }
-
-  const handleTheftProtectionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTheftProtection(e.target.checked)
-  }
-
-  const handleCollisionDamageWaiverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setCollisionDamageWaiver(e.target.checked)
-  }
-
-  const handleFullInsuranceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFullInsurance(e.target.checked)
   }
 
   const handleAdditionalDriverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -225,11 +200,6 @@ const CreateBooking = () => {
       from,
       to,
       status,
-      cancellation,
-      amendments,
-      theftProtection,
-      collisionDamageWaiver,
-      fullInsurance,
       additionalDriver: additionalDriverSet,
     }
 
@@ -296,9 +266,7 @@ const CreateBooking = () => {
       <div className="create-booking">
         <Paper className="booking-form booking-form-wrapper" elevation={10} style={visible ? {} : { display: 'none' }}>
           <h1 className="booking-form-title">
-            {' '}
             {strings.NEW_BOOKING_HEADING}
-            {' '}
           </h1>
           <form onSubmit={handleSubmit}>
             {!isSupplier && (
@@ -317,6 +285,7 @@ const CreateBooking = () => {
               required
               variant="standard"
               onChange={handleDriverChange}
+              currentUser={user}
             />
 
             <FormControl fullWidth margin="dense">
@@ -417,51 +386,6 @@ const CreateBooking = () => {
               <InfoIcon />
               <span>{commonStrings.OPTIONAL}</span>
             </div>
-
-            <FormControl fullWidth margin="dense" className="checkbox-fc">
-              <FormControlLabel
-                control={<Switch checked={cancellation} onChange={handleCancellationChange} color="primary" />}
-                label={csStrings.CANCELLATION}
-                className="checkbox-fcl"
-                disabled={!helper.carOptionAvailable(car, 'cancellation')}
-              />
-            </FormControl>
-
-            <FormControl fullWidth margin="dense" className="checkbox-fc">
-              <FormControlLabel
-                control={<Switch checked={amendments} onChange={handleAmendmentsChange} color="primary" />}
-                label={csStrings.AMENDMENTS}
-                className="checkbox-fcl"
-                disabled={!helper.carOptionAvailable(car, 'amendments')}
-              />
-            </FormControl>
-
-            <FormControl fullWidth margin="dense" className="checkbox-fc">
-              <FormControlLabel
-                control={<Switch checked={theftProtection} onChange={handleTheftProtectionChange} color="primary" />}
-                label={csStrings.THEFT_PROTECTION}
-                className="checkbox-fcl"
-                disabled={!helper.carOptionAvailable(car, 'theftProtection')}
-              />
-            </FormControl>
-
-            <FormControl fullWidth margin="dense" className="checkbox-fc">
-              <FormControlLabel
-                control={<Switch checked={collisionDamageWaiver} onChange={handleCollisionDamageWaiverChange} color="primary" />}
-                label={csStrings.COLLISION_DAMAGE_WAVER}
-                className="checkbox-fcl"
-                disabled={!helper.carOptionAvailable(car, 'collisionDamageWaiver')}
-              />
-            </FormControl>
-
-            <FormControl fullWidth margin="dense" className="checkbox-fc">
-              <FormControlLabel
-                control={<Switch checked={fullInsurance} onChange={handleFullInsuranceChange} color="primary" />}
-                label={csStrings.FULL_INSURANCE}
-                className="checkbox-fcl"
-                disabled={!helper.carOptionAvailable(car, 'fullInsurance')}
-              />
-            </FormControl>
 
             <FormControl fullWidth margin="dense" className="checkbox-fc">
               <FormControlLabel
