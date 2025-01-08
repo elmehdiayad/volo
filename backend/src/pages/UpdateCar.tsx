@@ -273,6 +273,11 @@ const UpdateCar = () => {
                 setNoMatch(true)
                 return
               }
+              _car._supplier = {
+                _id: _car.supplier._id as string,
+                name: _car.supplier.fullName,
+                image: _car.supplier.avatar,
+              } as bookcarsTypes.Option
 
               setCar(_car)
               setImageRequired(!_car.image)
@@ -377,7 +382,7 @@ const UpdateCar = () => {
                       <SupplierSelectList
                         label={strings.SUPPLIER}
                         required
-                        value={car?.supplier as bookcarsTypes.Option}
+                        value={car?._supplier}
                         variant="standard"
                         onChange={(values: bookcarsTypes.Option[]) => setFieldValue('supplier', values.length > 0 ? values[0] : undefined)}
                       />
