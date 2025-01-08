@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import puppeteer from 'puppeteer'
+import puppeteer, { Page } from 'puppeteer'
 import { readFileSync } from 'fs'
 import { join } from 'path'
 import Handlebars from 'handlebars'
@@ -7,6 +7,33 @@ import Handlebars from 'handlebars'
 import * as logger from '../common/logger'
 import Booking from '../models/Booking'
 import * as env from '../config/env.config'
+
+async function navigateWithRetry(page: Page, url: string, retries = 3) {
+  for (let i = 0; i < retries; i += 1) {
+    try {
+      await page.goto(url, { waitUntil: 'networkidle0' })
+      return
+    } catch (error) {
+      if ((error as Error).message.includes('Navigating frame was detached')) {
+        console.warn(`Retrying navigation to ${url} (${i + 1}/${retries})`)
+      } else {
+        throw error
+      }
+    }
+  }
+  throw new Error(`Failed to navigate to ${url} after ${retries} attempts`)
+}
+
+function formatDate(date: Date, timeZone?: string): string {
+  return date.toLocaleDateString('fr-FR', {
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: timeZone || 'UTC',
+  })
+}
 
 export const generateContract = async (req: Request, res: Response) => {
   let browser = null
@@ -62,8 +89,8 @@ export const generateContract = async (req: Request, res: Response) => {
     }
 
     // Format dates and calculate costs
-    const fromDate = new Date(booking.from).toLocaleDateString('fr-FR', { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: clientTimezone })
-    const toDate = new Date(booking.to).toLocaleDateString('fr-FR', { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: clientTimezone })
+    const fromDate = formatDate(new Date(booking.from), clientTimezone)
+    const toDate = formatDate(new Date(booking.to), clientTimezone)
     const days = Math.ceil((new Date(booking.to).getTime() - new Date(booking.from).getTime()) / (1000 * 3600 * 24))
     const pricePerDay = booking.price / days
     const tva = booking.price * 0.20
@@ -74,7 +101,7 @@ export const generateContract = async (req: Request, res: Response) => {
       carImage: carImage ? `data:image/png;base64,${carImage}` : '',
       companyLogo: companyLogo ? `data:image/png;base64,${companyLogo}` : '',
       contractNumber: booking._id,
-      date: new Date().toLocaleDateString('fr-FR', { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: clientTimezone }),
+      date: formatDate(new Date(), clientTimezone),
       supplier: {
         name: booking.supplier?.fullName || '',
         location: booking.supplier?.location || '',
@@ -141,15 +168,13 @@ export const generateContract = async (req: Request, res: Response) => {
     const page = await browser.newPage()
     page.setDefaultNavigationTimeout(30000)
     page.setDefaultTimeout(30000)
-    page.setContent(html, {
-      waitUntil: 'networkidle0',
-      timeout: 30000,
-    })
+    await navigateWithRetry(page, `data:text/html,${encodeURIComponent(html)}`)
 
     const pdfBuffer = await page.pdf({
       format: 'A4',
       printBackground: true,
       margin: { top: '10px', right: '10px', bottom: '10px', left: '10px' },
+      preferCSSPageSize: true,
     })
 
     res.setHeader('Content-Type', 'application/pdf')

@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import {
-  Input,
-  InputLabel,
+  TextField,
   FormControl,
   FormHelperText,
   Button,
@@ -59,6 +58,9 @@ const CreateUser = () => {
   const [license, setLicense] = useState('')
   const [type, setType] = useState('')
 
+  const isSupplier = type === bookcarsTypes.RecordType.Supplier
+  const isDriver = type === bookcarsTypes.RecordType.User
+
   const initialValues = {
     fullName: '',
     email: '',
@@ -78,17 +80,42 @@ const CreateUser = () => {
   const validationSchema = Yup.object().shape({
     fullName: Yup.string().required(commonStrings.REQUIRED_FIELD),
     email: Yup.string().email(commonStrings.EMAIL_NOT_VALID).required(commonStrings.REQUIRED_FIELD),
-    phone: Yup.string().required(commonStrings.REQUIRED_FIELD),
-    location: Yup.string().required(commonStrings.REQUIRED_FIELD),
-    birthDate: Yup.date().required(commonStrings.REQUIRED_FIELD),
-    nationalId: Yup.string().required(commonStrings.REQUIRED_FIELD),
-    licenseId: Yup.string().required(commonStrings.REQUIRED_FIELD),
-    nationalIdExpirationDate: Yup.date().required(commonStrings.REQUIRED_FIELD),
-    licenseDeliveryDate: Yup.date().required(commonStrings.REQUIRED_FIELD),
+    phone: Yup.string().when('$isDriver', {
+      is: true,
+      then: (schema) => schema.required(commonStrings.REQUIRED_FIELD),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    location: Yup.string().when('$isDriver', {
+      is: true,
+      then: (schema) => schema.required(commonStrings.REQUIRED_FIELD),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    birthDate: Yup.date().when('$isDriver', {
+      is: true,
+      then: (schema) => schema.required(commonStrings.REQUIRED_FIELD),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    nationalId: Yup.string().when('$isDriver', {
+      is: true,
+      then: (schema) => schema.required(commonStrings.REQUIRED_FIELD),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    licenseId: Yup.string().when('$isDriver', {
+      is: true,
+      then: (schema) => schema.required(commonStrings.REQUIRED_FIELD),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    nationalIdExpirationDate: Yup.date().when('$isDriver', {
+      is: true,
+      then: (schema) => schema.required(commonStrings.REQUIRED_FIELD),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    licenseDeliveryDate: Yup.date().when('$isDriver', {
+      is: true,
+      then: (schema) => schema.required(commonStrings.REQUIRED_FIELD),
+      otherwise: (schema) => schema.notRequired(),
+    }),
   })
-
-  const isSupplier = type === bookcarsTypes.RecordType.Supplier
-  const isDriver = type === bookcarsTypes.RecordType.User
 
   const validateFullName = async (_fullName: string) => {
     if (_fullName) {
@@ -291,6 +318,7 @@ const CreateUser = () => {
               initialValues={initialValues}
               validationSchema={validationSchema}
               onSubmit={handleSubmit}
+              context={{ isDriver }}
             >
               {({ isSubmitting, setFieldValue }) => (
                 <Form>
@@ -316,8 +344,14 @@ const CreateUser = () => {
 
                   {admin && (
                     <FormControl fullWidth margin="dense" style={{ marginTop: isSupplier ? 0 : 39 }}>
-                      <InputLabel className="required">{commonStrings.TYPE}</InputLabel>
-                      <Select label={commonStrings.TYPE} value={type} onChange={handleUserTypeChange} variant="standard" required fullWidth>
+                      <Select
+                        label={commonStrings.TYPE}
+                        value={type}
+                        onChange={handleUserTypeChange}
+                        variant="standard"
+                        required
+                        fullWidth
+                      >
                         <MenuItem value={bookcarsTypes.RecordType.Admin}>{helper.getUserType(bookcarsTypes.UserType.Admin)}</MenuItem>
                         <MenuItem value={bookcarsTypes.RecordType.Supplier}>{helper.getUserType(bookcarsTypes.UserType.Supplier)}</MenuItem>
                         <MenuItem value={bookcarsTypes.RecordType.User}>{helper.getUserType(bookcarsTypes.UserType.User)}</MenuItem>
@@ -343,22 +377,46 @@ const CreateUser = () => {
                   )}
 
                   <FormControl fullWidth margin="dense">
-                    <InputLabel className="required">{commonStrings.FULL_NAME}</InputLabel>
-                    <Field as={Input} id="full-name" name="fullName" type="text" autoComplete="off" />
+                    <Field
+                      as={TextField}
+                      id="full-name"
+                      name="fullName"
+                      type="text"
+                      label={commonStrings.FULL_NAME}
+                      required
+                      autoComplete="off"
+                      variant="standard"
+                    />
                     <CustomErrorMessage name="fullName" />
                   </FormControl>
 
                   <FormControl fullWidth margin="dense">
-                    <InputLabel className="required">{commonStrings.EMAIL}</InputLabel>
-                    <Field as={Input} id="email" name="email" type="text" autoComplete="off" />
+                    <Field
+                      as={TextField}
+                      id="email"
+                      name="email"
+                      type="text"
+                      label={commonStrings.EMAIL}
+                      required
+                      autoComplete="off"
+                      variant="standard"
+                    />
                     <CustomErrorMessage name="email" />
                   </FormControl>
 
                   {isDriver && (
                     <>
                       <FormControl fullWidth margin="dense">
-                        <InputLabel className="required">{commonStrings.NATIONAL_ID}</InputLabel>
-                        <Field as={Input} id="national-id" name="nationalId" type="text" autoComplete="off" />
+                        <Field
+                          as={TextField}
+                          id="national-id"
+                          name="nationalId"
+                          type="text"
+                          label={commonStrings.NATIONAL_ID}
+                          required
+                          autoComplete="off"
+                          variant="standard"
+                        />
                         <CustomErrorMessage name="nationalId" />
                       </FormControl>
                       <FormControl fullWidth margin="dense">
@@ -371,8 +429,16 @@ const CreateUser = () => {
                         <CustomErrorMessage name="nationalIdExpirationDate" />
                       </FormControl>
                       <FormControl fullWidth margin="dense">
-                        <InputLabel className="required">{commonStrings.LICENSE_ID}</InputLabel>
-                        <Field as={Input} id="license-id" name="licenseId" type="text" autoComplete="off" />
+                        <Field
+                          as={TextField}
+                          id="license-id"
+                          name="licenseId"
+                          type="text"
+                          label={commonStrings.LICENSE_ID}
+                          required
+                          autoComplete="off"
+                          variant="standard"
+                        />
                         <CustomErrorMessage name="licenseId" />
                       </FormControl>
                       <FormControl fullWidth margin="dense">
@@ -398,14 +464,30 @@ const CreateUser = () => {
                   )}
 
                   <FormControl fullWidth margin="dense">
-                    <InputLabel className={isDriver ? 'required' : ''}>{commonStrings.PHONE}</InputLabel>
-                    <Field as={Input} id="phone" name="phone" type="text" autoComplete="off" />
+                    <Field
+                      as={TextField}
+                      id="phone"
+                      name="phone"
+                      type="text"
+                      label={commonStrings.PHONE}
+                      required={isDriver}
+                      autoComplete="off"
+                      variant="standard"
+                    />
                     <CustomErrorMessage name="phone" />
                   </FormControl>
 
                   <FormControl fullWidth margin="dense">
-                    <InputLabel className={isDriver ? 'required' : ''}>{commonStrings.LOCATION}</InputLabel>
-                    <Field as={Input} id="location" name="location" type="text" autoComplete="off" />
+                    <Field
+                      as={TextField}
+                      id="location"
+                      name="location"
+                      type="text"
+                      label={commonStrings.LOCATION}
+                      required={isDriver}
+                      autoComplete="off"
+                      variant="standard"
+                    />
                     <CustomErrorMessage name="location" />
                   </FormControl>
 
@@ -430,8 +512,15 @@ const CreateUser = () => {
                       </FormControl>
 
                       <FormControl fullWidth margin="dense">
-                        <InputLabel>{commonStrings.MIN_RENTAL_DAYS}</InputLabel>
-                        <Field as={Input} name="minimumRentalDays" type="text" autoComplete="off" inputProps={{ inputMode: 'numeric', pattern: '^\\d+$' }} />
+                        <Field
+                          as={TextField}
+                          name="minimumRentalDays"
+                          type="text"
+                          label={commonStrings.MIN_RENTAL_DAYS}
+                          autoComplete="off"
+                          inputProps={{ inputMode: 'numeric', pattern: '^\\d+$' }}
+                          variant="standard"
+                        />
                         <CustomErrorMessage name="minimumRentalDays" />
                       </FormControl>
                       <h4>{commonStrings.BIO}</h4>

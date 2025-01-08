@@ -43,13 +43,87 @@ const CustomErrorMessage = ({ name }: { name: string }) => (
 
 const CreateCar = () => {
   const navigate = useNavigate()
-  const [isSupplier, setIsSupplier] = useState<bookcarsTypes.User | undefined>()
+  const [isSupplier, setIsSupplier] = useState<bookcarsTypes.User>()
   const [loading, setLoading] = useState(false)
   const [visible, setVisible] = useState(false)
   const [imageError, setImageError] = useState(false)
   const [imageSizeError, setImageSizeError] = useState(false)
   const [image, setImage] = useState('')
   const [formError, setFormError] = useState(false)
+
+  const validationSchema = Yup.object().shape({
+    name: Yup.string().required(commonStrings.REQUIRED_FIELD),
+    plateNumber: Yup.string().required(commonStrings.REQUIRED_FIELD),
+    supplier: Yup.mixed().when('$isSupplier', {
+      is: false,
+      then: (schema) => schema.required(commonStrings.REQUIRED_FIELD),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    locations: Yup.array().min(1, commonStrings.REQUIRED_FIELD),
+    dailyPrice: Yup.number()
+      .required(commonStrings.REQUIRED_FIELD)
+      .min(0, commonStrings.DAILY_PRICE_NOT_VALID)
+      .typeError(commonStrings.DAILY_PRICE_NOT_VALID),
+    deposit: Yup.number()
+      .required(commonStrings.REQUIRED_FIELD)
+      .min(0, commonStrings.DEPOSIT_NOT_VALID)
+      .typeError(commonStrings.DEPOSIT_NOT_VALID),
+    minimumAge: Yup.number()
+      .required(commonStrings.REQUIRED_FIELD)
+      .min(env.MINIMUM_AGE, commonStrings.MINIMUM_AGE_NOT_VALID)
+      .max(99, commonStrings.MINIMUM_AGE_NOT_VALID)
+      .typeError(commonStrings.MINIMUM_AGE_NOT_VALID),
+    mileage: Yup.number()
+      .required(commonStrings.MILEAGE_REQUIRED)
+      .min(0, commonStrings.MILEAGE_NOT_VALID)
+      .typeError(commonStrings.MILEAGE_NOT_VALID),
+    type: Yup.string().required(commonStrings.REQUIRED_FIELD),
+    gearbox: Yup.string().required(commonStrings.REQUIRED_FIELD),
+    seats: Yup.string().required(commonStrings.REQUIRED_FIELD),
+    doors: Yup.string().required(commonStrings.REQUIRED_FIELD),
+    fuelPolicy: Yup.string().required(commonStrings.REQUIRED_FIELD),
+    range: Yup.string().required(commonStrings.REQUIRED_FIELD),
+    additionalDriver: Yup.number()
+      .min(0, commonStrings.ADDITIONAL_DRIVER_PRICE_NOT_VALID)
+      .typeError(commonStrings.ADDITIONAL_DRIVER_PRICE_NOT_VALID),
+    rating: Yup.number()
+      .min(1, commonStrings.RATING_NOT_VALID)
+      .max(5, commonStrings.RATING_NOT_VALID)
+      .typeError(commonStrings.RATING_NOT_VALID)
+      .nullable(),
+    co2: Yup.number()
+      .min(0, commonStrings.CO2_NOT_VALID)
+      .typeError(commonStrings.CO2_NOT_VALID)
+      .nullable(),
+    discountedDailyPrice: Yup.number()
+      .min(0, commonStrings.PRICE_NOT_VALID)
+      .typeError(commonStrings.PRICE_NOT_VALID)
+      .nullable(),
+    biWeeklyPrice: Yup.number()
+      .min(0, commonStrings.PRICE_NOT_VALID)
+      .typeError(commonStrings.PRICE_NOT_VALID)
+      .nullable(),
+    discountedBiWeeklyPrice: Yup.number()
+      .min(0, commonStrings.PRICE_NOT_VALID)
+      .typeError(commonStrings.PRICE_NOT_VALID)
+      .nullable(),
+    weeklyPrice: Yup.number()
+      .min(0, commonStrings.PRICE_NOT_VALID)
+      .typeError(commonStrings.PRICE_NOT_VALID)
+      .nullable(),
+    discountedWeeklyPrice: Yup.number()
+      .min(0, commonStrings.PRICE_NOT_VALID)
+      .typeError(commonStrings.PRICE_NOT_VALID)
+      .nullable(),
+    monthlyPrice: Yup.number()
+      .min(0, commonStrings.PRICE_NOT_VALID)
+      .typeError(commonStrings.PRICE_NOT_VALID)
+      .nullable(),
+    discountedMonthlyPrice: Yup.number()
+      .min(0, commonStrings.PRICE_NOT_VALID)
+      .typeError(commonStrings.PRICE_NOT_VALID)
+      .nullable(),
+  })
 
   const initialValues = {
     name: '',
@@ -80,16 +154,6 @@ const CreateCar = () => {
     co2: '',
     minimumAge: String(env.MINIMUM_AGE),
   }
-
-  const validationSchema = Yup.object().shape({
-    name: Yup.string().required(commonStrings.REQUIRED_FIELD),
-    plateNumber: Yup.string().required(commonStrings.REQUIRED_FIELD),
-    supplier: isSupplier ? Yup.string() : Yup.string().required(commonStrings.REQUIRED_FIELD),
-    locations: Yup.array().min(1, commonStrings.REQUIRED_FIELD),
-    dailyPrice: Yup.number().required(commonStrings.REQUIRED_FIELD),
-    deposit: Yup.number().required(commonStrings.REQUIRED_FIELD),
-    minimumAge: Yup.number().min(env.MINIMUM_AGE).max(99).required(commonStrings.REQUIRED_FIELD),
-  })
 
   const handleBeforeUpload = () => {
     setLoading(true)
@@ -203,6 +267,7 @@ const CreateCar = () => {
             initialValues={initialValues}
             validationSchema={validationSchema}
             onSubmit={handleSubmit}
+            context={{ isSupplier: !!isSupplier }}
           >
             {({ isSubmitting, setFieldValue }) => (
               <Form>
@@ -223,6 +288,17 @@ const CreateCar = () => {
                   <InfoIcon />
                   <span>{strings.RECOMMENDED_IMAGE_SIZE}</span>
                 </div>
+
+                {!isSupplier && (
+                  <FormControl fullWidth margin="dense">
+                    <SupplierSelectList
+                      label={strings.SUPPLIER}
+                      required
+                      variant="standard"
+                      onChange={(values: bookcarsTypes.Option[]) => setFieldValue('supplier', values.length > 0 ? values[0]._id : '')}
+                    />
+                  </FormControl>
+                )}
 
                 <FormControl fullWidth margin="dense">
                   <Field
@@ -248,25 +324,17 @@ const CreateCar = () => {
                   <CustomErrorMessage name="plateNumber" />
                 </FormControl>
 
-                {!isSupplier && (
-                  <FormControl fullWidth margin="dense">
-                    <SupplierSelectList
-                      label={strings.SUPPLIER}
-                      required
-                      variant="standard"
-                      onChange={(values: bookcarsTypes.Option[]) => setFieldValue('supplier', values.length > 0 ? values[0]._id : '')}
-                    />
-                  </FormControl>
-                )}
-
                 <FormControl fullWidth margin="dense">
-                  <TextField
+                  <Field
+                    as={TextField}
                     label={`${csStrings.MILEAGE} (${csStrings.MILEAGE_UNIT})`}
-                    slotProps={{ htmlInput: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFieldValue('mileage', e.target.value)}
-                    variant="standard"
+                    required
+                    name="mileage"
                     autoComplete="off"
+                    variant="standard"
+                    slotProps={{ input: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
                   />
+                  <CustomErrorMessage name="mileage" />
                 </FormControl>
 
                 <FormControl fullWidth margin="dense">
@@ -296,6 +364,46 @@ const CreateCar = () => {
                     autoComplete="off"
                   />
                 </FormControl>
+
+                <FormControl fullWidth margin="dense">
+                  <TextField
+                    label={`${csStrings.DEPOSIT} (${commonStrings.CURRENCY})`}
+                    slotProps={{ htmlInput: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFieldValue('deposit', e.target.value)}
+                    required
+                    variant="standard"
+                    autoComplete="off"
+                  />
+                </FormControl>
+
+                <FormControl fullWidth margin="dense">
+                  <CarRangeList label={strings.CAR_RANGE} variant="standard" required onChange={(value: string) => setFieldValue('range', value)} />
+                </FormControl>
+
+                <FormControl fullWidth margin="dense">
+                  <CarTypeList label={strings.CAR_TYPE} variant="standard" required onChange={(value: string) => setFieldValue('type', value)} />
+                </FormControl>
+
+                <FormControl fullWidth margin="dense">
+                  <GearboxList label={strings.GEARBOX} variant="standard" required onChange={(value: string) => setFieldValue('gearbox', value)} />
+                </FormControl>
+
+                <FormControl fullWidth margin="dense">
+                  <SeatsList label={strings.SEATS} variant="standard" required onChange={(value: string) => setFieldValue('seats', value)} />
+                </FormControl>
+
+                <FormControl fullWidth margin="dense">
+                  <DoorsList label={strings.DOORS} variant="standard" required onChange={(value: string) => setFieldValue('doors', value)} />
+                </FormControl>
+
+                <FormControl fullWidth margin="dense">
+                  <FuelPolicyList label={csStrings.FUEL_POLICY} variant="standard" required onChange={(value: string) => setFieldValue('fuelPolicy', value)} />
+                </FormControl>
+
+                <div className="info">
+                  <InfoIcon />
+                  <span>{commonStrings.OPTIONAL}</span>
+                </div>
 
                 <FormControl fullWidth margin="dense">
                   <TextField
@@ -366,26 +474,20 @@ const CreateCar = () => {
                     autoComplete="off"
                   />
                 </FormControl>
-
                 <FormControl fullWidth margin="dense">
-                  <TextField
-                    label={`${csStrings.DEPOSIT} (${commonStrings.CURRENCY})`}
-                    slotProps={{ htmlInput: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFieldValue('deposit', e.target.value)}
-                    required
-                    variant="standard"
+                  <Field
+                    as={TextField}
+                    label={`${csStrings.ADDITIONAL_DRIVER} (${csStrings.CAR_CURRENCY})`}
+                    name="additionalDriver"
                     autoComplete="off"
+                    variant="standard"
+                    slotProps={{ input: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
                   />
+                  <CustomErrorMessage name="additionalDriver" />
                 </FormControl>
-
-                <FormControl fullWidth margin="dense">
-                  <CarRangeList label={strings.CAR_RANGE} variant="standard" required onChange={(value: string) => setFieldValue('range', value)} />
-                </FormControl>
-
                 <FormControl fullWidth margin="dense">
                   <MultimediaList label={strings.MULTIMEDIA} onChange={(value: bookcarsTypes.CarMultimedia[]) => setFieldValue('multimedia', value)} />
                 </FormControl>
-
                 <FormControl fullWidth margin="dense">
                   <TextField
                     label={strings.RATING}
@@ -408,45 +510,6 @@ const CreateCar = () => {
 
                 <FormControl fullWidth margin="dense" className="checkbox-fc">
                   <FormControlLabel control={<Field as={Switch} name="available" color="primary" />} label={strings.AVAILABLE} className="checkbox-fcl" />
-                </FormControl>
-
-                <FormControl fullWidth margin="dense">
-                  <CarTypeList label={strings.CAR_TYPE} variant="standard" required onChange={(value: string) => setFieldValue('type', value)} />
-                </FormControl>
-
-                <FormControl fullWidth margin="dense">
-                  <GearboxList label={strings.GEARBOX} variant="standard" required onChange={(value: string) => setFieldValue('gearbox', value)} />
-                </FormControl>
-
-                <FormControl fullWidth margin="dense">
-                  <SeatsList label={strings.SEATS} variant="standard" required onChange={(value: string) => setFieldValue('seats', value)} />
-                </FormControl>
-
-                <FormControl fullWidth margin="dense">
-                  <DoorsList label={strings.DOORS} variant="standard" required onChange={(value: string) => setFieldValue('doors', value)} />
-                </FormControl>
-
-                <FormControl fullWidth margin="dense">
-                  <FuelPolicyList label={csStrings.FUEL_POLICY} variant="standard" required onChange={(value: string) => setFieldValue('fuelPolicy', value)} />
-                </FormControl>
-
-                <div className="info">
-                  <InfoIcon />
-                  <span>{commonStrings.OPTIONAL}</span>
-                </div>
-
-                <FormControl fullWidth margin="dense" className="checkbox-fc">
-                  <FormControlLabel control={<Field as={Switch} name="aircon" color="primary" />} label={strings.AIRCON} className="checkbox-fcl" />
-                </FormControl>
-
-                <FormControl fullWidth margin="dense">
-                  <TextField
-                    label={`${csStrings.ADDITIONAL_DRIVER} (${csStrings.CAR_CURRENCY})`}
-                    slotProps={{ htmlInput: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFieldValue('additionalDriver', e.target.value)}
-                    variant="standard"
-                    autoComplete="off"
-                  />
                 </FormControl>
 
                 <div className="buttons">

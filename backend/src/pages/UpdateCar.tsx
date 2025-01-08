@@ -9,6 +9,8 @@ import {
   FormHelperText,
 } from '@mui/material'
 import { Info as InfoIcon } from '@mui/icons-material'
+import { Formik, Form, Field, ErrorMessage } from 'formik'
+import * as Yup from 'yup'
 import * as bookcarsTypes from ':bookcars-types'
 import Layout from '@/components/Layout'
 import env from '@/config/env.config'
@@ -18,7 +20,7 @@ import { strings } from '@/lang/create-car'
 import * as CarService from '@/services/CarService'
 import * as helper from '@/common/helper'
 import Error from './Error'
-import ErrorMessage from '@/components/Error'
+import FormError from '@/components/Error'
 import Backdrop from '@/components/SimpleBackdrop'
 import NoMatch from './NoMatch'
 import Avatar from '@/components/Avatar'
@@ -34,6 +36,12 @@ import CarRangeList from '@/components/CarRangeList'
 
 import '@/assets/css/create-car.css'
 
+const CustomErrorMessage = ({ name }: { name: string }) => (
+  <ErrorMessage name={name}>
+    {(msg) => <FormHelperText error>{msg}</FormHelperText>}
+  </ErrorMessage>
+)
+
 const UpdateCar = () => {
   const [user, setUser] = useState<bookcarsTypes.User>()
   const [car, setCar] = useState<bookcarsTypes.Car>()
@@ -44,40 +52,116 @@ const UpdateCar = () => {
   const [imageRequired, setImageRequired] = useState(false)
   const [imageSizeError, setImageSizeError] = useState(false)
   const [image, setImage] = useState('')
-  const [name, setName] = useState('')
-  const [plateNumber, setPlateNumber] = useState('')
-  const [supplier, setSupplier] = useState<bookcarsTypes.Option>()
-  const [locations, setLocations] = useState<bookcarsTypes.Option[]>([])
-  const [range, setRange] = useState('')
-  const [multimedia, setMultimedia] = useState<bookcarsTypes.CarMultimedia[]>([])
-  const [rating, setRating] = useState('')
-  const [co2, setCo2] = useState('')
-  const [available, setAvailable] = useState(false)
-  const [type, setType] = useState('')
-  const [gearbox, setGearbox] = useState('')
-  const [dailyPrice, setDailyPrice] = useState('')
-  const [discountedDailyPrice, setDiscountedDailyPrice] = useState('')
-  const [biWeeklyPrice, setBiWeeklyPrice] = useState('')
-  const [discountedBiWeeklyPrice, setDiscountedBiWeeklyPrice] = useState('')
-  const [weeklyPrice, setWeeklyPrice] = useState('')
-  const [discountedWeeklyPrice, setDiscountedWeeklyPrice] = useState('')
-  const [monthlyPrice, setMonthlyPrice] = useState('')
-  const [discountedMonthlyPrice, setDiscountedMonthlyPrice] = useState('')
-  const [seats, setSeats] = useState('')
-  const [doors, setDoors] = useState('')
-  const [aircon, setAircon] = useState(false)
-  const [mileage, setMileage] = useState('')
-  const [fuelPolicy, setFuelPolicy] = useState('')
-  const [cancellation, setCancellation] = useState('')
-  const [amendments, setAmendments] = useState('')
-  const [theftProtection, setTheftProtection] = useState('')
-  const [collisionDamageWaiver, setCollisionDamageWaiver] = useState('')
-  const [fullInsurance, setFullInsurance] = useState('')
-  const [additionalDriver, setAdditionalDriver] = useState('')
-  const [minimumAge, setMinimumAge] = useState(String(env.MINIMUM_AGE))
-  const [minimumAgeValid, setMinimumAgeValid] = useState(true)
-  const [formError, setFormError] = useState(false)
-  const [deposit, setDeposit] = useState('')
+  const [isSupplier, setIsSupplier] = useState<boolean>(false)
+
+  const validationSchema = Yup.object().shape({
+    name: Yup.string().required(commonStrings.REQUIRED_FIELD),
+    plateNumber: Yup.string().required(commonStrings.REQUIRED_FIELD),
+    supplier: Yup.mixed().when('$isSupplier', {
+      is: false,
+      then: (schema) => schema.required(commonStrings.REQUIRED_FIELD),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    locations: Yup.array().min(1, commonStrings.REQUIRED_FIELD),
+    dailyPrice: Yup.number()
+      .required(commonStrings.REQUIRED_FIELD)
+      .min(0, commonStrings.DAILY_PRICE_NOT_VALID)
+      .typeError(commonStrings.DAILY_PRICE_NOT_VALID),
+    deposit: Yup.number()
+      .required(commonStrings.REQUIRED_FIELD)
+      .min(0, commonStrings.DEPOSIT_NOT_VALID)
+      .typeError(commonStrings.DEPOSIT_NOT_VALID),
+    minimumAge: Yup.number()
+      .required(commonStrings.REQUIRED_FIELD)
+      .min(env.MINIMUM_AGE, commonStrings.MINIMUM_AGE_NOT_VALID)
+      .max(99, commonStrings.MINIMUM_AGE_NOT_VALID)
+      .typeError(commonStrings.MINIMUM_AGE_NOT_VALID),
+    mileage: Yup.number()
+      .required(commonStrings.MILEAGE_REQUIRED)
+      .min(0, commonStrings.MILEAGE_NOT_VALID)
+      .typeError(commonStrings.MILEAGE_NOT_VALID),
+    type: Yup.string().required(commonStrings.REQUIRED_FIELD),
+    gearbox: Yup.string().required(commonStrings.REQUIRED_FIELD),
+    seats: Yup.string().required(commonStrings.REQUIRED_FIELD),
+    doors: Yup.string().required(commonStrings.REQUIRED_FIELD),
+    fuelPolicy: Yup.string().required(commonStrings.REQUIRED_FIELD),
+    range: Yup.string().required(commonStrings.REQUIRED_FIELD),
+    additionalDriver: Yup.number()
+      .min(0, commonStrings.ADDITIONAL_DRIVER_PRICE_NOT_VALID)
+      .typeError(commonStrings.ADDITIONAL_DRIVER_PRICE_NOT_VALID),
+    rating: Yup.number()
+      .min(1, commonStrings.RATING_NOT_VALID)
+      .max(5, commonStrings.RATING_NOT_VALID)
+      .typeError(commonStrings.RATING_NOT_VALID)
+      .nullable(),
+    co2: Yup.number()
+      .min(0, commonStrings.CO2_NOT_VALID)
+      .typeError(commonStrings.CO2_NOT_VALID)
+      .nullable(),
+    discountedDailyPrice: Yup.number()
+      .min(0, commonStrings.PRICE_NOT_VALID)
+      .typeError(commonStrings.PRICE_NOT_VALID)
+      .nullable(),
+    biWeeklyPrice: Yup.number()
+      .min(0, commonStrings.PRICE_NOT_VALID)
+      .typeError(commonStrings.PRICE_NOT_VALID)
+      .nullable(),
+    discountedBiWeeklyPrice: Yup.number()
+      .min(0, commonStrings.PRICE_NOT_VALID)
+      .typeError(commonStrings.PRICE_NOT_VALID)
+      .nullable(),
+    weeklyPrice: Yup.number()
+      .min(0, commonStrings.PRICE_NOT_VALID)
+      .typeError(commonStrings.PRICE_NOT_VALID)
+      .nullable(),
+    discountedWeeklyPrice: Yup.number()
+      .min(0, commonStrings.PRICE_NOT_VALID)
+      .typeError(commonStrings.PRICE_NOT_VALID)
+      .nullable(),
+    monthlyPrice: Yup.number()
+      .min(0, commonStrings.PRICE_NOT_VALID)
+      .typeError(commonStrings.PRICE_NOT_VALID)
+      .nullable(),
+    discountedMonthlyPrice: Yup.number()
+      .min(0, commonStrings.PRICE_NOT_VALID)
+      .typeError(commonStrings.PRICE_NOT_VALID)
+      .nullable(),
+  })
+
+  const initialValues = {
+    name: '',
+    plateNumber: '',
+    supplier: undefined as unknown as bookcarsTypes.Option,
+    minimumAge: String(env.MINIMUM_AGE),
+    locations: [] as bookcarsTypes.Option[],
+    dailyPrice: '',
+    discountedDailyPrice: '',
+    biWeeklyPrice: '',
+    discountedBiWeeklyPrice: '',
+    weeklyPrice: '',
+    discountedWeeklyPrice: '',
+    monthlyPrice: '',
+    discountedMonthlyPrice: '',
+    deposit: '',
+    range: '',
+    multimedia: [] as bookcarsTypes.CarMultimedia[],
+    rating: '',
+    co2: '',
+    available: false,
+    type: '',
+    gearbox: '',
+    aircon: false,
+    seats: '',
+    doors: '',
+    fuelPolicy: '',
+    mileage: '',
+    cancellation: '',
+    amendments: '',
+    theftProtection: '',
+    collisionDamageWaiver: '',
+    fullInsurance: '',
+    additionalDriver: '',
+  }
 
   const handleBeforeUpload = () => {
     setLoading(true)
@@ -104,103 +188,6 @@ const UpdateCar = () => {
       setError(false)
     }
   }
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setName(e.target.value)
-  }
-
-  const handlePlateNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPlateNumber(e.target.value)
-  }
-
-  const handleSupplierChange = (values: bookcarsTypes.Option[]) => {
-    setSupplier(values.length > 0 ? values[0] : undefined)
-  }
-
-  const validateMinimumAge = (age: string, updateState = true) => {
-    if (age) {
-      const _age = Number.parseInt(age, 10)
-      const _minimumAgeValid = _age >= env.MINIMUM_AGE && _age <= 99
-      if (updateState) {
-        setMinimumAgeValid(_minimumAgeValid)
-      }
-      if (_minimumAgeValid) {
-        setFormError(false)
-      }
-      return _minimumAgeValid
-    }
-    setMinimumAgeValid(true)
-    setFormError(false)
-    return true
-  }
-
-  const handleMinimumAgeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setMinimumAge(e.target.value)
-
-    const _minimumAgeValid = validateMinimumAge(e.target.value, false)
-    if (_minimumAgeValid) {
-      setMinimumAgeValid(true)
-      setFormError(false)
-    }
-  }
-
-  const handleLocationsChange = (_locations: bookcarsTypes.Option[]) => {
-    setLocations(_locations)
-  }
-
-  const handleCarRangeChange = (value: string) => {
-    setRange(value)
-  }
-
-  const handleMultimediaChange = (value: bookcarsTypes.CarMultimedia[]) => {
-    setMultimedia(value)
-  }
-
-  const handleRatingChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setRating(e.target.value)
-  }
-
-  const handleCo2Change = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setCo2(e.target.value)
-  }
-
-  const handleAvailableChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setAvailable(e.target.checked)
-  }
-
-  const handleCarTypeChange = (value: string) => {
-    setType(value)
-  }
-
-  const handleGearboxChange = (value: string) => {
-    setGearbox(value)
-  }
-
-  const handleAirconChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setAircon(e.target.checked)
-  }
-
-  const handleDepositChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setDeposit(e.target.value)
-  }
-
-  const handleSeatsChange = (value: string) => {
-    setSeats(value)
-  }
-
-  const handleDoorsChange = (value: string) => {
-    setDoors(value)
-  }
-
-  const handleMileageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setMileage(e.target.value)
-  }
-
-  const handleFuelPolicyChange = (value: string) => {
-    setFuelPolicy(value)
-  }
-  const handleAdditionalDriverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setAdditionalDriver(e.target.value)
-  }
 
   const extraToString = (extra: number) => (extra === -1 ? '' : String(extra))
 
@@ -210,56 +197,48 @@ const UpdateCar = () => {
 
   const getPriceAsString = (price?: number | null) => (price && price.toString()) || ''
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (values: any) => {
     try {
-      e.preventDefault()
-
-      const _minimumAgeValid = validateMinimumAge(minimumAge)
-      if (!_minimumAgeValid) {
-        setFormError(true)
-        return
-      }
-
-      if (!car || !supplier) {
+      if (!car || !values.supplier) {
         helper.error()
         return
       }
 
       const data: bookcarsTypes.UpdateCarPayload = {
         _id: car._id,
-        name,
-        plateNumber,
-        supplier: supplier._id,
-        minimumAge: Number.parseInt(minimumAge, 10),
-        locations: locations.map((l) => l._id),
-        dailyPrice: Number(dailyPrice),
-        discountedDailyPrice: getPrice(discountedDailyPrice),
-        biWeeklyPrice: getPrice(biWeeklyPrice),
-        discountedBiWeeklyPrice: getPrice(discountedBiWeeklyPrice),
-        weeklyPrice: getPrice(weeklyPrice),
-        discountedWeeklyPrice: getPrice(discountedWeeklyPrice),
-        monthlyPrice: getPrice(monthlyPrice),
-        discountedMonthlyPrice: getPrice(discountedMonthlyPrice),
-        deposit: Number(deposit),
-        available,
-        type,
-        gearbox,
-        aircon,
+        name: values.name,
+        plateNumber: values.plateNumber,
+        supplier: values.supplier._id,
+        minimumAge: Number.parseInt(values.minimumAge, 10),
+        locations: values.locations.map((l: any) => l._id),
+        dailyPrice: Number(values.dailyPrice),
+        discountedDailyPrice: getPrice(values.discountedDailyPrice),
+        biWeeklyPrice: getPrice(values.biWeeklyPrice),
+        discountedBiWeeklyPrice: getPrice(values.discountedBiWeeklyPrice),
+        weeklyPrice: getPrice(values.weeklyPrice),
+        discountedWeeklyPrice: getPrice(values.discountedWeeklyPrice),
+        monthlyPrice: getPrice(values.monthlyPrice),
+        discountedMonthlyPrice: getPrice(values.discountedMonthlyPrice),
+        deposit: Number(values.deposit),
+        available: values.available,
+        type: values.type,
+        gearbox: values.gearbox,
+        aircon: values.aircon,
         image,
-        seats: Number.parseInt(seats, 10),
-        doors: Number.parseInt(doors, 10),
-        fuelPolicy,
-        mileage: extraToNumber(mileage),
-        cancellation: extraToNumber(cancellation),
-        amendments: extraToNumber(amendments),
-        theftProtection: extraToNumber(theftProtection),
-        collisionDamageWaiver: extraToNumber(collisionDamageWaiver),
-        fullInsurance: extraToNumber(fullInsurance),
-        additionalDriver: extraToNumber(additionalDriver),
-        range,
-        multimedia,
-        rating: Number(rating) || undefined,
-        co2: Number(co2) || undefined,
+        seats: Number.parseInt(values.seats, 10),
+        doors: Number.parseInt(values.doors, 10),
+        fuelPolicy: values.fuelPolicy,
+        mileage: extraToNumber(values.mileage),
+        cancellation: extraToNumber(values.cancellation),
+        amendments: extraToNumber(values.amendments),
+        theftProtection: extraToNumber(values.theftProtection),
+        collisionDamageWaiver: extraToNumber(values.collisionDamageWaiver),
+        fullInsurance: extraToNumber(values.fullInsurance),
+        additionalDriver: extraToNumber(values.additionalDriver),
+        range: values.range,
+        multimedia: values.multimedia,
+        rating: Number(values.rating) || undefined,
+        co2: Number(values.co2) || undefined,
       }
 
       const status = await CarService.update(data)
@@ -274,10 +253,13 @@ const UpdateCar = () => {
     }
   }
 
-  const onLoad = async (_user?: bookcarsTypes.User) => {
+  const onLoad = async (_user?: bookcarsTypes.User): Promise<void> => {
     if (_user && _user.verified) {
       setLoading(true)
       setUser(_user)
+      if (_user.type === bookcarsTypes.RecordType.Supplier) {
+        setIsSupplier(true)
+      }
       const params = new URLSearchParams(window.location.search)
       if (params.has('cr')) {
         const id = params.get('cr')
@@ -292,76 +274,29 @@ const UpdateCar = () => {
                 return
               }
 
-              const _supplier = {
-                _id: _car.supplier._id as string,
-                name: _car.supplier.fullName,
-                image: _car.supplier.avatar,
-              }
-
               setCar(_car)
               setImageRequired(!_car.image)
-              setName(_car.name)
-              setPlateNumber(_car.plateNumber)
-              setSupplier(_supplier)
-              setMinimumAge(_car.minimumAge.toString())
-              const lcs: bookcarsTypes.Option[] = []
-              for (const loc of _car.locations) {
-                const { _id, name: _name } = loc
-                const lc: bookcarsTypes.Option = { _id, name: _name ?? '' }
-                lcs.push(lc)
-              }
-              setLocations(lcs)
-              setDailyPrice(getPriceAsString(_car.dailyPrice))
-              setDiscountedDailyPrice(getPriceAsString(_car.discountedDailyPrice))
-              setBiWeeklyPrice(getPriceAsString(_car.biWeeklyPrice))
-              setDiscountedBiWeeklyPrice(getPriceAsString(_car.discountedBiWeeklyPrice))
-              setWeeklyPrice(getPriceAsString(_car.weeklyPrice))
-              setDiscountedWeeklyPrice(getPriceAsString(_car.discountedWeeklyPrice))
-              setMonthlyPrice(getPriceAsString(_car.monthlyPrice))
-              setDiscountedMonthlyPrice(getPriceAsString(_car.discountedMonthlyPrice))
-              setDeposit(_car.deposit.toString())
-              setRange(_car.range)
-              setMultimedia(_car?.multimedia || [])
-              if (_car.rating) {
-                setRating(_car.rating.toString())
-              }
-              if (_car.co2) {
-                setCo2(_car.co2.toString())
-              }
-              setAvailable(_car.available)
-              setType(_car.type)
-              setGearbox(_car.gearbox)
-              setAircon(_car.aircon)
-              setSeats(_car.seats.toString())
-              setDoors(_car.doors.toString())
-              setFuelPolicy(_car.fuelPolicy)
-              setMileage(extraToString(_car.mileage))
-              setCancellation(extraToString(_car.cancellation))
-              setAmendments(extraToString(_car.amendments))
-              setTheftProtection(extraToString(_car.theftProtection))
-              setCollisionDamageWaiver(extraToString(_car.collisionDamageWaiver))
-              setFullInsurance(extraToString(_car.fullInsurance))
-              setAdditionalDriver(extraToString(_car.additionalDriver))
+              setImage(_car.image || '')
               setVisible(true)
               setLoading(false)
-            } else {
-              setLoading(false)
-              setNoMatch(true)
+              return
             }
+            setLoading(false)
+            setNoMatch(true)
+            return
           } catch (err) {
             helper.error(err)
             setLoading(false)
             setError(true)
             setVisible(false)
+            return
           }
-        } else {
-          setLoading(false)
-          setNoMatch(true)
         }
-      } else {
         setLoading(false)
         setNoMatch(true)
       }
+      setLoading(false)
+      setNoMatch(true)
     }
   }
 
@@ -372,349 +307,386 @@ const UpdateCar = () => {
       {!error && !noMatch && (
         <div className="create-car">
           <Paper className="car-form car-form-wrapper" elevation={10} style={visible ? {} : { display: 'none' }}>
-            <form onSubmit={handleSubmit}>
-              <Avatar
-                type={bookcarsTypes.RecordType.Car}
-                mode="update"
-                record={car}
-                hideDelete
-                size="large"
-                readonly={false}
-                onBeforeUpload={handleBeforeUpload}
-                onChange={handleImageChange}
-                onValidate={handleImageValidate}
-                color="disabled"
-                className="avatar-ctn"
-              />
-
-              <div className="info">
-                <InfoIcon />
-                <span>{strings.RECOMMENDED_IMAGE_SIZE}</span>
-              </div>
-
-              <FormControl fullWidth margin="dense">
-                <TextField
-                  label={strings.NAME}
-                  required
-                  value={name}
-                  autoComplete="off"
-                  onChange={handleNameChange}
-                  variant="standard"
-                />
-              </FormControl>
-
-              <FormControl fullWidth margin="dense">
-                <TextField
-                  label={strings.PLATE_NUMBER}
-                  required
-                  value={plateNumber}
-                  autoComplete="off"
-                  onChange={handlePlateNumberChange}
-                  variant="standard"
-                />
-              </FormControl>
-
-              <FormControl fullWidth margin="dense">
-                <TextField
-                  label={`${csStrings.MILEAGE} (${csStrings.MILEAGE_UNIT})`}
-                  slotProps={{ htmlInput: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
-                  onChange={handleMileageChange}
-                  variant="standard"
-                  autoComplete="off"
-                  value={mileage}
-                />
-              </FormControl>
-
-              {admin && (
-                <FormControl fullWidth margin="dense">
-                  <SupplierSelectList
-                    label={strings.SUPPLIER}
-                    required
-                    value={supplier}
-                    variant="standard"
-                    onChange={handleSupplierChange}
+            <Formik
+              initialValues={car ? {
+                name: car.name,
+                plateNumber: car.plateNumber,
+                supplier: car.supplier,
+                minimumAge: car.minimumAge.toString(),
+                locations: car.locations.map((loc) => ({
+                  _id: loc._id,
+                  name: loc.name ?? '',
+                })),
+                dailyPrice: getPriceAsString(car.dailyPrice),
+                discountedDailyPrice: getPriceAsString(car.discountedDailyPrice),
+                biWeeklyPrice: getPriceAsString(car.biWeeklyPrice),
+                discountedBiWeeklyPrice: getPriceAsString(car.discountedBiWeeklyPrice),
+                weeklyPrice: getPriceAsString(car.weeklyPrice),
+                discountedWeeklyPrice: getPriceAsString(car.discountedWeeklyPrice),
+                monthlyPrice: getPriceAsString(car.monthlyPrice),
+                discountedMonthlyPrice: getPriceAsString(car.discountedMonthlyPrice),
+                deposit: car.deposit.toString(),
+                range: car.range,
+                multimedia: car?.multimedia || [],
+                rating: car.rating?.toString() || '',
+                co2: car.co2?.toString() || '',
+                available: car.available,
+                type: car.type,
+                gearbox: car.gearbox,
+                aircon: car.aircon,
+                seats: car.seats.toString(),
+                doors: car.doors.toString(),
+                fuelPolicy: car.fuelPolicy,
+                mileage: extraToString(car.mileage),
+                cancellation: extraToString(car.cancellation),
+                amendments: extraToString(car.amendments),
+                theftProtection: extraToString(car.theftProtection),
+                collisionDamageWaiver: extraToString(car.collisionDamageWaiver),
+                fullInsurance: extraToString(car.fullInsurance),
+                additionalDriver: extraToString(car.additionalDriver),
+              } : initialValues}
+              validationSchema={validationSchema}
+              onSubmit={handleSubmit}
+              enableReinitialize
+              validateOnMount={false}
+              context={{ isSupplier }}
+            >
+              {({ isSubmitting, setFieldValue }) => (
+                <Form>
+                  <Avatar
+                    type={bookcarsTypes.RecordType.Car}
+                    mode="update"
+                    record={car}
+                    hideDelete
+                    size="large"
+                    readonly={false}
+                    onBeforeUpload={handleBeforeUpload}
+                    onChange={handleImageChange}
+                    onValidate={handleImageValidate}
+                    color="disabled"
+                    className="avatar-ctn"
                   />
-                </FormControl>
+
+                  <div className="info">
+                    <InfoIcon />
+                    <span>{strings.RECOMMENDED_IMAGE_SIZE}</span>
+                  </div>
+
+                  {admin && (
+                    <FormControl fullWidth margin="dense">
+                      <SupplierSelectList
+                        label={strings.SUPPLIER}
+                        required
+                        value={car?.supplier as bookcarsTypes.Option}
+                        variant="standard"
+                        onChange={(values: bookcarsTypes.Option[]) => setFieldValue('supplier', values.length > 0 ? values[0] : undefined)}
+                      />
+                      <CustomErrorMessage name="supplier" />
+                    </FormControl>
+                  )}
+
+                  <FormControl fullWidth margin="dense">
+                    <Field
+                      as={TextField}
+                      label={strings.NAME}
+                      required
+                      name="name"
+                      autoComplete="off"
+                      variant="standard"
+                    />
+                    <CustomErrorMessage name="name" />
+                  </FormControl>
+
+                  <FormControl fullWidth margin="dense">
+                    <Field
+                      as={TextField}
+                      label={strings.PLATE_NUMBER}
+                      required
+                      name="plateNumber"
+                      autoComplete="off"
+                      variant="standard"
+                    />
+                    <CustomErrorMessage name="plateNumber" />
+                  </FormControl>
+
+                  <FormControl fullWidth margin="dense">
+                    <Field
+                      as={TextField}
+                      label={`${csStrings.MILEAGE} (${csStrings.MILEAGE_UNIT})`}
+                      name="mileage"
+                      autoComplete="off"
+                      variant="standard"
+                      slotProps={{ input: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
+                    />
+                    <CustomErrorMessage name="mileage" />
+                  </FormControl>
+
+                  <FormControl fullWidth margin="dense">
+                    <Field
+                      as={TextField}
+                      label={strings.MINIMUM_AGE}
+                      required
+                      name="minimumAge"
+                      autoComplete="off"
+                      variant="standard"
+                      slotProps={{ input: { inputMode: 'numeric', pattern: '^\\d{2}$' } }}
+                    />
+                    <CustomErrorMessage name="minimumAge" />
+                  </FormControl>
+
+                  <FormControl fullWidth margin="dense">
+                    <LocationSelectList
+                      label={strings.LOCATIONS}
+                      multiple
+                      required
+                      variant="standard"
+                      value={car?.locations as bookcarsTypes.Option[]}
+                      onChange={(values: bookcarsTypes.Option[]) => setFieldValue('locations', values)}
+                    />
+                    <CustomErrorMessage name="locations" />
+                  </FormControl>
+
+                  <FormControl fullWidth margin="dense">
+                    <Field
+                      as={TextField}
+                      label={`${strings.DAILY_PRICE} (${commonStrings.CURRENCY})`}
+                      required
+                      name="dailyPrice"
+                      autoComplete="off"
+                      variant="standard"
+                      slotProps={{ input: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
+                    />
+                    <CustomErrorMessage name="dailyPrice" />
+                  </FormControl>
+
+                  <FormControl fullWidth margin="dense">
+                    <Field
+                      as={TextField}
+                      label={`${csStrings.DEPOSIT} (${commonStrings.CURRENCY})`}
+                      required
+                      name="deposit"
+                      autoComplete="off"
+                      variant="standard"
+                      slotProps={{ input: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
+                    />
+                    <CustomErrorMessage name="deposit" />
+                  </FormControl>
+
+                  <FormControl fullWidth margin="dense">
+                    <CarRangeList
+                      label={strings.CAR_RANGE}
+                      variant="standard"
+                      required
+                      value={car?.range}
+                      onChange={(value: string) => setFieldValue('range', value)}
+                    />
+                  </FormControl>
+
+                  <FormControl fullWidth margin="dense">
+                    <CarTypeList
+                      label={strings.CAR_TYPE}
+                      variant="standard"
+                      required
+                      value={car?.type}
+                      onChange={(value: string) => setFieldValue('type', value)}
+                    />
+                  </FormControl>
+
+                  <FormControl fullWidth margin="dense">
+                    <GearboxList
+                      label={strings.GEARBOX}
+                      variant="standard"
+                      required
+                      value={car?.gearbox}
+                      onChange={(value: string) => setFieldValue('gearbox', value)}
+                    />
+                  </FormControl>
+
+                  <FormControl fullWidth margin="dense">
+                    <SeatsList
+                      label={strings.SEATS}
+                      variant="standard"
+                      required
+                      value={car?.seats.toString()}
+                      onChange={(value: string) => setFieldValue('seats', value)}
+                    />
+                  </FormControl>
+
+                  <FormControl fullWidth margin="dense">
+                    <DoorsList
+                      label={strings.DOORS}
+                      variant="standard"
+                      required
+                      value={car?.doors.toString()}
+                      onChange={(value: string) => setFieldValue('doors', value)}
+                    />
+                  </FormControl>
+
+                  <FormControl fullWidth margin="dense">
+                    <FuelPolicyList
+                      label={csStrings.FUEL_POLICY}
+                      variant="standard"
+                      required
+                      value={car?.fuelPolicy}
+                      onChange={(value: string) => setFieldValue('fuelPolicy', value)}
+                    />
+                  </FormControl>
+
+                  <div className="info">
+                    <InfoIcon />
+                    <span>{commonStrings.OPTIONAL}</span>
+                  </div>
+
+                  <FormControl fullWidth margin="dense">
+                    <Field
+                      as={TextField}
+                      label={`${strings.DISCOUNTED_DAILY_PRICE} (${commonStrings.CURRENCY})`}
+                      name="discountedDailyPrice"
+                      autoComplete="off"
+                      variant="standard"
+                      slotProps={{ input: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
+                    />
+                  </FormControl>
+
+                  <FormControl fullWidth margin="dense">
+                    <Field
+                      as={TextField}
+                      label={`${strings.BI_WEEKLY_PRICE} (${commonStrings.CURRENCY})`}
+                      name="biWeeklyPrice"
+                      autoComplete="off"
+                      variant="standard"
+                      slotProps={{ input: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
+                    />
+                  </FormControl>
+
+                  <FormControl fullWidth margin="dense">
+                    <Field
+                      as={TextField}
+                      label={`${strings.DISCOUNTED_BI_WEEKLY_PRICE} (${commonStrings.CURRENCY})`}
+                      name="discountedBiWeeklyPrice"
+                      autoComplete="off"
+                      variant="standard"
+                      slotProps={{ input: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
+                    />
+                  </FormControl>
+
+                  <FormControl fullWidth margin="dense">
+                    <Field
+                      as={TextField}
+                      label={`${strings.WEEKLY_PRICE} (${commonStrings.CURRENCY})`}
+                      name="weeklyPrice"
+                      autoComplete="off"
+                      variant="standard"
+                      slotProps={{ input: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
+                    />
+                  </FormControl>
+
+                  <FormControl fullWidth margin="dense">
+                    <Field
+                      as={TextField}
+                      label={`${strings.DISCOUNTED_WEEKLY_PRICE} (${commonStrings.CURRENCY})`}
+                      name="discountedWeeklyPrice"
+                      autoComplete="off"
+                      variant="standard"
+                      slotProps={{ input: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
+                    />
+                  </FormControl>
+
+                  <FormControl fullWidth margin="dense">
+                    <Field
+                      as={TextField}
+                      label={`${strings.MONTHLY_PRICE} (${commonStrings.CURRENCY})`}
+                      name="monthlyPrice"
+                      autoComplete="off"
+                      variant="standard"
+                      slotProps={{ input: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
+                    />
+                  </FormControl>
+
+                  <FormControl fullWidth margin="dense">
+                    <Field
+                      as={TextField}
+                      label={`${strings.DISCOUNTED_MONThLY_PRICE} (${commonStrings.CURRENCY})`}
+                      name="discountedMonthlyPrice"
+                      autoComplete="off"
+                      variant="standard"
+                      slotProps={{ input: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
+                    />
+                  </FormControl>
+
+                  <FormControl fullWidth margin="dense">
+                    <Field
+                      as={TextField}
+                      label={`${csStrings.ADDITIONAL_DRIVER} (${csStrings.CAR_CURRENCY})`}
+                      name="additionalDriver"
+                      autoComplete="off"
+                      variant="standard"
+                      slotProps={{ input: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
+                    />
+                  </FormControl>
+
+                  <FormControl fullWidth margin="dense">
+                    <MultimediaList
+                      label={strings.MULTIMEDIA}
+                      value={car?.multimedia}
+                      onChange={(value: bookcarsTypes.CarMultimedia[]) => setFieldValue('multimedia', value)}
+                    />
+                  </FormControl>
+
+                  <FormControl fullWidth margin="dense">
+                    <Field
+                      as={TextField}
+                      label={strings.RATING}
+                      name="rating"
+                      autoComplete="off"
+                      variant="standard"
+                      slotProps={{ input: { type: 'number', min: 1, max: 5, step: 0.01 } }}
+                    />
+                  </FormControl>
+
+                  <FormControl fullWidth margin="dense">
+                    <Field
+                      as={TextField}
+                      label={strings.CO2}
+                      name="co2"
+                      autoComplete="off"
+                      variant="standard"
+                      slotProps={{ input: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
+                    />
+                  </FormControl>
+
+                  <FormControl fullWidth margin="dense" className="checkbox-fc">
+                    <FormControlLabel
+                      control={<Field as={Switch} name="available" color="primary" />}
+                      label={strings.AVAILABLE}
+                      className="checkbox-fcl"
+                    />
+                  </FormControl>
+
+                  <FormControl fullWidth margin="dense" className="checkbox-fc">
+                    <FormControlLabel
+                      control={<Field as={Switch} name="aircon" color="primary" />}
+                      label={strings.AIRCON}
+                      className="checkbox-fcl"
+                    />
+                  </FormControl>
+
+                  <div className="buttons">
+                    <Button type="submit" variant="contained" className="btn-primary btn-margin-bottom" size="small" disabled={isSubmitting}>
+                      {commonStrings.SAVE}
+                    </Button>
+                    <Button variant="contained" className="btn-secondary btn-margin-bottom" size="small" href="/cars">
+                      {commonStrings.CANCEL}
+                    </Button>
+                  </div>
+
+                  <div className="form-error">
+                    {imageRequired && <FormError message={commonStrings.IMAGE_REQUIRED} />}
+                    {imageSizeError && <FormError message={strings.CAR_IMAGE_SIZE_ERROR} />}
+                  </div>
+                </Form>
               )}
-
-              <FormControl fullWidth margin="dense">
-                <TextField
-                  label={strings.MINIMUM_AGE}
-                  required
-                  error={!minimumAgeValid}
-                  value={minimumAge}
-                  autoComplete="off"
-                  onChange={handleMinimumAgeChange}
-                  variant="standard"
-                  slotProps={{ htmlInput: { inputMode: 'numeric', pattern: '^\\d{2}$' } }}
-                />
-
-                <FormHelperText error={!minimumAgeValid}>{(!minimumAgeValid && strings.MINIMUM_AGE_NOT_VALID) || ''}</FormHelperText>
-              </FormControl>
-
-              <FormControl fullWidth margin="dense">
-                <LocationSelectList label={strings.LOCATIONS} multiple required variant="standard" value={locations} onChange={handleLocationsChange} />
-              </FormControl>
-
-              <FormControl fullWidth margin="dense">
-                <TextField
-                  label={`${strings.DAILY_PRICE} (${commonStrings.CURRENCY})`}
-                  slotProps={{
-                    htmlInput: {
-                      inputMode: 'numeric',
-                      pattern: '^\\d+(.\\d+)?$'
-                    }
-                  }}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                    setDailyPrice(e.target.value)
-                  }}
-                  required
-                  variant="standard"
-                  autoComplete="off"
-                  value={dailyPrice}
-                />
-              </FormControl>
-
-              <FormControl fullWidth margin="dense">
-                <TextField
-                  label={`${strings.DISCOUNTED_DAILY_PRICE} (${commonStrings.CURRENCY})`}
-                  slotProps={{
-                    htmlInput: {
-                      inputMode: 'numeric',
-                      pattern: '^\\d+(.\\d+)?$'
-                    }
-                  }}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                    setDiscountedDailyPrice(e.target.value)
-                  }}
-                  variant="standard"
-                  autoComplete="off"
-                  value={discountedDailyPrice}
-                />
-              </FormControl>
-
-              <FormControl fullWidth margin="dense">
-                <TextField
-                  label={`${strings.BI_WEEKLY_PRICE} (${commonStrings.CURRENCY})`}
-                  slotProps={{
-                    htmlInput: {
-                      inputMode: 'numeric',
-                      pattern: '^\\d+(.\\d+)?$'
-                    }
-                  }}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                    setBiWeeklyPrice(e.target.value)
-                  }}
-                  variant="standard"
-                  autoComplete="off"
-                  value={biWeeklyPrice}
-                />
-              </FormControl>
-
-              <FormControl fullWidth margin="dense">
-                <TextField
-                  label={`${strings.DISCOUNTED_BI_WEEKLY_PRICE} (${commonStrings.CURRENCY})`}
-                  slotProps={{
-                    htmlInput: {
-                      inputMode: 'numeric',
-                      pattern: '^\\d+(.\\d+)?$'
-                    }
-                  }}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                    setDiscountedBiWeeklyPrice(e.target.value)
-                  }}
-                  variant="standard"
-                  autoComplete="off"
-                  value={discountedBiWeeklyPrice}
-                />
-              </FormControl>
-
-              <FormControl fullWidth margin="dense">
-                <TextField
-                  label={`${strings.WEEKLY_PRICE} (${commonStrings.CURRENCY})`}
-                  slotProps={{
-                    htmlInput: {
-                      inputMode: 'numeric',
-                      pattern: '^\\d+(.\\d+)?$'
-                    }
-                  }}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                    setWeeklyPrice(e.target.value)
-                  }}
-                  variant="standard"
-                  autoComplete="off"
-                  value={weeklyPrice}
-                />
-              </FormControl>
-
-              <FormControl fullWidth margin="dense">
-                <TextField
-                  label={`${strings.DISCOUNTED_WEEKLY_PRICE} (${commonStrings.CURRENCY})`}
-                  slotProps={{
-                    htmlInput: {
-                      inputMode: 'numeric',
-                      pattern: '^\\d+(.\\d+)?$'
-                    }
-                  }}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                    setDiscountedWeeklyPrice(e.target.value)
-                  }}
-                  variant="standard"
-                  autoComplete="off"
-                  value={discountedWeeklyPrice}
-                />
-              </FormControl>
-
-              <FormControl fullWidth margin="dense">
-                <TextField
-                  label={`${strings.MONTHLY_PRICE} (${commonStrings.CURRENCY})`}
-                  slotProps={{
-                    htmlInput: {
-                      inputMode: 'numeric',
-                      pattern: '^\\d+(.\\d+)?$'
-                    }
-                  }}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                    setMonthlyPrice(e.target.value)
-                  }}
-                  variant="standard"
-                  autoComplete="off"
-                  value={monthlyPrice}
-                />
-              </FormControl>
-
-              <FormControl fullWidth margin="dense">
-                <TextField
-                  label={`${strings.DISCOUNTED_MONThLY_PRICE} (${commonStrings.CURRENCY})`}
-                  slotProps={{
-                    htmlInput: {
-                      inputMode: 'numeric',
-                      pattern: '^\\d+(.\\d+)?$'
-                    }
-                  }}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                    setDiscountedMonthlyPrice(e.target.value)
-                  }}
-                  variant="standard"
-                  autoComplete="off"
-                  value={discountedMonthlyPrice}
-                />
-              </FormControl>
-
-              <FormControl fullWidth margin="dense">
-                <TextField
-                  label={`${csStrings.DEPOSIT} (${commonStrings.CURRENCY})`}
-                  slotProps={{
-                    htmlInput: {
-                      inputMode: 'numeric',
-                      pattern: '^\\d+(.\\d+)?$'
-                    }
-                  }}
-                  onChange={handleDepositChange}
-                  required
-                  variant="standard"
-                  autoComplete="off"
-                  value={deposit}
-                />
-              </FormControl>
-
-              <FormControl fullWidth margin="dense">
-                <CarRangeList label={strings.CAR_RANGE} variant="standard" required value={range} onChange={handleCarRangeChange} />
-              </FormControl>
-
-              <FormControl fullWidth margin="dense">
-                <MultimediaList label={strings.MULTIMEDIA} value={multimedia} onChange={handleMultimediaChange} />
-              </FormControl>
-
-              <FormControl fullWidth margin="dense">
-                <TextField
-                  label={strings.RATING}
-                  slotProps={{
-                    htmlInput: {
-                      type: 'number',
-                      min: 1,
-                      max: 5,
-                      step: 0.01,
-                    }
-                  }}
-                  onChange={handleRatingChange}
-                  variant="standard"
-                  autoComplete="off"
-                  value={rating}
-                />
-              </FormControl>
-
-              <FormControl fullWidth margin="dense">
-                <TextField
-                  label={strings.CO2}
-                  slotProps={{ htmlInput: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
-                  onChange={handleCo2Change}
-                  variant="standard"
-                  autoComplete="off"
-                  value={co2}
-                />
-              </FormControl>
-
-              <FormControl fullWidth margin="dense" className="checkbox-fc">
-                <FormControlLabel control={<Switch checked={available} onChange={handleAvailableChange} color="primary" />} label={strings.AVAILABLE} className="checkbox-fcl" />
-              </FormControl>
-
-              <FormControl fullWidth margin="dense">
-                <CarTypeList label={strings.CAR_TYPE} variant="standard" required value={type} onChange={handleCarTypeChange} />
-              </FormControl>
-
-              <FormControl fullWidth margin="dense">
-                <GearboxList label={strings.GEARBOX} variant="standard" required value={gearbox} onChange={handleGearboxChange} />
-              </FormControl>
-
-              <FormControl fullWidth margin="dense">
-                <SeatsList label={strings.SEATS} variant="standard" required value={seats} onChange={handleSeatsChange} />
-              </FormControl>
-
-              <FormControl fullWidth margin="dense">
-                <DoorsList label={strings.DOORS} variant="standard" required value={doors} onChange={handleDoorsChange} />
-              </FormControl>
-
-              <FormControl fullWidth margin="dense">
-                <FuelPolicyList label={csStrings.FUEL_POLICY} variant="standard" required value={fuelPolicy} onChange={handleFuelPolicyChange} />
-              </FormControl>
-
-              <FormControl fullWidth margin="dense">
-                <div className="info">
-                  <InfoIcon />
-                  <span>{commonStrings.OPTIONAL}</span>
-                </div>
-              </FormControl>
-
-              <FormControl fullWidth margin="dense" className="checkbox-fc">
-                <FormControlLabel control={<Switch checked={aircon} onChange={handleAirconChange} color="primary" />} label={strings.AIRCON} className="checkbox-fcl" />
-              </FormControl>
-              <FormControl fullWidth margin="dense">
-                <TextField
-                  label={`${csStrings.ADDITIONAL_DRIVER} (${csStrings.CAR_CURRENCY})`}
-                  slotProps={{ htmlInput: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
-                  onChange={handleAdditionalDriverChange}
-                  variant="standard"
-                  autoComplete="off"
-                  value={additionalDriver}
-                />
-              </FormControl>
-
-              <div className="buttons">
-                <Button type="submit" variant="contained" className="btn-primary btn-margin-bottom" size="small">
-                  {commonStrings.SAVE}
-                </Button>
-                <Button variant="contained" className="btn-secondary btn-margin-bottom" size="small" href="/cars">
-                  {commonStrings.CANCEL}
-                </Button>
-              </div>
-
-              <div className="form-error">
-                {imageRequired && <ErrorMessage message={commonStrings.IMAGE_REQUIRED} />}
-                {imageSizeError && <ErrorMessage message={strings.CAR_IMAGE_SIZE_ERROR} />}
-                {formError && <ErrorMessage message={commonStrings.FORM_ERROR} />}
-              </div>
-            </form>
+            </Formik>
           </Paper>
         </div>
       )}

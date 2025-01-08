@@ -10,7 +10,7 @@
       body {
         font-family: Arial, sans-serif;
         line-height: 1.2;
-        padding: 20px 12px;
+        padding: 30px 12px 20px 12px;
         max-width: 210mm;
         font-size: 12px;
       }
@@ -36,6 +36,7 @@
         text-align: center;
         font-weight: bold;
         font-size: 14px;
+        margin-bottom: 30px;
       }
       .header-grid {
         display: grid;
@@ -100,7 +101,7 @@
       }
       .signature-box {
         border: 1px solid black;
-        height: 60px;
+        height: 80px;
         margin-top: 4px;
       }
       .footer {
@@ -144,15 +145,6 @@
     <div class="header-grid">
       <div>CONTRAT N°<span class="input-line">{{contractNumber}}</span></div>
       <div>DATE:<span class="input-line">{{date}}</span></div>
-    </div>
-
-    <div>NOM SOCIETE:<span class="input-line">{{supplier.name}}</span></div>
-    <div>
-      ADRESSE:<span class="input-line" id="address">{{supplier.location}}</span>
-    </div>
-    <div>TEL:<span class="input-line" id="phone">{{supplier.phone}}</span></div>
-    <div>
-      MAIL:<span class="input-line" id="email">{{supplier.email}}</span>
     </div>
 
     <div class="drivers-grid">
@@ -299,16 +291,16 @@
     <div>Mode de règlement:</div>
     <div class="payment-options">
       <div class="checkbox-container">
-        <input type="checkbox" id="cb" />
-        <label for="cb">CB</label>
+        <input type="checkbox" id="especes" />
+        <label for="especes">Espèces</label>
       </div>
       <div class="checkbox-container">
         <input type="checkbox" id="cheque" />
         <label for="cheque">Chèque</label>
       </div>
       <div class="checkbox-container">
-        <input type="checkbox" id="especes" />
-        <label for="especes">Espèces</label>
+        <input type="checkbox" id="cb" />
+        <label for="cb">Autre</label>
       </div>
     </div>
 
@@ -389,17 +381,6 @@
 
     <div class="vehicle-status">
       <div>
-        <div>Véhicule restitué en état</div>
-        <div class="status-checkbox">
-          <div>
-            <input type="checkbox" id="stateYes" />
-            <label for="stateYes">Oui</label>
-          </div>
-          <div>
-            <input type="checkbox" id="stateNo" />
-            <label for="stateNo">Non</label>
-          </div>
-        </div>
       </div>
       <div>
         <div>Visa de la direction:</div>

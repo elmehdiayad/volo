@@ -24,7 +24,7 @@ export const getClientTimezone = () => Intl.DateTimeFormat().resolvedOptions().t
 export const generateContract = async (bookingId: string): Promise<Blob> => {
   const currencySymbol = getCurrencySymbol()
   const clientTimezone = getClientTimezone()
-  const response = await axiosInstance.get(`api/generate-contract/${bookingId}/?currencySymbol=${encodeURIComponent(currencySymbol)}&?clientTimezone=${encodeURIComponent(clientTimezone)}`, {
+  const response = await axiosInstance.get(`api/generate-contract/${bookingId}/?currencySymbol=${encodeURIComponent(currencySymbol)}&clientTimezone=${encodeURIComponent(clientTimezone)}`, {
     responseType: 'arraybuffer',
   })
   return new Blob([response.data], { type: 'application/pdf' })
