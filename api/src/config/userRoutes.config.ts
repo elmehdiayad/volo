@@ -39,7 +39,7 @@ const routes = {
   updateDocument: '/api/update-document/:userId',
   deleteDocument: '/api/delete-document/:userId/:type',
   deleteTempDocument: '/api/delete-temp-document/:filename/:type',
-  createCollage: '/api/create-collage',
+  processDocuments: '/api/process-documents',
 }
 
 export default routes

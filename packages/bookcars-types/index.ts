@@ -274,6 +274,12 @@ export interface CreateUserPayload {
   nationalId?: string
   nationalIdExpirationDate?: Date | number
   licenseDeliveryDate?: Date | number
+  documents?: {
+    licenseRecto?: string
+    licenseVerso?: string
+    idRecto?: string
+    idVerso?: string
+  }
 }
 
 export interface UpdateUserPayload extends CreateUserPayload {
@@ -379,6 +385,12 @@ export interface User {
   licenseId?: string
   nationalIdExpirationDate?: Date
   licenseDeliveryDate?: Date
+  documents?: {
+    licenseRecto?: string
+    licenseVerso?: string
+    idRecto?: string
+    idVerso?: string
+  }
 }
 
 export interface Option {

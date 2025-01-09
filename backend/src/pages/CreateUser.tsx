@@ -48,6 +48,22 @@ const CustomErrorMessage = ({ name }: { name: string }) => (
   </ErrorMessage>
 )
 
+interface FormValues {
+  fullName: string
+  email: string
+  phone: string
+  location: string
+  bio: string
+  birthDate: Date | null
+  minimumRentalDays: string
+  nationalId: string
+  licenseId: string
+  nationalIdExpirationDate: Date | null
+  licenseDeliveryDate: Date | null
+  payLater: boolean
+  licenseRequired: boolean
+}
+
 const CreateUser = () => {
   const navigate = useNavigate()
   const [user, setUser] = useState<bookcarsTypes.User>()
@@ -55,24 +71,29 @@ const CreateUser = () => {
   const [visible, setVisible] = useState(false)
   const [loading, setLoading] = useState(false)
   const [avatar, setAvatar] = useState('')
-  const [license, setLicense] = useState('')
   const [type, setType] = useState('')
+  const [documents, setDocuments] = useState<{
+    licenseRecto?: string
+    licenseVerso?: string
+    idRecto?: string
+    idVerso?: string
+  }>({})
 
   const isSupplier = type === bookcarsTypes.RecordType.Supplier
   const isDriver = type === bookcarsTypes.RecordType.User
 
-  const initialValues = {
+  const initialValues: FormValues = {
     fullName: '',
     email: '',
     phone: '',
     location: '',
     bio: '',
-    birthDate: new Date(),
+    birthDate: null,
     minimumRentalDays: '',
     nationalId: '',
     licenseId: '',
-    nationalIdExpirationDate: new Date(),
-    licenseDeliveryDate: new Date(),
+    nationalIdExpirationDate: null,
+    licenseDeliveryDate: null,
     payLater: false,
     licenseRequired: false,
   }
@@ -90,7 +111,7 @@ const CreateUser = () => {
       then: (schema) => schema.required(commonStrings.REQUIRED_FIELD),
       otherwise: (schema) => schema.notRequired(),
     }),
-    birthDate: Yup.date().when('$isDriver', {
+    birthDate: Yup.mixed().when('$isDriver', {
       is: true,
       then: (schema) => schema.required(commonStrings.REQUIRED_FIELD),
       otherwise: (schema) => schema.notRequired(),
@@ -105,12 +126,12 @@ const CreateUser = () => {
       then: (schema) => schema.required(commonStrings.REQUIRED_FIELD),
       otherwise: (schema) => schema.notRequired(),
     }),
-    nationalIdExpirationDate: Yup.date().when('$isDriver', {
+    nationalIdExpirationDate: Yup.mixed().when('$isDriver', {
       is: true,
       then: (schema) => schema.required(commonStrings.REQUIRED_FIELD),
       otherwise: (schema) => schema.notRequired(),
     }),
-    licenseDeliveryDate: Yup.date().when('$isDriver', {
+    licenseDeliveryDate: Yup.mixed().when('$isDriver', {
       is: true,
       then: (schema) => schema.required(commonStrings.REQUIRED_FIELD),
       otherwise: (schema) => schema.notRequired(),
@@ -193,13 +214,13 @@ const CreateUser = () => {
     setAvatar(_avatar)
   }
 
-  const handleSubmit = async (values: typeof initialValues, { setSubmitting, setErrors }: any) => {
+  const handleSubmit = async (values: FormValues, { setSubmitting, setErrors }: any) => {
     try {
       const errors: { [key: string]: string } = {}
 
-      const nationalIdExpirationDate = new Date(values.nationalIdExpirationDate)
-      const licenseDeliveryDate = new Date(values.licenseDeliveryDate)
-      const birthDate = new Date(values.birthDate)
+      const nationalIdExpirationDate = values.nationalIdExpirationDate ? new Date(values.nationalIdExpirationDate) : undefined
+      const licenseDeliveryDate = values.licenseDeliveryDate ? new Date(values.licenseDeliveryDate) : undefined
+      const birthDate = values.birthDate ? new Date(values.birthDate) : undefined
 
       if (isSupplier) {
         const fullNameValid = await validateFullName(values.fullName)
@@ -252,11 +273,11 @@ const CreateUser = () => {
         language,
         supplier,
         minimumRentalDays: values.minimumRentalDays ? Number(values.minimumRentalDays) : undefined,
-        license,
         nationalId: values.nationalId,
         licenseId: values.licenseId,
         nationalIdExpirationDate,
         licenseDeliveryDate,
+        documents
       }
 
       if (type === bookcarsTypes.RecordType.Supplier) {
@@ -282,9 +303,12 @@ const CreateUser = () => {
       if (avatar) {
         await UserService.deleteTempAvatar(avatar)
       }
-      if (license) {
-        await UserService.deleteTempLicense(license)
-      }
+      // Delete any temporary document files
+      await Promise.all(Object.entries(documents).map(async ([key, value]) => {
+        if (value) {
+          await UserService.deleteTempDocument(value, key)
+        }
+      }))
       navigate('/users')
     } catch {
       navigate('/users')
@@ -320,7 +344,7 @@ const CreateUser = () => {
               onSubmit={handleSubmit}
               context={{ isDriver }}
             >
-              {({ isSubmitting, setFieldValue }) => (
+              {({ isSubmitting, setFieldValue, values }) => (
                 <Form>
                   {isSupplier && (
                     <>
@@ -362,8 +386,7 @@ const CreateUser = () => {
                   {isDriver && (
                     <DriverLicense
                       className="driver-license-field"
-                      onUpload={(filename: string, extractedInfo?: bookcarsTypes.LicenseExtractedData) => {
-                        setLicense(filename)
+                      onUpload={(extractedInfo?: bookcarsTypes.LicenseExtractedData) => {
                         if (extractedInfo) {
                           if (extractedInfo.fullName) setFieldValue('fullName', extractedInfo.fullName)
                           if (extractedInfo.nationalId) setFieldValue('nationalId', extractedInfo.nationalId)
@@ -373,6 +396,7 @@ const CreateUser = () => {
                           if (extractedInfo.licenseDeliveryDate) setFieldValue('licenseDeliveryDate', new Date(extractedInfo.licenseDeliveryDate).toISOString().split('T')[0])
                         }
                       }}
+                      onDocumentsChange={setDocuments}
                     />
                   )}
 
@@ -422,7 +446,7 @@ const CreateUser = () => {
                       <FormControl fullWidth margin="dense">
                         <DatePicker
                           label={commonStrings.NATIONAL_ID_EXPIRATION_DATE}
-                          value={initialValues.nationalIdExpirationDate}
+                          value={values.nationalIdExpirationDate || undefined}
                           onChange={(date) => setFieldValue('nationalIdExpirationDate', date)}
                           required
                         />
@@ -444,7 +468,7 @@ const CreateUser = () => {
                       <FormControl fullWidth margin="dense">
                         <DatePicker
                           label={commonStrings.LICENSE_DELIVERY_DATE}
-                          value={initialValues.licenseDeliveryDate}
+                          value={values.licenseDeliveryDate || undefined}
                           onChange={(date) => setFieldValue('licenseDeliveryDate', date)}
                           required
                         />
@@ -453,7 +477,7 @@ const CreateUser = () => {
                       <FormControl fullWidth margin="dense">
                         <DatePicker
                           label={strings.BIRTH_DATE}
-                          value={initialValues.birthDate}
+                          value={values.birthDate || undefined}
                           onChange={(date) => setFieldValue('birthDate', date)}
                           required
                           language={(user && user.language) || env.DEFAULT_LANGUAGE}
@@ -525,7 +549,7 @@ const CreateUser = () => {
                       </FormControl>
                       <h4>{commonStrings.BIO}</h4>
                       <EditorProvider>
-                        <Editor value={initialValues.bio} onChange={(e: ContentEditableEvent) => setFieldValue('bio', e.target.value)}>
+                        <Editor value={values.bio} onChange={(e: ContentEditableEvent) => setFieldValue('bio', e.target.value)}>
                           <Toolbar>
                             <BtnBold />
                             <BtnItalic />

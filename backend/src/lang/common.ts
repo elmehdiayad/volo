@@ -138,6 +138,7 @@ const strings = new LocalizedStrings({
     NATIONAL_ID_VALIDATION_ERROR: 'Le numéro de carte nationale est requis',
     NATIONAL_ID_EXPIRATION_DATE_VALIDATION_ERROR: "La date d'expiration de la carte nationale est requise",
     NATIONAL_ID_EXPIRATION_DATE_NOT_VALID_ERROR: "Date d'expiration de la carte nationale non valide",
+    DOCUMENTS: 'Documents',
   },
   en: {
     GENERIC_ERROR: 'An unhandled error occurred.',
@@ -274,6 +275,7 @@ const strings = new LocalizedStrings({
     NATIONAL_ID_VALIDATION_ERROR: 'National ID is required',
     NATIONAL_ID_EXPIRATION_DATE_VALIDATION_ERROR: 'National ID expiration date is required',
     NATIONAL_ID_EXPIRATION_DATE_NOT_VALID_ERROR: 'Invalid national ID expiration date',
+    DOCUMENTS: 'Documents',
   },
   es: {
     GENERIC_ERROR: 'Se ha producido un error no controlado.',

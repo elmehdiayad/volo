@@ -46,6 +46,6 @@ routes.post(routeNames.createDocument, multer().single('file'), userController.c
 routes.post(routeNames.updateDocument, multer().single('file'), userController.updateDocument)
 routes.post(routeNames.deleteDocument, userController.deleteDocument)
 routes.post(routeNames.deleteTempDocument, userController.deleteTempDocument)
-routes.post(routeNames.createCollage, userController.createCollage)
+routes.post(routeNames.processDocuments, userController.processDocuments)
 
 export default routes

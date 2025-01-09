@@ -416,6 +416,12 @@ export interface User extends Document {
   nationalIdExpirationDate?: Date
   licenseId?: string
   licenseDeliveryDate?: Date
+  documents?: {
+    licenseRecto?: string
+    licenseVerso?: string
+    idRecto?: string
+    idVerso?: string
+  }
 }
 
 /**

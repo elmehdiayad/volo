@@ -184,12 +184,39 @@ const User = () => {
                 {user.phone}
               </Typography>
             )}
-            {user.license && (
-              <div className="license">
-                <span>{commonStrings.LICENSE}</span>
-                <Link href={bookcarsHelper.joinURL(env.CDN_LICENSES, user.license)} target="_blank">
-                  {user.license}
-                </Link>
+            {user.documents && (
+              <div className="documents">
+                <Typography variant="h6">{commonStrings.DOCUMENTS}</Typography>
+                <div className="document-list">
+                  {user.documents.licenseRecto && (
+                    <div className="document">
+                      <Link href={bookcarsHelper.joinURL(env.CDN_LICENSES, user.documents.licenseRecto)} target="_blank">
+                        <span>{commonStrings.LICENSE_RECTO}</span>
+                      </Link>
+                    </div>
+                  )}
+                  {user.documents.licenseVerso && (
+                    <div className="document">
+                      <Link href={bookcarsHelper.joinURL(env.CDN_LICENSES, user.documents.licenseVerso)} target="_blank">
+                        <span>{commonStrings.LICENSE_VERSO}</span>
+                      </Link>
+                    </div>
+                  )}
+                  {user.documents.idRecto && (
+                    <div className="document">
+                      <Link href={bookcarsHelper.joinURL(env.CDN_LICENSES, user.documents.idRecto)} target="_blank">
+                        <span>{commonStrings.ID_RECTO}</span>
+                      </Link>
+                    </div>
+                  )}
+                  {user.documents.idVerso && (
+                    <div className="document">
+                      <Link href={bookcarsHelper.joinURL(env.CDN_LICENSES, user.documents.idVerso)} target="_blank">
+                        <span>{commonStrings.ID_VERSO}</span>
+                      </Link>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
             <div className="user-actions">

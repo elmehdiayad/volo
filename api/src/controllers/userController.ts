@@ -218,16 +218,34 @@ export const create = async (req: Request, res: Response) => {
       }
     }
 
-    // license
-    if (body.license && user.type === bookcarsTypes.UserType.User) {
-      const license = path.join(env.CDN_TEMP_LICENSES, body.license)
-      if (await helper.exists(license)) {
-        const filename = `${user._id}${path.extname(body.license)}`
-        const newPath = path.join(env.CDN_LICENSES, filename)
-        await fs.rename(license, newPath)
-        user.license = filename
-        await user.save()
+    // Handle documents
+    if (body.documents) {
+      const newDocuments = { ...user.documents } as {
+        licenseRecto?: string,
+        licenseVerso?: string,
+        idRecto?: string,
+        idVerso?: string
       }
+      for (const [key, value] of Object.entries(body.documents)) {
+        if (value && (key === 'licenseRecto' || key === 'licenseVerso' || key === 'idRecto' || key === 'idVerso')) {
+          // If it's a temp file, move it to permanent storage
+          const tempFile = path.join(env.CDN_TEMP_LICENSES, value)
+          if (await helper.exists(tempFile)) {
+            // Delete old file if exists
+            if (user.documents?.[key]) {
+              const oldFile = path.join(env.CDN_LICENSES, user.documents[key])
+              if (await helper.exists(oldFile)) {
+                await fs.unlink(oldFile)
+              }
+            }
+            const filename = `${user._id}_${key}_${Date.now()}${path.extname(value)}`
+            const newPath = path.join(env.CDN_LICENSES, filename)
+            await fs.rename(tempFile, newPath)
+            newDocuments[key] = filename
+          }
+        }
+      }
+      user.documents = newDocuments
     }
 
     if (body.password) {
@@ -978,6 +996,7 @@ export const update = async (req: Request, res: Response) => {
       licenseId,
       nationalIdExpirationDate,
       licenseDeliveryDate,
+      documents,
     } = body
 
     if (fullName) {
@@ -1012,6 +1031,36 @@ export const update = async (req: Request, res: Response) => {
     }
     if (typeof licenseRequired !== 'undefined') {
       user.licenseRequired = licenseRequired
+    }
+
+    // Handle documents
+    if (documents) {
+      const newDocuments = { ...user.documents } as {
+        licenseRecto?: string,
+        licenseVerso?: string,
+        idRecto?: string,
+        idVerso?: string
+      }
+      for (const [key, value] of Object.entries(documents)) {
+        if (value && (key === 'licenseRecto' || key === 'licenseVerso' || key === 'idRecto' || key === 'idVerso')) {
+          // If it's a temp file, move it to permanent storage
+          const tempFile = path.join(env.CDN_TEMP_DOCUMENTS, value)
+          if (await helper.exists(tempFile)) {
+            // Delete old file if exists
+            if (user.documents?.[key]) {
+              const oldFile = path.join(env.CDN_LICENSES, user.documents[key])
+              if (await helper.exists(oldFile)) {
+                await fs.unlink(oldFile)
+              }
+            }
+            const filename = `${user._id}_${key}_${Date.now()}${path.extname(value)}`
+            const newPath = path.join(env.CDN_LICENSES, filename)
+            await fs.rename(tempFile, newPath)
+            newDocuments[key] = filename
+          }
+        }
+      }
+      user.documents = newDocuments
     }
 
     await user.save()
@@ -1131,6 +1180,7 @@ export const getUser = async (req: Request, res: Response) => {
       licenseId: 1,
       nationalIdExpirationDate: 1,
       licenseDeliveryDate: 1,
+      documents: 1,
     }).lean()
 
     if (!user) {
@@ -1663,14 +1713,8 @@ export const createLicense = async (req: Request, res: Response) => {
 
     await fs.writeFile(filepath, req.file.buffer)
 
-    // Process the image with OCR using the helper
-    const extractedInfo = await ocrHelper.extractInformationFromCollage([req.file.buffer])
-
     // Return both the filename and extracted information
-    return res.json({
-      filename,
-      extractedInfo,
-    })
+    return res.json(filename)
   } catch (err) {
     logger.error(`[user.createLicense] ${i18n.t('DB_ERROR')}`, err)
     return res.status(400).send(i18n.t('ERROR') + err)
@@ -1716,17 +1760,11 @@ export const updateLicense = async (req: Request, res: Response) => {
 
       await fs.writeFile(filepath, file.buffer)
 
-      // Process the image with OCR using the helper
-      const extractedInfo = await ocrHelper.extractInformationFromCollage([file.buffer])
-
       user.license = filename
       await user.save()
 
       // Return both the filename and extracted information
-      return res.json({
-        filename,
-        extractedInfo,
-      })
+      return res.json(filename)
     }
 
     return res.sendStatus(204)
@@ -1819,7 +1857,7 @@ export const createDocument = async (req: Request, res: Response) => {
   }
 }
 
-export const createCollage = async (req: Request, res: Response) => {
+export const processDocuments = async (req: Request, res: Response) => {
   try {
     const { filenames } = req.body
     const buffers = await Promise.all(
@@ -1829,10 +1867,10 @@ export const createCollage = async (req: Request, res: Response) => {
       }),
     )
 
-    const extractedInfo = await ocrHelper.extractInformationFromCollage(buffers)
-    return res.json(extractedInfo)
+    const result = await ocrHelper.processDocuments(buffers)
+    return res.json(result)
   } catch (err) {
-    logger.error(`[user.createCollage] ${i18n.t('DB_ERROR')}`, err)
+    logger.error(`[user.processDocuments] ${i18n.t('DB_ERROR')}`, err)
     return res.status(400).send(i18n.t('ERROR') + err)
   }
 }

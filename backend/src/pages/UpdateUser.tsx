@@ -58,6 +58,12 @@ const UpdateUser = () => {
   const [avatar, setAvatar] = useState('')
   const [license, setLicense] = useState('')
   const [type, setType] = useState('')
+  const [documents, setDocuments] = useState<{
+    licenseRecto?: string
+    licenseVerso?: string
+    idRecto?: string
+    idVerso?: string
+  }>({})
 
   const isSupplier = type === bookcarsTypes.RecordType.Supplier
   const isDriver = type === bookcarsTypes.RecordType.User
@@ -256,6 +262,7 @@ const UpdateUser = () => {
         licenseId: values.licenseId,
         nationalIdExpirationDate,
         licenseDeliveryDate,
+        documents
       }
       if (type === bookcarsTypes.RecordType.Supplier) {
         data.payLater = values.payLater
@@ -275,7 +282,20 @@ const UpdateUser = () => {
   }
 
   const handleCancel = async () => {
-    navigate('/users')
+    try {
+      if (avatar) {
+        await UserService.deleteTempAvatar(avatar)
+      }
+      // Delete any temporary document files
+      await Promise.all(Object.entries(documents).map(async ([key, value]) => {
+        if (value) {
+          await UserService.deleteTempDocument(value, key)
+        }
+      }))
+      navigate('/users')
+    } catch {
+      navigate('/users')
+    }
   }
 
   const handleUserTypeChange = async (e: SelectChangeEvent<string>) => {
@@ -340,8 +360,8 @@ const UpdateUser = () => {
                   {isDriver && (
                     <DriverLicense
                       className="driver-license-field"
-                      onUpload={(filename: string, extractedInfo?: bookcarsTypes.LicenseExtractedData) => {
-                        setLicense(filename)
+                      user={user}
+                      onUpload={(extractedInfo?: bookcarsTypes.LicenseExtractedData) => {
                         if (extractedInfo) {
                           if (extractedInfo.fullName) setFieldValue('fullName', extractedInfo.fullName)
                           if (extractedInfo.nationalId) setFieldValue('nationalId', extractedInfo.nationalId)
@@ -351,6 +371,7 @@ const UpdateUser = () => {
                           if (extractedInfo.licenseDeliveryDate) setFieldValue('licenseDeliveryDate', new Date(extractedInfo.licenseDeliveryDate).toISOString().split('T')[0])
                         }
                       }}
+                      onDocumentsChange={setDocuments}
                     />
                   )}
 

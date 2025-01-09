@@ -52,54 +52,46 @@ const processImage = async (buffer: Buffer, documentType: 'license' | 'id') => {
     .toBuffer()
 }
 
+const getDocumentPrefix = (index: number): string => {
+  switch (index) {
+    case 0:
+      return 'licenseRecto'
+    case 1:
+      return 'licenseVerso'
+    case 2:
+      return 'idRecto'
+    default:
+      return 'idVerso'
+  }
+}
+
 /**
- * Create a collage from multiple images and extract information using OCR.
+ * Process documents and extract information using OCR.
  *
  * @export
  * @async
  * @param {Buffer[]} imageBuffers - Array of image buffers to process
- * @returns {Promise<{ filename: string, extractedInfo: bookcarsTypes.LicenseExtractedData }>}
+ * @returns {Promise<{ filenames: string[], extractedInfo: bookcarsTypes.LicenseExtractedData }>}
  */
-export const extractInformationFromCollage = async (imageBuffers: Buffer[]): Promise<{ filename: string, extractedInfo: bookcarsTypes.LicenseExtractedData }> => {
+export const processDocuments = async (imageBuffers: Buffer[]): Promise<{ filenames: string[], extractedInfo: bookcarsTypes.LicenseExtractedData }> => {
   try {
-    // Process and resize each image with enhanced preprocessing
-    const processedImages = await Promise.all(
-      imageBuffers.map(async (buffer) => {
-        const image = await processImage(buffer, 'license')
-
-        return {
-          input: image,
-          blend: 'over',
-        }
+    // Process and save each image
+    const filenames = await Promise.all(
+      imageBuffers.map(async (buffer, index) => {
+        const documentType = index < 2 ? 'license' : 'id'
+        const processedImage = await processImage(buffer, documentType)
+        const prefix = getDocumentPrefix(index)
+        const filename = `${prefix}-${nanoid()}.jpg`
+        const filepath = path.join(env.CDN_TEMP_LICENSES, filename)
+        await fs.writeFile(filepath, processedImage)
+        return filename
       }),
     )
 
-    // Create a blank canvas for the collage
-    const collage = await sharp({
-      create: {
-        width: targetWidth * 2,
-        height: targetHeight * 2,
-        channels: 3,
-        background: { r: 255, g: 255, b: 255 },
-      },
-    })
-      .composite([
-        { ...processedImages[0], top: 0, left: 0, blend: 'over' },
-        { ...processedImages[1], top: 0, left: targetWidth, blend: 'over' },
-        { ...processedImages[2], top: targetHeight, left: 0, blend: 'over' },
-        { ...processedImages[3], top: targetHeight, left: targetWidth, blend: 'over' },
-      ])
-      .jpeg({ quality: 90 })
-      .toBuffer()
-
-    // Save the collage
-    const filename = `${nanoid()}.jpg`
-    const filepath = path.join(env.CDN_TEMP_LICENSES, filename)
-    await fs.writeFile(filepath, collage)
     // Initialize Tesseract worker
     const worker = await createWorker('ara+fra')
 
-    // Process each image separately with OCR
+    // Process each image with OCR
     const ocrResults = await Promise.all(
       imageBuffers.map(async (buffer) => {
         const { data: { text } } = await worker.recognize(buffer)
@@ -138,7 +130,7 @@ export const extractInformationFromCollage = async (imageBuffers: Buffer[]): Pro
             "documentNumber": "extracted document number in a form ^\\d{2}/\\d{6}$",
             "expiryDate": "YYYY-MM-DD format",
             "nationalId": "extracted national ID in a form ^[A-Za-z]{1,2}\\d{5,6}$",
-            "licenseId: "extracted document number in a form ^\\d{2}/\\d{6}$",
+            "licenseId": "extracted document number in a form ^\\d{2}/\\d{6}$"
           }`,
         },
       ],
@@ -150,10 +142,10 @@ export const extractInformationFromCollage = async (imageBuffers: Buffer[]): Pro
     // Parse the response
     const extractedInfo: bookcarsTypes.LicenseExtractedData = JSON.parse(response.choices[0].message.content || '{}')
 
-    logger.info('[OCR] Successfully created collage and extracted information')
-    return { filename, extractedInfo }
+    logger.info('[OCR] Successfully processed documents and extracted information')
+    return { filenames, extractedInfo }
   } catch (error) {
-    logger.error('[extractInformationFromCollage] Error processing images:', error)
+    logger.error('[processDocuments] Error processing images:', error)
     throw new Error('Failed to extract information from images')
   }
 }

@@ -16,8 +16,9 @@ interface DriverLicenseProps {
   user?: bookcarsTypes.User
   variant?: 'standard' | 'outlined'
   className?: string
-  onUpload?: (filenames: string, extractedInfo?: bookcarsTypes.LicenseExtractedData) => void
+  onUpload?: (extractedInfo?: bookcarsTypes.LicenseExtractedData) => void
   onDelete?: () => void
+  onDocumentsChange?: (documents: { [key: string]: string }) => void
 }
 
 const DriverLicense = ({
@@ -26,8 +27,9 @@ const DriverLicense = ({
   className,
   onUpload,
   onDelete,
+  onDocumentsChange,
 }: DriverLicenseProps) => {
-  const [images, setImages] = useState<{ [key: string]: string | null }>({
+  const [images, setImages] = useState<{ [key: string]: string | null }>(user?.documents || {
     licenseRecto: null,
     licenseVerso: null,
     idRecto: null,
@@ -111,7 +113,7 @@ const DriverLicense = ({
       if (user) {
         const res = await UserService.updateDocument(user._id!, file, currentType)
         if (res.status === 200) {
-          uploadResult = { filename: res.data }
+          uploadResult = res.data
         } else {
           helper.error()
         }
@@ -127,8 +129,17 @@ const DriverLicense = ({
           ...images,
           [currentType]: uploadResult.filename
         }
-
         setImages(updatedImages)
+        if (onDocumentsChange) {
+          // Convert to non-null object for parent component
+          const newDocuments = Object.entries(updatedImages).reduce((acc, [key, value]) => {
+            if (value) {
+              acc[key] = value
+            }
+            return acc
+          }, {} as { [key: string]: string })
+          onDocumentsChange(newDocuments)
+        }
         setCropDialogOpen(false)
         setCurrentImage(null)
         setCurrentType('')
@@ -141,12 +152,13 @@ const DriverLicense = ({
           y: 5
         })
 
-        // Check if all images are uploaded and process collage
-        if (Object.values(updatedImages).every((img) => img !== null)) {
+        // Check if all images are uploaded and process documents
+        if (!user && Object.values(updatedImages).every((img) => img !== null)) {
+          console.log('process documents', updatedImages)
           setLoading(true)
-          const collageResult = await UserService.createCollage(Object.values(updatedImages) as string[])
+          const result = await UserService.processDocuments(Object.values(updatedImages) as string[])
           if (onUpload) {
-            onUpload(collageResult.filename, collageResult.extractedInfo)
+            onUpload(result.extractedInfo)
           }
           setLoading(false)
         }

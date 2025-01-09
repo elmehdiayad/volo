@@ -18,13 +18,13 @@ div.user div.col-1 .user-info {
   color: #676767;
 }
 
-div.user div.col-1 div.license{
+div.user div.col-1 div.documents{
   display: flex;
   flex-direction: column;
   padding: 5px;
 }
 
-div.user div.col-1 div.license span{
+div.user div.col-1 div.documents span{
   color: #676767;
 }
 

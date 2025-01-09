@@ -150,6 +150,24 @@ const userSchema = new Schema<env.User>(
       type: Date,
       required: false,
     },
+    documents: {
+      licenseRecto: {
+        type: String,
+        required: false,
+      },
+      licenseVerso: {
+        type: String,
+        required: false,
+      },
+      idRecto: {
+        type: String,
+        required: false,
+      },
+      idVerso: {
+        type: String,
+        required: false,
+      },
+    },
   },
   {
     timestamps: true,

@@ -584,7 +584,7 @@ export const createDocument = (file: Blob, type: string): Promise<{ filename: st
     .then((res) => res.data)
 }
 
-export const updateDocument = (userId: string, file: Blob, type: string): Promise<bookcarsTypes.Response<string>> => {
+export const updateDocument = (userId: string, file: Blob, type: string): Promise<bookcarsTypes.Response<{ filename: string }>> => {
   const formData = new FormData()
   formData.append('file', file)
   formData.append('type', type)
@@ -623,6 +623,15 @@ export const createCollage = (filenames: string[]): Promise<{ filename: string, 
   axiosInstance
     .post(
       '/api/create-collage',
+      { filenames },
+      { withCredentials: true }
+    )
+    .then((res) => res.data)
+
+export const processDocuments = (filenames: string[]): Promise<{ filenames: string[], extractedInfo?: bookcarsTypes.LicenseExtractedData }> =>
+  axiosInstance
+    .post(
+      '/api/process-documents',
       { filenames },
       { withCredentials: true }
     )
