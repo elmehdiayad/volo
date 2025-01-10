@@ -7,6 +7,7 @@ import {
 } from '@mui/material'
 import * as bookcarsTypes from ':bookcars-types'
 import * as bookcarsHelper from ':bookcars-helper'
+import env from '@/config/env.config'
 import { strings as commonStrings } from '@/lang/common'
 import { strings as contractStrings } from '@/lang/contract'
 import * as UserService from '@/services/UserService'
@@ -17,14 +18,6 @@ import '@/assets/css/contract.css'
 
 interface ContractProps {
   booking?: bookcarsTypes.Booking
-}
-
-interface Company {
-  image?: string
-}
-
-interface ExtendedBooking extends bookcarsTypes.Booking {
-  company?: Company
 }
 
 const Contract = ({
@@ -55,8 +48,6 @@ const Contract = ({
     }
   }
   const car = booking.car as bookcarsTypes.Car
-  const extendedBooking = booking as ExtendedBooking
-  const company = extendedBooking.company || {}
   const pickupLocation = booking.pickupLocation as bookcarsTypes.Location
   const dropOffLocation = booking.dropOffLocation as bookcarsTypes.Location
   const language = UserService.getLanguage()
@@ -68,9 +59,6 @@ const Contract = ({
         <Typography variant="h5" className="contract-title">
           {contractStrings.CONTRACT_DETAILS}
         </Typography>
-        {company.image && (
-          <img src={company.image} alt="Company Logo" className="company-logo" />
-        )}
       </Box>
 
       <Box className="price-section">
@@ -108,7 +96,7 @@ const Contract = ({
 
       <Box className="vehicle-section">
         <Box className="car-image-container">
-          {car.image && <img src={car.image} alt="Car" className="car-image" />}
+          {car.image && <img src={bookcarsHelper.joinURL(env.CDN_CARS, car.image)} className="car-image" alt={car.name} />}
         </Box>
         <Box className="car-details">
           <Box className="info-box">
