@@ -498,8 +498,9 @@ export interface Booking extends Document {
   fullInsurance?: boolean
   additionalDriver?: boolean
   _additionalDriver?: Types.ObjectId
-  cancelRequest?: boolean
   price: number
+  deposit?: number
+  cancelRequest?: boolean
   sessionId?: string
   paymentIntentId?: string
   customerId?: string

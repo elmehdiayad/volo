@@ -205,7 +205,7 @@ const UpdateCar = () => {
       }
 
       const data: bookcarsTypes.UpdateCarPayload = {
-        _id: car._id,
+        _id: car._id as string,
         name: values.name,
         plateNumber: values.plateNumber,
         supplier: values.supplier._id,
@@ -662,7 +662,17 @@ const UpdateCar = () => {
 
                   <FormControl fullWidth margin="dense" className="checkbox-fc">
                     <FormControlLabel
-                      control={<Field as={Switch} name="available" color="primary" />}
+                      control={(
+                        <Field name="available">
+                          {({ field }: { field: any }) => (
+                            <Switch
+                              {...field}
+                              checked={field.value}
+                              color="primary"
+                            />
+                          )}
+                        </Field>
+                      )}
                       label={strings.AVAILABLE}
                       className="checkbox-fcl"
                     />
@@ -670,7 +680,17 @@ const UpdateCar = () => {
 
                   <FormControl fullWidth margin="dense" className="checkbox-fc">
                     <FormControlLabel
-                      control={<Field as={Switch} name="aircon" color="primary" />}
+                      control={(
+                        <Field name="aircon">
+                          {({ field }: { field: any }) => (
+                            <Switch
+                              {...field}
+                              checked={field.value}
+                              color="primary"
+                            />
+                          )}
+                        </Field>
+                      )}
                       label={strings.AIRCON}
                       className="checkbox-fcl"
                     />

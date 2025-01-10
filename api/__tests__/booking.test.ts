@@ -47,6 +47,11 @@ const ADDITIONAL_DRIVER: bookcarsTypes.AdditionalDriver = {
   fullName: 'Additional Driver 1',
   birthDate: new Date(1990, 5, 20),
   phone: '0102010101',
+  licenseId: '1234567890',
+  nationalId: '1234567890',
+  nationalIdExpirationDate: new Date(2025, 2, 25),
+  location: '1234567890',
+  licenseDeliveryDate: new Date(2025, 2, 25),
 }
 
 //
@@ -625,6 +630,11 @@ describe('POST /api/checkout', () => {
       fullName: 'Addtional Driver',
       birthDate: new Date(1980, 2, 25),
       phone: '01010101',
+      licenseId: '1234567890',
+      nationalId: '1234567890',
+      nationalIdExpirationDate: new Date(2025, 2, 25),
+      location: '1234567890',
+      licenseDeliveryDate: new Date(2025, 2, 25),
     }
     res = await request(app)
       .post('/api/checkout')

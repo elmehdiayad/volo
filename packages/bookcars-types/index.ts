@@ -90,6 +90,7 @@ export interface Booking {
   _additionalDriver?: string | AdditionalDriver
   cancelRequest?: boolean
   price?: number
+  deposit?: number
   sessionId?: string
   paymentIntentId?: string
   customerId?: string
@@ -126,12 +127,12 @@ export interface AdditionalDriver {
   fullName: string
   email: string
   phone: string
-  location?: string
-  birthDate?: Date
-  licenseId?: string
-  licenseDeliveryDate?: Date
-  nationalId?: string
-  nationalIdExpirationDate?: Date
+  licenseId: string
+  nationalId: string
+  nationalIdExpirationDate: Date
+  location: string
+  birthDate: Date
+  licenseDeliveryDate: Date
 }
 
 export interface UpsertBookingPayload {
@@ -380,7 +381,7 @@ export interface User {
   contracts?: Contract[]
   licenseRequired?: boolean
   license?: string | null
-  minimumRentalDays?: number,
+  minimumRentalDays?: number
   nationalId?: string
   licenseId?: string
   nationalIdExpirationDate?: Date
@@ -435,8 +436,12 @@ export interface CountryInfo extends Country {
 }
 
 export interface Car {
-  _id: string
+  _id?: string
   name: string
+  company: string
+  model: string
+  mileage: number
+  plateNumber: string
   supplier: User
   minimumAge: number
   locations: Location[]
@@ -459,7 +464,6 @@ export interface Car {
   seats: number
   doors: number
   fuelPolicy: FuelPolicy
-  mileage: number
   cancellation: number
   amendments: number
   theftProtection: number

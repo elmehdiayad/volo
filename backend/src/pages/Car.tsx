@@ -73,7 +73,7 @@ const Car = () => {
   const handleDelete = async () => {
     try {
       if (car) {
-        const status = await CarService.check(car._id)
+        const status = await CarService.check(car._id as string)
 
         if (status === 200) {
           setOpenInfoDialog(true)
@@ -97,7 +97,7 @@ const Car = () => {
       if (car) {
         setOpenDeleteDialog(false)
 
-        const status = await CarService.deleteCar(car._id)
+        const status = await CarService.deleteCar(car._id as string)
 
         if (status === 200) {
           window.location.href = '/cars'

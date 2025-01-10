@@ -29,6 +29,11 @@ const ADDITIONAL_DRIVER: bookcarsTypes.AdditionalDriver = {
   fullName: 'Additional Driver 1',
   birthDate: new Date(1990, 5, 20),
   phone: '',
+  licenseId: '1234567890',
+  nationalId: '1234567890',
+  nationalIdExpirationDate: new Date(2025, 2, 25),
+  location: '1234567890',
+  licenseDeliveryDate: new Date(2025, 2, 25),
 }
 
 describe('Test AdditionalDriver phone validation', () => {

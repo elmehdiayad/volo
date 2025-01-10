@@ -1,9 +1,9 @@
+import React, { useEffect } from 'react'
 import {
   Backdrop,
   CircularProgress,
   Typography
 } from '@mui/material'
-import { useEffect } from 'react'
 import env from '@/config/env.config'
 
 interface SimpleBackdropProps {

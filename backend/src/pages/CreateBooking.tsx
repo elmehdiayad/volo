@@ -211,7 +211,7 @@ const CreateBooking = () => {
 
       const booking: bookcarsTypes.Booking = {
         supplier: values.supplier,
-        car: car._id,
+        car: car._id as string,
         driver: values.driver,
         pickupLocation: values.pickupLocation,
         dropOffLocation: values.dropOffLocation,
