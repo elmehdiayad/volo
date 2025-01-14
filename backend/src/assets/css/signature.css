@@ -1,0 +1,31 @@
+.signature-upload {
+  width: 100%;
+}
+
+.signature-input {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.signature-input .filename {
+  flex-grow: 1;
+  cursor: pointer;
+  color: #666;
+}
+
+.signature-input .actions {
+  display: flex;
+  gap: 5px;
+  margin-left: 10px;
+}
+
+.signature-input .icon {
+  width: 20px;
+  height: 20px;
+}
+
+.ReactCrop__image {
+  max-height: 400px;
+  object-fit: contain;
+} 

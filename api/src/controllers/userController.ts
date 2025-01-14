@@ -7,6 +7,7 @@ import mongoose from 'mongoose'
 import { CookieOptions, Request, Response } from 'express'
 import nodemailer from 'nodemailer'
 import axios from 'axios'
+import sharp from 'sharp'
 import * as bookcarsTypes from ':bookcars-types'
 import i18n from '../lang/i18n'
 import * as env from '../config/env.config'
@@ -180,36 +181,14 @@ export const create = async (req: Request, res: Response) => {
       body.nationalId = helper.trim(body.nationalId, ' ')
     }
 
-    const { contracts } = body
-    body.contracts = undefined
-
     const user = new User(body)
     await user.save()
-
-    const finalContracts: bookcarsTypes.Contract[] = []
-    if (contracts) {
-      for (const contract of contracts) {
-        if (contract.language && contract.file) {
-          const tempFile = path.join(env.CDN_TEMP_CONTRACTS, contract.file)
-
-          if (await helper.exists(tempFile)) {
-            const filename = `${user.id}_${contract.language}${path.extname(tempFile)}`
-            const newPath = path.join(env.CDN_CONTRACTS, filename)
-
-            await fs.rename(tempFile, newPath)
-            finalContracts.push({ language: contract.language, file: filename })
-          }
-        }
-      }
-      user.contracts = finalContracts
-      await user.save()
-    }
 
     // avatar
     if (body.avatar) {
       const avatar = path.join(env.CDN_TEMP_USERS, body.avatar)
       if (await helper.exists(avatar)) {
-        const filename = `${user._id}_${Date.now()}${path.extname(body.avatar)}`
+        const filename = `${user._id}${path.extname(body.avatar)}`
         const newPath = path.join(env.CDN_USERS, filename)
 
         await fs.rename(avatar, newPath)
@@ -238,7 +217,7 @@ export const create = async (req: Request, res: Response) => {
                 await fs.unlink(oldFile)
               }
             }
-            const filename = `${user._id}_${key}_${Date.now()}${path.extname(value)}`
+            const filename = `${user._id}_${key}${path.extname(value)}`
             const newPath = path.join(env.CDN_LICENSES, filename)
             await fs.rename(tempFile, newPath)
             newDocuments[key] = filename
@@ -246,6 +225,17 @@ export const create = async (req: Request, res: Response) => {
         }
       }
       user.documents = newDocuments
+    }
+
+    if (body.signature) {
+      const signature = path.join(env.CDN_TEMP_LICENSES, body.signature)
+      if (await helper.exists(signature)) {
+        const filename = `${user._id}_signature${path.extname(body.signature)}`
+        const newPath = path.join(env.CDN_LICENSES, filename)
+        await fs.rename(signature, newPath)
+        user.signature = filename
+        await user.save()
+      }
     }
 
     if (body.password) {
@@ -1044,7 +1034,7 @@ export const update = async (req: Request, res: Response) => {
       for (const [key, value] of Object.entries(documents)) {
         if (value && (key === 'licenseRecto' || key === 'licenseVerso' || key === 'idRecto' || key === 'idVerso')) {
           // If it's a temp file, move it to permanent storage
-          const tempFile = path.join(env.CDN_TEMP_DOCUMENTS, value)
+          const tempFile = path.join(env.CDN_TEMP_LICENSES, value)
           if (await helper.exists(tempFile)) {
             // Delete old file if exists
             if (user.documents?.[key]) {
@@ -1053,7 +1043,7 @@ export const update = async (req: Request, res: Response) => {
                 await fs.unlink(oldFile)
               }
             }
-            const filename = `${user._id}_${key}_${Date.now()}${path.extname(value)}`
+            const filename = `${user._id}_${key}${path.extname(value)}`
             const newPath = path.join(env.CDN_LICENSES, filename)
             await fs.rename(tempFile, newPath)
             newDocuments[key] = filename
@@ -1061,6 +1051,16 @@ export const update = async (req: Request, res: Response) => {
         }
       }
       user.documents = newDocuments
+    }
+
+    if (body.signature) {
+      const tempFile = path.join(env.CDN_TEMP_LICENSES, body.signature)
+      if (await helper.exists(tempFile)) {
+        const filename = `${user._id}_signature${path.extname(body.signature)}`
+        const newPath = path.join(env.CDN_LICENSES, filename)
+        await fs.rename(tempFile, newPath)
+      }
+      user.signature = body.signature
     }
 
     await user.save()
@@ -1181,6 +1181,7 @@ export const getUser = async (req: Request, res: Response) => {
       nationalIdExpirationDate: 1,
       licenseDeliveryDate: 1,
       documents: 1,
+      signature: 1,
     }).lean()
 
     if (!user) {
@@ -1847,7 +1848,7 @@ export const createDocument = async (req: Request, res: Response) => {
     }
 
     const filename = `${nanoid()}${path.extname(req.file.originalname)}`
-    const filepath = path.join(env.CDN_TEMP_DOCUMENTS, filename)
+    const filepath = path.join(env.CDN_TEMP_LICENSES, filename)
 
     await fs.writeFile(filepath, req.file.buffer)
     return res.json({ filename })
@@ -1862,7 +1863,7 @@ export const processDocuments = async (req: Request, res: Response) => {
     const { filenames } = req.body
     const buffers = await Promise.all(
       filenames.map(async (filename: string) => {
-        const filepath = path.join(env.CDN_TEMP_DOCUMENTS, filename)
+        const filepath = path.join(env.CDN_TEMP_LICENSES, filename)
         return fs.readFile(filepath)
       }),
     )
@@ -1876,7 +1877,7 @@ export const processDocuments = async (req: Request, res: Response) => {
 }
 
 export const updateDocument = async (req: Request, res: Response) => {
-  const { userId } = req.params
+  const { userId, type } = req.params
   try {
     if (!req.file) {
       throw new Error('req.file not found')
@@ -1887,8 +1888,8 @@ export const updateDocument = async (req: Request, res: Response) => {
       return res.sendStatus(204)
     }
 
-    const filename = `${user._id}_${Date.now()}${path.extname(req.file.originalname)}`
-    const filepath = path.join(env.CDN_DOCUMENTS, filename)
+    const filename = `${user._id}_${type}${path.extname(req.file.originalname)}`
+    const filepath = path.join(env.CDN_LICENSES, filename)
 
     await fs.writeFile(filepath, req.file.buffer)
     return res.json({ filename })
@@ -1906,9 +1907,21 @@ export const deleteDocument = async (req: Request, res: Response) => {
       return res.sendStatus(204)
     }
 
-    const filepath = path.join(env.CDN_DOCUMENTS, `${user._id}_${type}`)
-    if (await helper.exists(filepath)) {
-      await fs.unlink(filepath)
+    if (type === 'signature') {
+      const filepath = path.join(env.CDN_LICENSES, `${user.signature}`)
+      if (await helper.exists(filepath)) {
+        await fs.unlink(filepath)
+      }
+      user.signature = null
+      await user.save()
+    }
+    if (type === 'licenseRecto' || type === 'licenseVerso' || type === 'idRecto' || type === 'idVerso') {
+      const filepath = path.join(env.CDN_LICENSES, `${user.documents?.[type]}`)
+      if (await helper.exists(filepath)) {
+        await fs.unlink(filepath)
+      }
+      user.documents = { [type]: null, ...user.documents }
+      await user.save()
     }
     return res.sendStatus(200)
   } catch (err) {
@@ -1920,7 +1933,7 @@ export const deleteDocument = async (req: Request, res: Response) => {
 export const deleteTempDocument = async (req: Request, res: Response) => {
   const { filename } = req.params
   try {
-    const filepath = path.join(env.CDN_TEMP_DOCUMENTS, filename)
+    const filepath = path.join(env.CDN_TEMP_LICENSES, filename)
     if (await helper.exists(filepath)) {
       await fs.unlink(filepath)
     }
@@ -1928,5 +1941,27 @@ export const deleteTempDocument = async (req: Request, res: Response) => {
   } catch (err) {
     logger.error(`[user.deleteTempDocument] ${i18n.t('DB_ERROR')}`, err)
     return res.status(400).send(i18n.t('ERROR') + err)
+  }
+}
+
+export const createSignature = async (req: Request, res: Response): Promise<Response | undefined> => {
+  try {
+    const { file } = req
+    if (!file) {
+      throw new Error('File not found')
+    }
+
+    const filename = `${nanoid()}.png`
+    const filepath = path.join(env.CDN_TEMP_LICENSES, filename)
+
+    await sharp(file.buffer)
+      .png()
+      .toFile(filepath)
+
+    return res.json(filename)
+  } catch (err) {
+    const error = err as Error
+    logger.error(error.message)
+    return res.status(400).send('Error processing signature')
   }
 }

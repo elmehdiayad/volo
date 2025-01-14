@@ -416,11 +416,12 @@ export interface User extends Document {
   nationalIdExpirationDate?: Date
   licenseId?: string
   licenseDeliveryDate?: Date
+  signature?: string | null
   documents?: {
-    licenseRecto?: string
-    licenseVerso?: string
-    idRecto?: string
-    idVerso?: string
+    licenseRecto?: string | null
+    licenseVerso?: string | null
+    idRecto?: string | null
+    idVerso?: string | null
   }
 }
 
@@ -452,6 +453,7 @@ export interface UserInfo {
   payLater?: boolean
   licenseRequired?: boolean,
   license?: string
+  signature?: string
 }
 
 /**
@@ -505,6 +507,7 @@ export interface Booking extends Document {
   paymentIntentId?: string
   customerId?: string
   expireAt?: Date
+  paymentMethod: 'card' | 'cash' | 'check' | 'other'
 }
 
 /**
@@ -757,6 +760,3 @@ export interface Token extends Document {
   token: string
   expireAt?: Date
 }
-
-export const CDN_DOCUMENTS = process.env.BC_CDN_DOCUMENTS || '/var/www/cdn/bookcars/temp/licenses'
-export const CDN_TEMP_DOCUMENTS = process.env.BC_CDN_TEMP_DOCUMENTS || '/var/www/cdn/bookcars/temp/licenses'

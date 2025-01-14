@@ -9,7 +9,7 @@ import {
   MenuItem,
   FormControlLabel,
   Switch,
-  SelectChangeEvent
+  SelectChangeEvent,
 } from '@mui/material'
 import {
   BtnBold,
@@ -39,6 +39,7 @@ import Backdrop from '@/components/SimpleBackdrop'
 import Avatar from '@/components/Avatar'
 import DatePicker from '@/components/DatePicker'
 import DriverLicense from '@/components/DriverLicense'
+import Signature from '@/components/Signature'
 
 import '@/assets/css/create-user.css'
 
@@ -78,6 +79,8 @@ const CreateUser = () => {
     idRecto?: string
     idVerso?: string
   }>({})
+  const [signature, setSignature] = useState('')
+  const [signatureError, setSignatureError] = useState(false)
 
   const isSupplier = type === bookcarsTypes.RecordType.Supplier
   const isDriver = type === bookcarsTypes.RecordType.User
@@ -230,6 +233,9 @@ const CreateUser = () => {
         if (!avatar) {
           errors.avatar = commonStrings.IMAGE_REQUIRED
         }
+        if (!signature) {
+          errors.signature = commonStrings.SIGNATURE_REQUIRED
+        }
       }
 
       const _emailValid = await validateEmail(values.email)
@@ -277,7 +283,8 @@ const CreateUser = () => {
         licenseId: values.licenseId,
         nationalIdExpirationDate,
         licenseDeliveryDate,
-        documents
+        documents,
+        signature,
       }
 
       if (type === bookcarsTypes.RecordType.Supplier) {
@@ -302,6 +309,9 @@ const CreateUser = () => {
     try {
       if (avatar) {
         await UserService.deleteTempAvatar(avatar)
+      }
+      if (signature) {
+        await UserService.deleteTempDocument(signature, 'signature')
       }
       // Delete any temporary document files
       await Promise.all(Object.entries(documents).map(async ([key, value]) => {
@@ -517,6 +527,24 @@ const CreateUser = () => {
 
                   {isSupplier && (
                     <>
+                      <Signature
+                        className="driver-license-field"
+                        variant="standard"
+                        onUpload={(filename) => {
+                          setSignature(filename)
+                          setSignatureError(false)
+                        }}
+                        onDelete={() => {
+                          setSignature('')
+                          setSignatureError(false)
+                        }}
+                      />
+                      {signatureError && (
+                        <FormHelperText error>
+                          {commonStrings.SIGNATURE_REQUIRED}
+                        </FormHelperText>
+                      )}
+                      <CustomErrorMessage name="signature" />
                       <FormControl fullWidth margin="dense">
                         <FormControlLabel
                           control={(
@@ -557,6 +585,7 @@ const CreateUser = () => {
                         </Editor>
                         <CustomErrorMessage name="bio" />
                       </EditorProvider>
+
                     </>
                   )}
 

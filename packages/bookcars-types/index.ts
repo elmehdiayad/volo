@@ -95,6 +95,7 @@ export interface Booking {
   paymentIntentId?: string
   customerId?: string
   expireAt?: Date
+  paymentMethod?: 'card' | 'cash' | 'check' | 'other'
 }
 
 export interface CheckoutPayload {
@@ -256,7 +257,7 @@ export interface CreateUserPayload {
   email?: string
   phone: string
   location: string
-  bio: string
+  bio?: string
   fullName: string
   type?: string
   avatar?: string
@@ -281,6 +282,7 @@ export interface CreateUserPayload {
     idRecto?: string
     idVerso?: string
   }
+  signature?: string
 }
 
 export interface UpdateUserPayload extends CreateUserPayload {
@@ -392,6 +394,7 @@ export interface User {
     idRecto?: string
     idVerso?: string
   }
+  signature?: string
 }
 
 export interface Option {

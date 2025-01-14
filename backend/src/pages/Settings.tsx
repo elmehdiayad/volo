@@ -28,7 +28,6 @@ const Settings = () => {
   const [fullName, setFullName] = useState('')
   const [phone, setPhone] = useState('')
   const [location, setLocation] = useState('')
-  const [bio, setBio] = useState('')
   const [visible, setVisible] = useState(false)
   const [loading, setLoading] = useState(true)
   const [phoneValid, setPhoneValid] = useState(true)
@@ -60,10 +59,6 @@ const Settings = () => {
 
   const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setLocation(e.target.value)
-  }
-
-  const handleBioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setBio(e.target.value)
   }
 
   const handleEmailNotificationsChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -124,7 +119,6 @@ const Settings = () => {
         fullName,
         phone,
         location,
-        bio,
       }
 
       const status = await UserService.updateUser(data)
@@ -146,7 +140,6 @@ const Settings = () => {
       setFullName(_user.fullName)
       setPhone(_user.phone || '')
       setLocation(_user.location || '')
-      setBio(_user.bio || '')
       setEnableEmailNotifications(_user.enableEmailNotifications || false)
       setVisible(true)
       setLoading(false)
@@ -187,10 +180,6 @@ const Settings = () => {
               <FormControl fullWidth margin="dense">
                 <InputLabel>{commonStrings.LOCATION}</InputLabel>
                 <Input id="location" type="text" onChange={handleLocationChange} autoComplete="off" value={location} />
-              </FormControl>
-              <FormControl fullWidth margin="dense">
-                <InputLabel>{commonStrings.BIO}</InputLabel>
-                <Input id="bio" type="text" onChange={handleBioChange} autoComplete="off" value={bio} />
               </FormControl>
               <div className="buttons">
                 <Button variant="contained" className="btn-primary btn-margin btn-margin-bottom" size="small" href="/change-password">

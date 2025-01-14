@@ -398,7 +398,7 @@ const Checkout = () => {
 
       const booking: bookcarsTypes.Booking = {
         supplier: car.supplier._id as string,
-        car: car._id,
+        car: car._id as string,
         driver: authenticated ? user?._id : undefined,
         pickupLocation: pickupLocation._id,
         dropOffLocation: dropOffLocation._id,
@@ -421,6 +421,11 @@ const Checkout = () => {
           email: addiontalDriverEmail,
           phone: addiontalDriverPhone,
           birthDate: addiontalDriverBirthDate,
+          licenseId: '',
+          nationalId: '',
+          nationalIdExpirationDate: new Date(),
+          location: '',
+          licenseDeliveryDate: new Date(),
         }
       }
 

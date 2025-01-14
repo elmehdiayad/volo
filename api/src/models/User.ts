@@ -168,6 +168,10 @@ const userSchema = new Schema<env.User>(
         required: false,
       },
     },
+    signature: {
+      type: String,
+      required: false,
+    },
   },
   {
     timestamps: true,

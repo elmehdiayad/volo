@@ -74,7 +74,7 @@ const Booking = () => {
 
       if ((!car && newCar) || (car && newCar && car._id !== newCar._id)) {
         // car changed
-        const _car = await CarService.getCar(newCar._id)
+        const _car = await CarService.getCar(newCar._id as string)
 
         if (_car && from && to) {
           const _booking = bookcarsHelper.clone(booking)
@@ -216,7 +216,7 @@ const Booking = () => {
       const _booking: bookcarsTypes.Booking = {
         _id: booking._id,
         supplier: supplier._id,
-        car: car._id,
+        car: car._id as string,
         driver: driver._id,
         pickupLocation: pickupLocation._id,
         dropOffLocation: dropOffLocation._id,

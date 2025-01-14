@@ -591,7 +591,7 @@ export const updateDocument = (userId: string, file: Blob, type: string): Promis
 
   return axiosInstance
     .post(
-      `/api/update-document/${userId}`,
+      `/api/update-document/${userId}/${type}`,
       formData,
       {
         withCredentials: true,
@@ -636,3 +636,15 @@ export const processDocuments = (filenames: string[]): Promise<{ filenames: stri
       { withCredentials: true }
     )
     .then((res) => res.data)
+
+export const createSignature = async (file: FormData): Promise<string> => {
+  const res = await axiosInstance.post(
+    '/api/create-signature',
+    file,
+    {
+      withCredentials: true,
+      headers: { 'Content-Type': 'multipart/form-data' }
+    }
+  )
+  return res.data
+}

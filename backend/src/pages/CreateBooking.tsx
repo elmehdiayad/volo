@@ -219,6 +219,7 @@ const CreateBooking = () => {
         to: values.to,
         status: values.status,
         additionalDriver: additionalDriverSet,
+        deposit: car?.deposit ?? 0,
       }
 
       let _additionalDriver: bookcarsTypes.AdditionalDriver | undefined
@@ -247,7 +248,6 @@ const CreateBooking = () => {
         async (price) => {
           try {
             booking.price = price
-
             const _booking = await BookingService.create({
               booking,
               additionalDriver: _additionalDriver,

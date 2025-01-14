@@ -13,7 +13,6 @@ import { Info as InfoIcon } from '@mui/icons-material'
 import validator from 'validator'
 import { useNavigate } from 'react-router-dom'
 import * as bookcarsTypes from ':bookcars-types'
-import * as bookcarsHelper from ':bookcars-helper'
 import Layout from '@/components/Layout'
 import { strings as commonStrings } from '@/lang/common'
 import { strings } from '@/lang/create-supplier'
@@ -23,7 +22,7 @@ import Error from '@/components/Error'
 import Backdrop from '@/components/SimpleBackdrop'
 import Avatar from '@/components/Avatar'
 import * as helper from '@/common/helper'
-import ContractList from '@/components/ContractList'
+import Signature from '@/components/Signature'
 
 import '@/assets/css/create-supplier.css'
 
@@ -45,9 +44,10 @@ const CreateSupplier = () => {
   const [phoneValid, setPhoneValid] = useState(true)
   const [payLater, setPayLater] = useState(false)
   const [licenseRequired, setLicenseRequired] = useState(false)
-  const [contracts, setContracts] = useState<bookcarsTypes.Contract[]>([])
   const [minimumRentalDays, setMinimumRentalDays] = useState('')
   const [nationalId, setNationalId] = useState('')
+  const [signature, setSignature] = useState('')
+  const [signatureError, setSignatureError] = useState(false)
 
   const handleFullNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFullName(e.target.value)
@@ -179,13 +179,9 @@ const CreateSupplier = () => {
       if (avatar) {
         await UserService.deleteTempAvatar(avatar)
       }
-
-      for (const contract of contracts) {
-        if (contract.file) {
-          await SupplierService.deleteTempContract(contract.file)
-        }
+      if (signature) {
+        await UserService.deleteTempDocument(signature, 'signature')
       }
-
       navigate('/suppliers')
     } catch {
       navigate('/suppliers')
@@ -223,6 +219,12 @@ const CreateSupplier = () => {
         return
       }
 
+      if (!signature) {
+        setSignatureError(true)
+        setError(false)
+        return
+      }
+
       const data: bookcarsTypes.CreateUserPayload = {
         email,
         nationalId,
@@ -235,8 +237,8 @@ const CreateSupplier = () => {
         avatar,
         payLater,
         licenseRequired,
-        contracts,
-        minimumRentalDays: minimumRentalDays ? Number(minimumRentalDays) : undefined
+        minimumRentalDays: minimumRentalDays ? Number(minimumRentalDays) : undefined,
+        signature
       }
 
       const status = await UserService.create(data)
@@ -253,6 +255,30 @@ const CreateSupplier = () => {
 
   const handleNationalIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNationalId(e.target.value)
+  }
+
+  const handleSignatureUpload = async (filename: string) => {
+    try {
+      setLoading(true)
+      setSignature(filename)
+      setSignatureError(false)
+      setLoading(false)
+    } catch (err) {
+      helper.error(err)
+      setLoading(false)
+    }
+  }
+
+  const handleSignatureDelete = async () => {
+    try {
+      setLoading(true)
+      setSignature('')
+      setSignatureError(false)
+      setLoading(false)
+    } catch (err) {
+      helper.error(err)
+      setLoading(false)
+    }
   }
 
   return (
@@ -329,6 +355,18 @@ const CreateSupplier = () => {
             </FormControl>
 
             <FormControl fullWidth margin="dense">
+              <InputLabel className="required">{commonStrings.SIGNATURE}</InputLabel>
+              <Signature
+                variant="standard"
+                onUpload={handleSignatureUpload}
+                onDelete={handleSignatureDelete}
+              />
+              <FormHelperText error={signatureError}>
+                {signatureError && commonStrings.SIGNATURE_REQUIRED}
+              </FormHelperText>
+            </FormControl>
+
+            <FormControl fullWidth margin="dense">
               <FormControlLabel
                 control={(
                   <Switch
@@ -384,26 +422,6 @@ const CreateSupplier = () => {
               <Input type="text" onChange={handleBioChange} autoComplete="off" />
             </FormControl>
 
-            <FormControl fullWidth margin="dense">
-              <ContractList
-                onUpload={(language, filename) => {
-                  const _contracts = bookcarsHelper.cloneArray(contracts) as bookcarsTypes.Contract[]
-                  const contract = _contracts.find((c) => c.language === language)
-                  if (contract) {
-                    contract.file = filename
-                  } else {
-                    _contracts.push({ language, file: filename })
-                  }
-                  setContracts(_contracts)
-                }}
-                onDelete={(language) => {
-                  const _contracts = bookcarsHelper.cloneArray(contracts) as bookcarsTypes.Contract[]
-                  _contracts.find((c) => c.language === language)!.file = null
-                  setContracts(_contracts)
-                }}
-              />
-            </FormControl>
-
             <div className="buttons">
               <Button type="submit" variant="contained" className="btn-primary btn-margin-bottom" size="small">
                 {commonStrings.CREATE}
@@ -416,6 +434,7 @@ const CreateSupplier = () => {
             <div className="form-error">
               {error && <Error message={commonStrings.GENERIC_ERROR} />}
               {avatarError && <Error message={commonStrings.IMAGE_REQUIRED} />}
+              {signatureError && <Error message={commonStrings.SIGNATURE_REQUIRED} />}
             </div>
           </form>
         </Paper>

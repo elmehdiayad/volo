@@ -374,10 +374,6 @@ const UpdateSupplier = () => {
                 </Editor>
               </EditorProvider>
 
-              {/* <FormControl fullWidth margin="dense">
-                <ContractList supplier={supplier} />
-              </FormControl> */}
-
               {admin && (
                 <FormControl fullWidth margin="dense" className="resend-activation-link">
                   <Button

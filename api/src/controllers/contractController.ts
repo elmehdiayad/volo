@@ -3,7 +3,6 @@ import puppeteer, { Page } from 'puppeteer'
 import { readFileSync } from 'fs'
 import { join } from 'path'
 import Handlebars from 'handlebars'
-
 import * as logger from '../common/logger'
 import Booking from '../models/Booking'
 import * as env from '../config/env.config'
@@ -73,9 +72,10 @@ export const generateContract = async (req: Request, res: Response) => {
     }
 
     // Read template and header image
-    const template = readFileSync(join(process.cwd(), 'src', 'templates', 'contract.html'), 'utf8')
+    const contractTemplate = readFileSync(join(process.cwd(), 'src', 'templates', 'contract.html'), 'utf8')
+    const rulesTemplate = readFileSync(join(process.cwd(), 'src', 'templates', 'rules.html'), 'utf8')
     const carImage = readFileSync(join(process.cwd(), 'src', 'templates', 'contract-header.png')).toString('base64')
-
+    let signature = ''
     // Read company logo
     let companyLogo = ''
     try {
@@ -88,18 +88,27 @@ export const generateContract = async (req: Request, res: Response) => {
       logger.error(`[contract.generateContract] Company logo not found: ${error.message}`)
     }
 
+    try {
+      const signaturePath = join('/var/www/cdn/bookcars/licenses', `${booking.supplier?.signature}`)
+      signature = readFileSync(signaturePath).toString('base64')
+    } catch (error: any) {
+      logger.error(`[contract.generateContract] Signature not found: ${error.message}`)
+    }
+
     // Format dates and calculate costs
     const fromDate = formatDate(new Date(booking.from), clientTimezone)
     const toDate = formatDate(new Date(booking.to), clientTimezone)
     const days = Math.ceil((new Date(booking.to).getTime() - new Date(booking.from).getTime()) / (1000 * 3600 * 24))
-    const pricePerDay = booking.price / days
-    const tva = booking.price * 0.20
-    const totalTTC = booking.price + tva
+    const price = booking.price || 0
+    const pricePerDay = price / days
+    const tva = price * 0.20
+    const totalTTC = price + tva
 
     // Create template data
     const templateData = {
       carImage: carImage ? `data:image/png;base64,${carImage}` : '',
       companyLogo: companyLogo ? `data:image/png;base64,${companyLogo}` : '',
+      signature: signature ? `data:image/png;base64,${signature}` : '',
       contractNumber: booking._id,
       date: formatDate(new Date(), clientTimezone),
       supplier: {
@@ -137,7 +146,7 @@ export const generateContract = async (req: Request, res: Response) => {
       },
       payment: {
         pricePerDay: `${pricePerDay.toFixed(2)} ${currencySymbol}`,
-        totalPrice: `${booking.price.toFixed(2)} ${currencySymbol}`,
+        totalPrice: `${price.toFixed(2)} ${currencySymbol}`,
         numberOfDays: days,
         TVA: `${tva.toFixed(2)} ${currencySymbol}`,
         TTC: `${totalTTC.toFixed(2)} ${currencySymbol}`,
@@ -145,11 +154,38 @@ export const generateContract = async (req: Request, res: Response) => {
         toDate,
         deposit: `${(booking.car.deposit || 0).toFixed(2)} ${currencySymbol}`,
       },
+      isCardPayment: (booking as any).paymentMethod === 'card',
+      isCashPayment: (booking as any).paymentMethod === 'cash',
+      isCheckPayment: (booking as any).paymentMethod === 'check',
+      isOtherPayment: (booking as any).paymentMethod === 'other',
     }
 
-    // Compile and render template
-    const compiledTemplate = Handlebars.compile(template)
-    const html = compiledTemplate(templateData)
+    // Compile and render templates
+    const compiledContractTemplate = Handlebars.compile(contractTemplate)
+    const compiledRulesTemplate = Handlebars.compile(rulesTemplate)
+    const contractHtml = compiledContractTemplate(templateData)
+    const rulesHtml = compiledRulesTemplate({})
+
+    // Create combined HTML with both pages
+    const combinedHtml = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <style>
+            .page-break { page-break-after: always; }
+          </style>
+        </head>
+        <body>
+          <div class="contract-page">
+            ${contractHtml}
+          </div>
+          <div class="page-break"></div>
+          <div class="rules-page">
+            ${rulesHtml}
+          </div>
+        </body>
+      </html>
+    `
 
     // Launch browser and create PDF
     browser = await puppeteer.launch({
@@ -168,7 +204,7 @@ export const generateContract = async (req: Request, res: Response) => {
     const page = await browser.newPage()
     page.setDefaultNavigationTimeout(30000)
     page.setDefaultTimeout(30000)
-    await navigateWithRetry(page, `data:text/html,${encodeURIComponent(html)}`)
+    await navigateWithRetry(page, `data:text/html,${encodeURIComponent(combinedHtml)}`)
 
     const pdfBuffer = await page.pdf({
       format: 'A4',

@@ -219,6 +219,12 @@ const User = () => {
                 </div>
               </div>
             )}
+            {user.signature && (
+              <div className="signature">
+                <Typography variant="h6">{commonStrings.SIGNATURE}</Typography>
+                <img src={bookcarsHelper.joinURL(env.CDN_USERS, user.signature)} alt={commonStrings.SIGNATURE} />
+              </div>
+            )}
             <div className="user-actions">
               {edit && (
                 <Tooltip title={commonStrings.UPDATE}>

@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="fr">
   <head>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-8" />    
+    <title>Contract</title>
     <style>
       @page {
         size: A4;
@@ -103,6 +104,15 @@
         border: 1px solid black;
         height: 80px;
         margin-top: 4px;
+        background-color: white;
+      }
+      .signature-image {
+        max-height: 100px;
+        max-width: 150px;
+        display: block;
+        margin: auto;
+        background-color: transparent;
+        mix-blend-mode: multiply;
       }
       .footer {
         text-align: center;
@@ -260,14 +270,6 @@
             >{{payment.totalPrice}}</span
           >
         </div>
-        <!-- <div>
-          T.V.A:<span class="input-line" id="price-tva">{{payment.TVA}}</span>
-        </div>
-        <div>
-          Total T.T.C:<span class="input-line" id="price-ttc"
-            >{{payment.TTC}}</span
-          >
-        </div> -->
       </div>
       <div>
         <div>
@@ -291,16 +293,20 @@
     <div>Mode de règlement:</div>
     <div class="payment-options">
       <div class="checkbox-container">
-        <input type="checkbox" id="especes" />
-        <label for="especes">Espèces</label>
+        <input type="checkbox" {{#if isCardPayment}}checked{{/if}} disabled />
+        <span>Carte bancaire</span>
       </div>
       <div class="checkbox-container">
-        <input type="checkbox" id="cheque" />
-        <label for="cheque">Chèque</label>
+        <input type="checkbox" {{#if isCashPayment}}checked{{/if}} disabled />
+        <span>Espèces</span>
       </div>
       <div class="checkbox-container">
-        <input type="checkbox" id="cb" />
-        <label for="cb">Autre</label>
+        <input type="checkbox" {{#if isCheckPayment}}checked{{/if}} disabled />
+        <span>Chèque</span>
+      </div>
+      <div class="checkbox-container">
+        <input type="checkbox" {{#if isOtherPayment}}checked{{/if}} disabled />
+        <span>Autre</span>
       </div>
     </div>
 
@@ -384,7 +390,11 @@
       </div>
       <div>
         <div>Visa de la direction:</div>
-        <div class="signature-box"></div>
+          <img
+            class="signature-image"
+            src="{{signature}}"
+            onerror="this.style.display='none'"
+          />
       </div>
     </div>
 

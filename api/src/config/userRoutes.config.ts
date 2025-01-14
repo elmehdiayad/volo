@@ -36,10 +36,11 @@ const routes = {
   deleteLicense: '/api/delete-license/:id',
   deleteTempLicense: '/api/delete-temp-license/:file',
   createDocument: '/api/create-document',
-  updateDocument: '/api/update-document/:userId',
+  updateDocument: '/api/update-document/:userId/:type',
   deleteDocument: '/api/delete-document/:userId/:type',
   deleteTempDocument: '/api/delete-temp-document/:filename/:type',
   processDocuments: '/api/process-documents',
+  createSignature: '/api/create-signature',
 }
 
 export default routes

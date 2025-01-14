@@ -9,7 +9,10 @@ import {
   DialogContent,
   DialogActions,
   FormHelperText,
-  TextField
+  TextField,
+  RadioGroup,
+  Radio,
+  FormLabel
 } from '@mui/material'
 import {
   Info as InfoIcon,
@@ -67,6 +70,7 @@ interface FormValues {
   additionalDriverLicenseDeliveryDate: Date
   additionalDriverNationalId: string
   additionalDriverNationalIdExpirationDate: Date
+  paymentMethod: 'card' | 'cash' | 'check' | 'other'
 }
 
 const CustomErrorMessage = ({ name }: { name: string }) => (
@@ -111,6 +115,7 @@ const UpdateBooking = () => {
     additionalDriverLicenseDeliveryDate: new Date(),
     additionalDriverNationalId: '',
     additionalDriverNationalIdExpirationDate: new Date(),
+    paymentMethod: 'cash',
   })
 
   const validationSchema = Yup.object().shape({
@@ -166,6 +171,7 @@ const UpdateBooking = () => {
       then: (schema) => schema.required(commonStrings.NATIONAL_ID_EXPIRATION_DATE_REQUIRED),
       otherwise: (schema) => schema.notRequired(),
     }),
+    paymentMethod: Yup.string().required(commonStrings.PAYMENT_METHOD_REQUIRED),
   })
 
   const _validateEmail = (email: string) => {
@@ -254,6 +260,7 @@ const UpdateBooking = () => {
         status: values.status,
         additionalDriver: additionalDriverSet,
         price,
+        paymentMethod: values.paymentMethod,
       }
 
       let payload: bookcarsTypes.UpsertBookingPayload
@@ -424,6 +431,7 @@ const UpdateBooking = () => {
                 additionalDriverLicenseDeliveryDate: _additionalDriver?.licenseDeliveryDate ? new Date(_additionalDriver.licenseDeliveryDate) : new Date(),
                 additionalDriverNationalId: _additionalDriver?.nationalId || '',
                 additionalDriverNationalIdExpirationDate: _additionalDriver?.nationalIdExpirationDate ? new Date(_additionalDriver.nationalIdExpirationDate) : new Date(),
+                paymentMethod: 'cash',
               }
 
               setInitialValues(_initialValues)
@@ -780,6 +788,37 @@ const UpdateBooking = () => {
                       </FormControl>
                     </>
                   )}
+
+                  <FormControl fullWidth margin="dense">
+                    <FormLabel>{commonStrings.PAYMENT_METHOD}</FormLabel>
+                    <Field name="paymentMethod">
+                      {({ field }: any) => (
+                        <RadioGroup {...field} row>
+                          <FormControlLabel
+                            value="card"
+                            control={<Radio />}
+                            label={commonStrings.PAYMENT_METHOD_CARD}
+                          />
+                          <FormControlLabel
+                            value="cash"
+                            control={<Radio />}
+                            label={commonStrings.PAYMENT_METHOD_CASH}
+                          />
+                          <FormControlLabel
+                            value="check"
+                            control={<Radio />}
+                            label={commonStrings.PAYMENT_METHOD_CHECK}
+                          />
+                          <FormControlLabel
+                            value="other"
+                            control={<Radio />}
+                            label={commonStrings.PAYMENT_METHOD_OTHER}
+                          />
+                        </RadioGroup>
+                      )}
+                    </Field>
+                    <CustomErrorMessage name="paymentMethod" />
+                  </FormControl>
 
                   <div className="buttons">
                     <Button

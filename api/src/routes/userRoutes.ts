@@ -47,5 +47,6 @@ routes.post(routeNames.updateDocument, multer().single('file'), userController.u
 routes.post(routeNames.deleteDocument, userController.deleteDocument)
 routes.post(routeNames.deleteTempDocument, userController.deleteTempDocument)
 routes.post(routeNames.processDocuments, userController.processDocuments)
+routes.post(routeNames.createSignature, multer({ storage: multer.memoryStorage() }).single('image'), userController.createSignature)
 
 export default routes
