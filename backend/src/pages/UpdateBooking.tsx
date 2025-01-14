@@ -388,7 +388,6 @@ const UpdateBooking = () => {
         if (id && id !== '') {
           try {
             const _booking = await BookingService.getBooking(id)
-
             if (_booking) {
               if (!helper.admin(_user) && (_booking.supplier as bookcarsTypes.User)._id !== _user._id) {
                 setLoading(false)
@@ -431,7 +430,7 @@ const UpdateBooking = () => {
                 additionalDriverLicenseDeliveryDate: _additionalDriver?.licenseDeliveryDate ? new Date(_additionalDriver.licenseDeliveryDate) : new Date(),
                 additionalDriverNationalId: _additionalDriver?.nationalId || '',
                 additionalDriverNationalIdExpirationDate: _additionalDriver?.nationalIdExpirationDate ? new Date(_additionalDriver.nationalIdExpirationDate) : new Date(),
-                paymentMethod: 'cash',
+                paymentMethod: _booking.paymentMethod || 'cash',
               }
 
               setInitialValues(_initialValues)
@@ -790,28 +789,41 @@ const UpdateBooking = () => {
                   )}
 
                   <FormControl fullWidth margin="dense">
-                    <FormLabel>{commonStrings.PAYMENT_METHOD}</FormLabel>
+                    <FormLabel required>{commonStrings.PAYMENT_METHOD}</FormLabel>
                     <Field name="paymentMethod">
-                      {({ field }: any) => (
-                        <RadioGroup {...field} row>
+                      {({ field, form: formik }: { field: any; form: any }) => (
+                        <RadioGroup
+                          {...field}
+                          row
+                          onChange={(e) => {
+                            const value = e.target.value as 'card' | 'cash' | 'check' | 'other'
+                            formik.setFieldValue('paymentMethod', value)
+                            // Update booking payment method
+                            if (booking) {
+                              const _booking = bookcarsHelper.clone(booking)
+                              _booking.paymentMethod = value
+                              setBooking(_booking)
+                            }
+                          }}
+                        >
                           <FormControlLabel
                             value="card"
-                            control={<Radio />}
+                            control={<Radio color="primary" />}
                             label={commonStrings.PAYMENT_METHOD_CARD}
                           />
                           <FormControlLabel
                             value="cash"
-                            control={<Radio />}
+                            control={<Radio color="primary" />}
                             label={commonStrings.PAYMENT_METHOD_CASH}
                           />
                           <FormControlLabel
                             value="check"
-                            control={<Radio />}
+                            control={<Radio color="primary" />}
                             label={commonStrings.PAYMENT_METHOD_CHECK}
                           />
                           <FormControlLabel
                             value="other"
-                            control={<Radio />}
+                            control={<Radio color="primary" />}
                             label={commonStrings.PAYMENT_METHOD_OTHER}
                           />
                         </RadioGroup>
