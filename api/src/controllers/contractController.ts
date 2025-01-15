@@ -40,6 +40,8 @@ export const generateContract = async (req: Request, res: Response) => {
     const { bookingId } = req.params
     const currencySymbol = req.query.currencySymbol as string || 'DH'
     const clientTimezone = req.query.clientTimezone as string || 'Africa/Casablanca'
+    const signed = req.query.signed as string || 'false'
+
     const booking = await Booking.findById(bookingId)
       .populate<{ supplier: env.UserInfo }>('supplier')
       .populate<{ car: env.CarInfo }>({
@@ -81,7 +83,7 @@ export const generateContract = async (req: Request, res: Response) => {
     try {
       const supplierLogo = booking.supplier?.avatar?.toString()
       if (supplierLogo) {
-        const logoPath = join('/var/www/cdn/bookcars/users', `${supplierLogo}`)
+        const logoPath = join(env.CDN_USERS, `${supplierLogo}`)
         companyLogo = readFileSync(logoPath).toString('base64')
       }
     } catch (error: any) {
@@ -89,7 +91,7 @@ export const generateContract = async (req: Request, res: Response) => {
     }
 
     try {
-      const signaturePath = join('/var/www/cdn/bookcars/licenses', `${booking.supplier?.signature}`)
+      const signaturePath = join(env.CDN_LICENSES, `${booking.supplier?.signature}`)
       signature = readFileSync(signaturePath).toString('base64')
     } catch (error: any) {
       logger.error(`[contract.generateContract] Signature not found: ${error.message}`)
@@ -108,7 +110,7 @@ export const generateContract = async (req: Request, res: Response) => {
     const templateData = {
       carImage: carImage ? `data:image/png;base64,${carImage}` : '',
       companyLogo: companyLogo ? `data:image/png;base64,${companyLogo}` : '',
-      signature: signature ? `data:image/png;base64,${signature}` : '',
+      signature: signature && signed === 'true' ? `data:image/png;base64,${signature}` : '',
       contractNumber: booking._id,
       date: formatDate(new Date(), clientTimezone),
       supplier: {

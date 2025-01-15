@@ -40,8 +40,7 @@ export const create = async (req: Request, res: Response) => {
       body.booking._additionalDriver = additionalDriver._id.toString()
     }
 
-    const booking = new Booking(body.booking)
-
+    const booking = new Booking({ ...body.booking, paymentMethod: 'cash' })
     await booking.save()
     return res.json(booking)
   } catch (err) {

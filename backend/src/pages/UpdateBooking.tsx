@@ -15,7 +15,6 @@ import {
   FormLabel
 } from '@mui/material'
 import {
-  Info as InfoIcon,
   Person as DriverIcon
 } from '@mui/icons-material'
 import { DateTimeValidationError } from '@mui/x-date-pickers'
@@ -44,7 +43,6 @@ import SupplierSelectList from '@/components/SupplierSelectList'
 import UserSelectList from '@/components/UserSelectList'
 import LocationSelectList from '@/components/LocationSelectList'
 import CarSelectList from '@/components/CarSelectList'
-import StatusList from '@/components/StatusList'
 import DateTimePicker from '@/components/DateTimePicker'
 import DatePicker from '@/components/DatePicker'
 import Contract from '@/components/Contract'
@@ -654,21 +652,6 @@ const UpdateBooking = () => {
                     <CustomErrorMessage name="price" />
                   </FormControl>
 
-                  <FormControl fullWidth margin="dense">
-                    <StatusList
-                      label={blStrings.STATUS}
-                      onChange={(value: bookcarsTypes.BookingStatus) => setFieldValue('status', value)}
-                      required
-                      value={values.status}
-                    />
-                    <CustomErrorMessage name="status" />
-                  </FormControl>
-
-                  <div className="info">
-                    <InfoIcon />
-                    <span>{commonStrings.OPTIONAL}</span>
-                  </div>
-
                   <FormControl fullWidth margin="dense" className="checkbox-fc">
                     <FormControlLabel
                       control={<Field as={Switch} name="additionalDriver" color="primary" />}
@@ -676,6 +659,50 @@ const UpdateBooking = () => {
                       className="checkbox-fcl"
                       disabled={!helper.carOptionAvailable(car, 'additionalDriver')}
                     />
+                  </FormControl>
+
+                  <FormControl fullWidth margin="dense">
+                    <FormLabel required>{commonStrings.PAYMENT_METHOD}</FormLabel>
+                    <Field name="paymentMethod">
+                      {({ field, form: formik }: { field: any; form: any }) => (
+                        <RadioGroup
+                          {...field}
+                          row
+                          onChange={(e) => {
+                            const value = e.target.value as 'card' | 'cash' | 'check' | 'other'
+                            formik.setFieldValue('paymentMethod', value)
+                            // Update booking payment method
+                            if (booking) {
+                              const _booking = bookcarsHelper.clone(booking)
+                              _booking.paymentMethod = value
+                              setBooking(_booking)
+                            }
+                          }}
+                        >
+                          <FormControlLabel
+                            value="card"
+                            control={<Radio color="primary" />}
+                            label={commonStrings.PAYMENT_METHOD_CARD}
+                          />
+                          <FormControlLabel
+                            value="cash"
+                            control={<Radio color="primary" />}
+                            label={commonStrings.PAYMENT_METHOD_CASH}
+                          />
+                          <FormControlLabel
+                            value="check"
+                            control={<Radio color="primary" />}
+                            label={commonStrings.PAYMENT_METHOD_CHECK}
+                          />
+                          <FormControlLabel
+                            value="other"
+                            control={<Radio color="primary" />}
+                            label={commonStrings.PAYMENT_METHOD_OTHER}
+                          />
+                        </RadioGroup>
+                      )}
+                    </Field>
+                    <CustomErrorMessage name="paymentMethod" />
                   </FormControl>
 
                   {helper.carOptionAvailable(car, 'additionalDriver') && values.additionalDriver && (
@@ -787,50 +814,6 @@ const UpdateBooking = () => {
                       </FormControl>
                     </>
                   )}
-
-                  <FormControl fullWidth margin="dense">
-                    <FormLabel required>{commonStrings.PAYMENT_METHOD}</FormLabel>
-                    <Field name="paymentMethod">
-                      {({ field, form: formik }: { field: any; form: any }) => (
-                        <RadioGroup
-                          {...field}
-                          row
-                          onChange={(e) => {
-                            const value = e.target.value as 'card' | 'cash' | 'check' | 'other'
-                            formik.setFieldValue('paymentMethod', value)
-                            // Update booking payment method
-                            if (booking) {
-                              const _booking = bookcarsHelper.clone(booking)
-                              _booking.paymentMethod = value
-                              setBooking(_booking)
-                            }
-                          }}
-                        >
-                          <FormControlLabel
-                            value="card"
-                            control={<Radio color="primary" />}
-                            label={commonStrings.PAYMENT_METHOD_CARD}
-                          />
-                          <FormControlLabel
-                            value="cash"
-                            control={<Radio color="primary" />}
-                            label={commonStrings.PAYMENT_METHOD_CASH}
-                          />
-                          <FormControlLabel
-                            value="check"
-                            control={<Radio color="primary" />}
-                            label={commonStrings.PAYMENT_METHOD_CHECK}
-                          />
-                          <FormControlLabel
-                            value="other"
-                            control={<Radio color="primary" />}
-                            label={commonStrings.PAYMENT_METHOD_OTHER}
-                          />
-                        </RadioGroup>
-                      )}
-                    </Field>
-                    <CustomErrorMessage name="paymentMethod" />
-                  </FormControl>
 
                   <div className="buttons">
                     <Button

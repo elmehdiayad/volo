@@ -2,7 +2,7 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />    
-    <title>Contract</title>
+    <title>Contract {{contractNumber}}</title>
     <style>
       @page {
         size: A4;
@@ -15,7 +15,6 @@
         max-width: 210mm;
         font-size: 12px;
       }
-
       /* Separate styles for company logo */
       .company-logo {
         position: absolute;
@@ -116,8 +115,13 @@
       }
       .footer {
         text-align: center;
+        position: absolute;
         margin-top: 12px;
         font-size: 10px;
+        bottom: 12px;
+        left: 0;
+        right: 0; 
+        margin: auto;
       }
       .terms-box {
         border: 1px solid black;
@@ -165,12 +169,6 @@
             >{{driver1.fullname}}</span
           >
         </div>
-        <!-- <div>
-          Né(e) le:<span class="input-line" id="driver1-birthdate"
-            >{{driver1.birthDate}}</span
-          >
-          à <span class="input-line" id="driver1-birthplace"></span>
-        </div> -->
         <div>
           Adresse:<span class="input-line" id="driver1-address"
             >{{driver1.address}}</span
@@ -216,12 +214,6 @@
             >{{driver2.address}}</span
           >
         </div>
-         <!-- <div>
-          Né(e) le:<span class="input-line" id="driver2-birthdate"
-            >{{driver2.birthDate}}</span
-          >
-          à <span class="input-line" id="driver2-birthplace"></span>
-        </div> -->
         <div>
           N° CIN:<span class="input-line" id="driver2-nationalId"
             >{{driver2.nationalId}}</span

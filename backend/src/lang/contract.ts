@@ -16,6 +16,7 @@ const strings = new LocalizedStrings({
     DAYS: 'Jours',
     DAY: 'Jour',
     DEPOSIT: 'Caution',
+    SIGNED: 'Signé',
   },
   en: {
     CONTRACT_DETAILS: 'Contract Details',
@@ -31,6 +32,7 @@ const strings = new LocalizedStrings({
     DAYS: 'Days',
     DAY: 'Day',
     DEPOSIT: 'Deposit',
+    SIGNED: 'Signed',
   }
 })
 

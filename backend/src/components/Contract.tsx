@@ -4,6 +4,8 @@ import {
   Paper,
   Typography,
   Button,
+  FormControlLabel,
+  Checkbox,
 } from '@mui/material'
 import * as bookcarsTypes from ':bookcars-types'
 import * as bookcarsHelper from ':bookcars-helper'
@@ -24,6 +26,7 @@ const Contract = ({
   booking,
 }: ContractProps) => {
   const [loading, setLoading] = React.useState(false)
+  const [signed, setSigned] = React.useState(false)
 
   if (!booking) return null
 
@@ -31,13 +34,13 @@ const Contract = ({
     if (booking && booking._id) {
       try {
         setLoading(true)
-        const response = await ContractService.generateContract(booking._id)
+        const response = await ContractService.generateContract(booking._id, signed)
         setLoading(false)
         if (response) {
           const url = window.URL.createObjectURL(response)
           const a = document.createElement('a')
           a.href = url
-          a.download = 'contract.pdf'
+          a.download = `contract-${booking._id}.pdf`
           a.click()
           window.URL.revokeObjectURL(url)
         }
@@ -119,6 +122,11 @@ const Contract = ({
       </Box>
 
       <Box className="action-section">
+        <FormControlLabel
+          control={<Checkbox />}
+          label={contractStrings.SIGNED}
+          onChange={() => setSigned(!signed)}
+        />
         <Button
           variant="contained"
           color="primary"

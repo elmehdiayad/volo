@@ -23,7 +23,7 @@ div.booking {
 /* Device width is greater than or equal to 960px */
 @media only screen and (width >=960px) {
   div.booking div.col-1 {
-    padding: 25px;
+    padding: 0px 25px;
     flex: 0 1 30%;
   }
 
