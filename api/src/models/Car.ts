@@ -16,6 +16,10 @@ const carSchema = new Schema<env.Car>(
       index: true,
       trim: true,
     },
+    year: {
+      type: Number,
+      required: [true, "can't be blank"],
+    },
     supplier: {
       type: Schema.Types.ObjectId,
       required: [true, "can't be blank"],

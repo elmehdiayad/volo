@@ -77,6 +77,7 @@ export const update = async (req: Request, res: Response) => {
         supplier,
         name,
         plateNumber,
+        year,
         minimumAge,
         available,
         type,
@@ -110,6 +111,7 @@ export const update = async (req: Request, res: Response) => {
 
       car.supplier = new mongoose.Types.ObjectId(supplier)
       car.minimumAge = minimumAge
+      car.year = year
       car.locations = locations.map((l) => new mongoose.Types.ObjectId(l))
       car.name = name
       car.plateNumber = plateNumber

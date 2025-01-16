@@ -108,7 +108,7 @@ const Contract = ({
           </Box>
           <Box className="info-box">
             <Typography variant="subtitle2" className="label">{contractStrings.MODEL}</Typography>
-            <Typography variant="body1" className="value">{car.model}</Typography>
+            <Typography variant="body1" className="value">{car.year}</Typography>
           </Box>
           <Box className="info-box">
             <Typography variant="subtitle2" className="label">{contractStrings.MILEAGE}</Typography>

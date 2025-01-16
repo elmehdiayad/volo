@@ -145,6 +145,7 @@ export const generateContract = async (req: Request, res: Response) => {
         plate: booking.car?.plateNumber || '',
         type: booking.car?.type || '',
         mileage: booking.car?.mileage?.toString() || '0',
+        year: booking.car?.year?.toString() || '',
       },
       payment: {
         pricePerDay: `${pricePerDay.toFixed(2)} ${currencySymbol}`,

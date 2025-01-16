@@ -5,7 +5,7 @@ WORKDIR /bookcars/api
 COPY ./api ./
 COPY ./packages /bookcars/packages
 # Install Chromium and dependencies
-RUN apk add --no-cache \
+RUN apk add \
     chromium \
     nss \
     freetype \

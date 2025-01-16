@@ -57,6 +57,7 @@ const UpdateCar = () => {
   const validationSchema = Yup.object().shape({
     name: Yup.string().required(commonStrings.REQUIRED_FIELD),
     plateNumber: Yup.string().required(commonStrings.REQUIRED_FIELD),
+    year: Yup.number().required(commonStrings.REQUIRED_FIELD),
     supplier: Yup.mixed().when('$isSupplier', {
       is: false,
       then: (schema) => schema.required(commonStrings.REQUIRED_FIELD),
@@ -131,6 +132,7 @@ const UpdateCar = () => {
   const initialValues = {
     name: '',
     plateNumber: '',
+    year: '',
     supplier: undefined as unknown as bookcarsTypes.Option,
     minimumAge: String(env.MINIMUM_AGE),
     locations: [] as bookcarsTypes.Option[],
@@ -208,6 +210,7 @@ const UpdateCar = () => {
         _id: car._id as string,
         name: values.name,
         plateNumber: values.plateNumber,
+        year: Number.parseInt(values.year, 10),
         supplier: values.supplier._id,
         minimumAge: Number.parseInt(values.minimumAge, 10),
         locations: values.locations.map((l: any) => l._id),
@@ -316,6 +319,7 @@ const UpdateCar = () => {
               initialValues={car ? {
                 name: car.name,
                 plateNumber: car.plateNumber,
+                year: car.year?.toString() || '',
                 supplier: car.supplier,
                 minimumAge: car.minimumAge.toString(),
                 locations: car.locations.map((loc) => ({
@@ -412,6 +416,19 @@ const UpdateCar = () => {
                       variant="standard"
                     />
                     <CustomErrorMessage name="plateNumber" />
+                  </FormControl>
+
+                  <FormControl fullWidth margin="dense">
+                    <Field
+                      as={TextField}
+                      label={strings.YEAR}
+                      required
+                      name="year"
+                      autoComplete="off"
+                      variant="standard"
+                      slotProps={{ input: { inputMode: 'numeric', pattern: '^\\d{4}$' } }}
+                    />
+                    <CustomErrorMessage name="year" />
                   </FormControl>
 
                   <FormControl fullWidth margin="dense">

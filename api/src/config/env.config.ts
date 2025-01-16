@@ -524,7 +524,7 @@ export interface Car extends Document {
   supplier: Types.ObjectId
   minimumAge: number
   locations: Types.ObjectId[]
-
+  year: number
   dailyPrice: number
   discountedDailyPrice: number | null
   biWeeklyPrice: number | null
@@ -533,7 +533,6 @@ export interface Car extends Document {
   discountedWeeklyPrice: number | null
   monthlyPrice: number | null
   discountedMonthlyPrice: number | null
-
   deposit: number
   available: boolean
   type: bookcarsTypes.CarType
@@ -567,6 +566,7 @@ export interface Car extends Document {
 export interface CarInfo {
   _id?: Types.ObjectId
   name: string
+  year: number
   plateNumber: string
   supplier: UserInfo
   minimumAge: number

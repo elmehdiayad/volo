@@ -174,10 +174,10 @@ export interface UpdateSupplierPayload {
 export interface CreateCarPayload {
   name: string
   plateNumber: string
+  year: number
   supplier: string
   minimumAge: number
   locations: string[]
-
   dailyPrice: number
   discountedDailyPrice: number | null
   biWeeklyPrice: number | null
@@ -186,7 +186,6 @@ export interface CreateCarPayload {
   discountedWeeklyPrice: number | null
   monthlyPrice: number | null
   discountedMonthlyPrice: number | null
-
   deposit: number
   available: boolean
   type: string

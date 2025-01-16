@@ -54,6 +54,7 @@ const CreateCar = () => {
   const validationSchema = Yup.object().shape({
     name: Yup.string().required(commonStrings.REQUIRED_FIELD),
     plateNumber: Yup.string().required(commonStrings.REQUIRED_FIELD),
+    year: Yup.number().required(commonStrings.REQUIRED_FIELD),
     supplier: Yup.mixed().when('$isSupplier', {
       is: false,
       then: (schema) => schema.required(commonStrings.REQUIRED_FIELD),
@@ -128,6 +129,7 @@ const CreateCar = () => {
   const initialValues = {
     name: '',
     plateNumber: '',
+    year: '',
     supplier: '',
     locations: [] as bookcarsTypes.Location[],
     dailyPrice: '',
@@ -198,6 +200,7 @@ const CreateCar = () => {
       const data: bookcarsTypes.CreateCarPayload = {
         name: values.name,
         plateNumber: values.plateNumber,
+        year: Number.parseInt(values.year, 10),
         supplier: isSupplier ? isSupplier._id as string : values.supplier,
         minimumAge: Number.parseInt(values.minimumAge, 10),
         locations: values.locations.map((l) => l._id),
@@ -322,6 +325,19 @@ const CreateCar = () => {
                     variant="standard"
                   />
                   <CustomErrorMessage name="plateNumber" />
+                </FormControl>
+
+                <FormControl fullWidth margin="dense">
+                  <Field
+                    as={TextField}
+                    label={strings.YEAR}
+                    required
+                    name="year"
+                    autoComplete="off"
+                    variant="standard"
+                    slotProps={{ input: { inputMode: 'numeric', pattern: '^\\d{4}$' } }}
+                  />
+                  <CustomErrorMessage name="year" />
                 </FormControl>
 
                 <FormControl fullWidth margin="dense">
