@@ -217,11 +217,11 @@ export const create = async (req: Request, res: Response) => {
                 await fs.unlink(oldFile)
               }
             }
-            const filename = `${user._id}_${key}${path.extname(value)}`
-            const newPath = path.join(env.CDN_LICENSES, filename)
-            await fs.rename(tempFile, newPath)
-            newDocuments[key] = filename
           }
+          const filename = `${user._id}_${key}${path.extname(value)}`
+          const newPath = path.join(env.CDN_LICENSES, filename)
+          await fs.rename(tempFile, newPath)
+          newDocuments[key] = filename
         }
       }
       user.documents = newDocuments
