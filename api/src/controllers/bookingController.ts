@@ -557,6 +557,7 @@ export const update = async (req: Request, res: Response) => {
         additionalDriver,
         price,
         paymentMethod,
+        paidAmount,
       } = body.booking
 
       const previousStatus = booking.status
@@ -577,6 +578,7 @@ export const update = async (req: Request, res: Response) => {
       booking.additionalDriver = additionalDriver
       booking.price = price as number
       booking.paymentMethod = paymentMethod as 'card' | 'cash' | 'check' | 'other'
+      booking.paidAmount = paidAmount as number
 
       if (!additionalDriver && booking._additionalDriver) {
         booking._additionalDriver = undefined

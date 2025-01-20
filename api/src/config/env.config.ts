@@ -508,6 +508,7 @@ export interface Booking extends Document {
   customerId?: string
   expireAt?: Date
   paymentMethod: 'card' | 'cash' | 'check' | 'other'
+  paidAmount?: number
 }
 
 /**

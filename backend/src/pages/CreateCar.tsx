@@ -368,6 +368,7 @@ const CreateCar = () => {
 
                 <FormControl fullWidth margin="dense">
                   <LocationSelectList label={strings.LOCATIONS} multiple required variant="standard" onChange={(values: bookcarsTypes.Option[]) => setFieldValue('locations', values)} />
+                  <CustomErrorMessage name="locations" />
                 </FormControl>
 
                 <FormControl fullWidth margin="dense">
@@ -379,6 +380,7 @@ const CreateCar = () => {
                     variant="standard"
                     autoComplete="off"
                   />
+                  <CustomErrorMessage name="dailyPrice" />
                 </FormControl>
 
                 <FormControl fullWidth margin="dense">
@@ -390,30 +392,37 @@ const CreateCar = () => {
                     variant="standard"
                     autoComplete="off"
                   />
+                  <CustomErrorMessage name="deposit" />
                 </FormControl>
 
                 <FormControl fullWidth margin="dense">
                   <CarRangeList label={strings.CAR_RANGE} variant="standard" required onChange={(value: string) => setFieldValue('range', value)} />
+                  <CustomErrorMessage name="range" />
                 </FormControl>
 
                 <FormControl fullWidth margin="dense">
                   <CarTypeList label={strings.CAR_TYPE} variant="standard" required onChange={(value: string) => setFieldValue('type', value)} />
+                  <CustomErrorMessage name="type" />
                 </FormControl>
 
                 <FormControl fullWidth margin="dense">
                   <GearboxList label={strings.GEARBOX} variant="standard" required onChange={(value: string) => setFieldValue('gearbox', value)} />
+                  <CustomErrorMessage name="gearbox" />
                 </FormControl>
 
                 <FormControl fullWidth margin="dense">
                   <SeatsList label={strings.SEATS} variant="standard" required onChange={(value: string) => setFieldValue('seats', value)} />
+                  <CustomErrorMessage name="seats" />
                 </FormControl>
 
                 <FormControl fullWidth margin="dense">
                   <DoorsList label={strings.DOORS} variant="standard" required onChange={(value: string) => setFieldValue('doors', value)} />
+                  <CustomErrorMessage name="doors" />
                 </FormControl>
 
                 <FormControl fullWidth margin="dense">
                   <FuelPolicyList label={csStrings.FUEL_POLICY} variant="standard" required onChange={(value: string) => setFieldValue('fuelPolicy', value)} />
+                  <CustomErrorMessage name="fuelPolicy" />
                 </FormControl>
 
                 <div className="info">
@@ -429,6 +438,7 @@ const CreateCar = () => {
                     variant="standard"
                     autoComplete="off"
                   />
+                  <CustomErrorMessage name="discountedDailyPrice" />
                 </FormControl>
 
                 <FormControl fullWidth margin="dense">
@@ -439,6 +449,7 @@ const CreateCar = () => {
                     variant="standard"
                     autoComplete="off"
                   />
+                  <CustomErrorMessage name="biWeeklyPrice" />
                 </FormControl>
 
                 <FormControl fullWidth margin="dense">
@@ -449,6 +460,7 @@ const CreateCar = () => {
                     variant="standard"
                     autoComplete="off"
                   />
+                  <CustomErrorMessage name="discountedBiWeeklyPrice" />
                 </FormControl>
 
                 <FormControl fullWidth margin="dense">
@@ -459,6 +471,7 @@ const CreateCar = () => {
                     variant="standard"
                     autoComplete="off"
                   />
+                  <CustomErrorMessage name="weeklyPrice" />
                 </FormControl>
 
                 <FormControl fullWidth margin="dense">
@@ -469,6 +482,7 @@ const CreateCar = () => {
                     variant="standard"
                     autoComplete="off"
                   />
+                  <CustomErrorMessage name="discountedWeeklyPrice" />
                 </FormControl>
 
                 <FormControl fullWidth margin="dense">
@@ -479,6 +493,7 @@ const CreateCar = () => {
                     variant="standard"
                     autoComplete="off"
                   />
+                  <CustomErrorMessage name="monthlyPrice" />
                 </FormControl>
 
                 <FormControl fullWidth margin="dense">
@@ -489,6 +504,7 @@ const CreateCar = () => {
                     variant="standard"
                     autoComplete="off"
                   />
+                  <CustomErrorMessage name="discountedMonthlyPrice" />
                 </FormControl>
                 <FormControl fullWidth margin="dense">
                   <Field
@@ -503,6 +519,7 @@ const CreateCar = () => {
                 </FormControl>
                 <FormControl fullWidth margin="dense">
                   <MultimediaList label={strings.MULTIMEDIA} onChange={(value: bookcarsTypes.CarMultimedia[]) => setFieldValue('multimedia', value)} />
+                  <CustomErrorMessage name="multimedia" />
                 </FormControl>
                 <FormControl fullWidth margin="dense">
                   <TextField
@@ -512,6 +529,7 @@ const CreateCar = () => {
                     variant="standard"
                     autoComplete="off"
                   />
+                  <CustomErrorMessage name="rating" />
                 </FormControl>
 
                 <FormControl fullWidth margin="dense">
@@ -522,10 +540,12 @@ const CreateCar = () => {
                     variant="standard"
                     autoComplete="off"
                   />
+                  <CustomErrorMessage name="co2" />
                 </FormControl>
 
                 <FormControl fullWidth margin="dense" className="checkbox-fc">
                   <FormControlLabel control={<Field as={Switch} name="available" color="primary" />} label={strings.AVAILABLE} className="checkbox-fcl" />
+                  <CustomErrorMessage name="available" />
                 </FormControl>
 
                 <div className="buttons">

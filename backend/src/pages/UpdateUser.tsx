@@ -76,7 +76,6 @@ const UpdateUser = () => {
       try {
         const _user = await UserService.getUser(id)
         if (_user) {
-          console.log(_user)
           setUser(_user)
           setAdmin(helper.admin(_user))
           setType(_user.type || '')

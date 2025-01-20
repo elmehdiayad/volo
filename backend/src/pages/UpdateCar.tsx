@@ -502,6 +502,7 @@ const UpdateCar = () => {
                       value={car?.range}
                       onChange={(value: string) => setFieldValue('range', value)}
                     />
+                    <CustomErrorMessage name="range" />
                   </FormControl>
 
                   <FormControl fullWidth margin="dense">
@@ -512,6 +513,7 @@ const UpdateCar = () => {
                       value={car?.type}
                       onChange={(value: string) => setFieldValue('type', value)}
                     />
+                    <CustomErrorMessage name="type" />
                   </FormControl>
 
                   <FormControl fullWidth margin="dense">
@@ -522,6 +524,7 @@ const UpdateCar = () => {
                       value={car?.gearbox}
                       onChange={(value: string) => setFieldValue('gearbox', value)}
                     />
+                    <CustomErrorMessage name="gearbox" />
                   </FormControl>
 
                   <FormControl fullWidth margin="dense">
@@ -532,6 +535,7 @@ const UpdateCar = () => {
                       value={car?.seats.toString()}
                       onChange={(value: string) => setFieldValue('seats', value)}
                     />
+                    <CustomErrorMessage name="seats" />
                   </FormControl>
 
                   <FormControl fullWidth margin="dense">
@@ -542,6 +546,7 @@ const UpdateCar = () => {
                       value={car?.doors.toString()}
                       onChange={(value: string) => setFieldValue('doors', value)}
                     />
+                    <CustomErrorMessage name="doors" />
                   </FormControl>
 
                   <FormControl fullWidth margin="dense">
@@ -552,6 +557,7 @@ const UpdateCar = () => {
                       value={car?.fuelPolicy}
                       onChange={(value: string) => setFieldValue('fuelPolicy', value)}
                     />
+                    <CustomErrorMessage name="fuelPolicy" />
                   </FormControl>
 
                   <div className="info">
@@ -568,6 +574,7 @@ const UpdateCar = () => {
                       variant="standard"
                       slotProps={{ input: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
                     />
+                    <CustomErrorMessage name="discountedDailyPrice" />
                   </FormControl>
 
                   <FormControl fullWidth margin="dense">
@@ -579,6 +586,7 @@ const UpdateCar = () => {
                       variant="standard"
                       slotProps={{ input: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
                     />
+                    <CustomErrorMessage name="biWeeklyPrice" />
                   </FormControl>
 
                   <FormControl fullWidth margin="dense">
@@ -590,6 +598,7 @@ const UpdateCar = () => {
                       variant="standard"
                       slotProps={{ input: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
                     />
+                    <CustomErrorMessage name="discountedBiWeeklyPrice" />
                   </FormControl>
 
                   <FormControl fullWidth margin="dense">
@@ -601,6 +610,7 @@ const UpdateCar = () => {
                       variant="standard"
                       slotProps={{ input: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
                     />
+                    <CustomErrorMessage name="weeklyPrice" />
                   </FormControl>
 
                   <FormControl fullWidth margin="dense">
@@ -612,6 +622,7 @@ const UpdateCar = () => {
                       variant="standard"
                       slotProps={{ input: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
                     />
+                    <CustomErrorMessage name="discountedWeeklyPrice" />
                   </FormControl>
 
                   <FormControl fullWidth margin="dense">
@@ -623,6 +634,7 @@ const UpdateCar = () => {
                       variant="standard"
                       slotProps={{ input: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
                     />
+                    <CustomErrorMessage name="monthlyPrice" />
                   </FormControl>
 
                   <FormControl fullWidth margin="dense">
@@ -634,6 +646,7 @@ const UpdateCar = () => {
                       variant="standard"
                       slotProps={{ input: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
                     />
+                    <CustomErrorMessage name="discountedMonthlyPrice" />
                   </FormControl>
 
                   <FormControl fullWidth margin="dense">
@@ -645,6 +658,7 @@ const UpdateCar = () => {
                       variant="standard"
                       slotProps={{ input: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
                     />
+                    <CustomErrorMessage name="additionalDriver" />
                   </FormControl>
 
                   <FormControl fullWidth margin="dense">
@@ -653,6 +667,7 @@ const UpdateCar = () => {
                       value={car?.multimedia}
                       onChange={(value: bookcarsTypes.CarMultimedia[]) => setFieldValue('multimedia', value)}
                     />
+                    <CustomErrorMessage name="multimedia" />
                   </FormControl>
 
                   <FormControl fullWidth margin="dense">
@@ -664,6 +679,7 @@ const UpdateCar = () => {
                       variant="standard"
                       slotProps={{ input: { type: 'number', min: 1, max: 5, step: 0.01 } }}
                     />
+                    <CustomErrorMessage name="rating" />
                   </FormControl>
 
                   <FormControl fullWidth margin="dense">
@@ -675,6 +691,7 @@ const UpdateCar = () => {
                       variant="standard"
                       slotProps={{ input: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
                     />
+                    <CustomErrorMessage name="co2" />
                   </FormControl>
 
                   <FormControl fullWidth margin="dense" className="checkbox-fc">
@@ -693,24 +710,7 @@ const UpdateCar = () => {
                       label={strings.AVAILABLE}
                       className="checkbox-fcl"
                     />
-                  </FormControl>
-
-                  <FormControl fullWidth margin="dense" className="checkbox-fc">
-                    <FormControlLabel
-                      control={(
-                        <Field name="aircon">
-                          {({ field }: { field: any }) => (
-                            <Switch
-                              {...field}
-                              checked={field.value}
-                              color="primary"
-                            />
-                          )}
-                        </Field>
-                      )}
-                      label={strings.AIRCON}
-                      className="checkbox-fcl"
-                    />
+                    <CustomErrorMessage name="available" />
                   </FormControl>
 
                   <div className="buttons">

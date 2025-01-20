@@ -156,6 +156,8 @@ export const generateContract = async (req: Request, res: Response) => {
         fromDate,
         toDate,
         deposit: `${(booking.car.deposit || 0).toFixed(2)} ${currencySymbol}`,
+        paidAmount: `${(booking.paidAmount || 0).toFixed(2)} ${currencySymbol}`,
+        restAmount: `${(price - (booking.paidAmount || 0)).toFixed(2)} ${currencySymbol}`,
       },
       isCardPayment: (booking as any).paymentMethod === 'card',
       isCashPayment: (booking as any).paymentMethod === 'cash',

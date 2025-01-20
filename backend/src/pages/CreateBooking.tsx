@@ -6,7 +6,10 @@ import {
   FormControlLabel,
   Switch,
   FormHelperText,
-  TextField
+  TextField,
+  RadioGroup,
+  Radio,
+  FormLabel
 } from '@mui/material'
 import {
   Info as InfoIcon,
@@ -133,6 +136,9 @@ const CreateBooking = () => {
     additionalDriverLicenseDeliveryDate: new Date(),
     additionalDriverNationalId: '',
     additionalDriverNationalIdExpirationDate: new Date(),
+    paymentMethod: 'cash' as 'cash' | 'card' | 'check' | 'other',
+    paidAmount: 0,
+    price: 0,
   }
 
   const _validateEmail = (email: string) => {
@@ -220,6 +226,8 @@ const CreateBooking = () => {
         status: values.status,
         additionalDriver: additionalDriverSet,
         deposit: car?.deposit ?? 0,
+        paidAmount: values.paidAmount,
+        paymentMethod: values.paymentMethod,
       }
 
       let _additionalDriver: bookcarsTypes.AdditionalDriver | undefined
@@ -245,15 +253,15 @@ const CreateBooking = () => {
       helper.price(
         booking,
         null,
-        async (price) => {
+        async (newPrice) => {
           try {
-            booking.price = price
+            booking.price = newPrice
             const _booking = await BookingService.create({
               booking,
               additionalDriver: _additionalDriver,
             })
             if (_booking && _booking._id) {
-              navigate('/')
+              navigate(`/update-booking/${_booking._id}`)
             } else {
               helper.error()
             }
@@ -375,7 +383,7 @@ const CreateBooking = () => {
                         setFromError(false)
                       } else {
                         setFieldValue('from', undefined)
-                        setMinDate(undefined)
+                        setMinDate(new Date())
                       }
                     }}
                     onError={(err: DateTimeValidationError) => {
@@ -406,7 +414,11 @@ const CreateBooking = () => {
                         setToError(false)
                       } else {
                         setFieldValue('to', undefined)
-                        setMaxDate(undefined)
+                        setMaxDate((() => {
+                          const tomorrow = new Date()
+                          tomorrow.setDate(tomorrow.getDate() + 1)
+                          return tomorrow
+                        })())
                       }
                     }}
                     onError={(err: DateTimeValidationError) => {
@@ -428,6 +440,43 @@ const CreateBooking = () => {
                     required
                   />
                   <CustomErrorMessage name="status" />
+                </FormControl>
+                <FormControl fullWidth margin="dense">
+                  <FormLabel required>{commonStrings.PAYMENT_METHOD}</FormLabel>
+                  <Field name="paymentMethod">
+                    {({ field, form: formik }: { field: any; form: any }) => (
+                      <RadioGroup
+                        {...field}
+                        row
+                        onChange={(e) => {
+                          const value = e.target.value as 'card' | 'cash' | 'check' | 'other'
+                          formik.setFieldValue('paymentMethod', value)
+                        }}
+                      >
+                        <FormControlLabel
+                          value="card"
+                          control={<Radio color="primary" />}
+                          label={commonStrings.PAYMENT_METHOD_CARD}
+                        />
+                        <FormControlLabel
+                          value="cash"
+                          control={<Radio color="primary" />}
+                          label={commonStrings.PAYMENT_METHOD_CASH}
+                        />
+                        <FormControlLabel
+                          value="check"
+                          control={<Radio color="primary" />}
+                          label={commonStrings.PAYMENT_METHOD_CHECK}
+                        />
+                        <FormControlLabel
+                          value="other"
+                          control={<Radio color="primary" />}
+                          label={commonStrings.PAYMENT_METHOD_OTHER}
+                        />
+                      </RadioGroup>
+                    )}
+                  </Field>
+                  <CustomErrorMessage name="paymentMethod" />
                 </FormControl>
 
                 <div className="info">

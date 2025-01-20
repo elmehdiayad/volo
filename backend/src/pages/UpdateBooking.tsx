@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import {
   FormControl,
   FormControlLabel,
@@ -20,7 +20,7 @@ import {
 import { DateTimeValidationError } from '@mui/x-date-pickers'
 import validator from 'validator'
 import { intervalToDuration } from 'date-fns'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
 import * as bookcarsTypes from ':bookcars-types'
@@ -58,6 +58,7 @@ interface FormValues {
   to: Date
   status: bookcarsTypes.BookingStatus
   price: number
+  paidAmount: number
   additionalDriver: boolean
   additionalDriverFullName: string
   additionalDriverEmail: string
@@ -79,6 +80,7 @@ const CustomErrorMessage = ({ name }: { name: string }) => (
 
 const UpdateBooking = () => {
   const navigate = useNavigate()
+  const { id } = useParams<{ id: string }>()
   const [user, setUser] = useState<bookcarsTypes.User>()
   const [loading, setLoading] = useState(false)
   const [noMatch, setNoMatch] = useState(false)
@@ -93,6 +95,8 @@ const UpdateBooking = () => {
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
   const [fromError, setFromError] = useState(false)
   const [toError, setToError] = useState(false)
+  const [paidAmount, setPaidAmount] = useState<number>(0)
+  const [restAmount, setRestAmount] = useState<number>(0)
 
   const [initialValues, setInitialValues] = useState<FormValues>({
     supplier: { _id: '', name: '', image: '' },
@@ -103,6 +107,7 @@ const UpdateBooking = () => {
     to: new Date(),
     status: bookcarsTypes.BookingStatus.Pending,
     price: 0,
+    paidAmount: 0,
     additionalDriver: false,
     additionalDriverFullName: '',
     additionalDriverEmail: '',
@@ -129,6 +134,10 @@ const UpdateBooking = () => {
     to: Yup.date().required(commonStrings.BOOKING_DATES_REQUIRED),
     status: Yup.string().required(commonStrings.STATUS_REQUIRED),
     price: Yup.number().min(0, commonStrings.PRICE_NOT_VALID).required(commonStrings.REQUIRED_FIELD),
+    paidAmount: Yup.number()
+      .min(0, commonStrings.PAID_AMOUNT_NOT_VALID)
+      .max(Yup.ref('price'), commonStrings.PAID_AMOUNT_NOT_VALID)
+      .required(commonStrings.REQUIRED_FIELD),
     additionalDriverFullName: Yup.string().when('additionalDriver', {
       is: true,
       then: (schema) => schema.required(commonStrings.REQUIRED_FIELD),
@@ -211,7 +220,7 @@ const UpdateBooking = () => {
     return date > now
   }
 
-  const handleSubmit = async (values: any, { setSubmitting }: any) => {
+  const handleSubmit = async (values: FormValues, { setSubmitting }: any) => {
     try {
       if (!car || !booking) {
         helper.error()
@@ -258,6 +267,7 @@ const UpdateBooking = () => {
         status: values.status,
         additionalDriver: additionalDriverSet,
         price,
+        paidAmount: values.paidAmount,
         paymentMethod: values.paymentMethod,
       }
 
@@ -379,80 +389,72 @@ const UpdateBooking = () => {
     if (_user) {
       setUser(_user)
       setLoading(true)
-
-      const params = new URLSearchParams(window.location.search)
-      if (params.has('b')) {
-        const id = params.get('b')
-        if (id && id !== '') {
-          try {
-            const _booking = await BookingService.getBooking(id)
-            if (_booking) {
-              if (!helper.admin(_user) && (_booking.supplier as bookcarsTypes.User)._id !== _user._id) {
-                setLoading(false)
-                setNoMatch(true)
-                return
-              }
-
-              if (!_booking.driver) {
-                setLoading(false)
-                setNoMatch(true)
-                return
-              }
-              setBooking(_booking)
-              setPrice(_booking.price)
-              setLoading(false)
-              setVisible(true)
-              setIsSupplier(_user.type === bookcarsTypes.RecordType.Supplier)
-              const cmp = _booking.supplier as bookcarsTypes.User
-              const drv = _booking.driver as bookcarsTypes.User
-              const pul = _booking.pickupLocation as bookcarsTypes.Location
-              const dol = _booking.dropOffLocation as bookcarsTypes.Location
-              const _additionalDriver = _booking._additionalDriver as bookcarsTypes.AdditionalDriver
-
-              const _initialValues: FormValues = {
-                supplier: { _id: cmp._id, name: cmp.fullName, image: cmp.avatar } as bookcarsTypes.Option,
-                driver: { _id: drv._id, name: drv.fullName, image: drv.avatar } as bookcarsTypes.Option,
-                pickupLocation: { _id: pul._id, name: pul.name } as bookcarsTypes.Option,
-                dropOffLocation: { _id: dol._id, name: dol.name } as bookcarsTypes.Option,
-                from: new Date(_booking.from),
-                to: new Date(_booking.to),
-                status: _booking.status,
-                price: _booking.price || 0,
-                additionalDriver: (_booking.additionalDriver && !!_booking._additionalDriver) || false,
-                additionalDriverFullName: _additionalDriver?.fullName || '',
-                additionalDriverEmail: _additionalDriver?.email || '',
-                additionalDriverPhone: _additionalDriver?.phone || '',
-                additionalDriverBirthDate: _additionalDriver?.birthDate ? new Date(_additionalDriver.birthDate) : new Date(),
-                additionalDriverLocation: _additionalDriver?.location || '',
-                additionalDriverLicenseId: _additionalDriver?.licenseId || '',
-                additionalDriverLicenseDeliveryDate: _additionalDriver?.licenseDeliveryDate ? new Date(_additionalDriver.licenseDeliveryDate) : new Date(),
-                additionalDriverNationalId: _additionalDriver?.nationalId || '',
-                additionalDriverNationalIdExpirationDate: _additionalDriver?.nationalIdExpirationDate ? new Date(_additionalDriver.nationalIdExpirationDate) : new Date(),
-                paymentMethod: _booking.paymentMethod || 'cash',
-              }
-
-              setInitialValues(_initialValues)
-              setCar(_booking.car as bookcarsTypes.Car)
-
-              const _minDate = new Date(_booking.from)
-              _minDate.setDate(_minDate.getDate() + 1)
-              setMinDate(_minDate)
-
-              const _maxDate = new Date(_booking.to)
-              _maxDate.setDate(_maxDate.getDate() - 1)
-              setMaxDate(_maxDate)
-            } else {
+      if (id && id !== '') {
+        try {
+          const _booking = await BookingService.getBooking(id)
+          if (_booking) {
+            if (!helper.admin(_user) && (_booking.supplier as bookcarsTypes.User)._id !== _user._id) {
               setLoading(false)
               setNoMatch(true)
+              return
             }
-          } catch {
+            if (!_booking.driver) {
+              setLoading(false)
+              setNoMatch(true)
+              return
+            }
+            setBooking(_booking)
+            setPrice(_booking.price)
             setLoading(false)
-            setError(true)
-            setVisible(false)
+            setVisible(true)
+            setIsSupplier(_user.type === bookcarsTypes.RecordType.Supplier)
+            const cmp = _booking.supplier as bookcarsTypes.User
+            const drv = _booking.driver as bookcarsTypes.User
+            const pul = _booking.pickupLocation as bookcarsTypes.Location
+            const dol = _booking.dropOffLocation as bookcarsTypes.Location
+            const _additionalDriver = _booking._additionalDriver as bookcarsTypes.AdditionalDriver
+
+            const _initialValues: FormValues = {
+              supplier: { _id: cmp._id, name: cmp.fullName, image: cmp.avatar } as bookcarsTypes.Option,
+              driver: { _id: drv._id, name: drv.fullName, image: drv.avatar } as bookcarsTypes.Option,
+              pickupLocation: { _id: pul._id, name: pul.name } as bookcarsTypes.Option,
+              dropOffLocation: { _id: dol._id, name: dol.name } as bookcarsTypes.Option,
+              from: new Date(_booking.from),
+              to: new Date(_booking.to),
+              status: _booking.status,
+              price: _booking.price || 0,
+              paidAmount: _booking.paidAmount || 0,
+              additionalDriver: (_booking.additionalDriver && !!_booking._additionalDriver) || false,
+              additionalDriverFullName: _additionalDriver?.fullName || '',
+              additionalDriverEmail: _additionalDriver?.email || '',
+              additionalDriverPhone: _additionalDriver?.phone || '',
+              additionalDriverBirthDate: _additionalDriver?.birthDate ? new Date(_additionalDriver.birthDate) : new Date(),
+              additionalDriverLocation: _additionalDriver?.location || '',
+              additionalDriverLicenseId: _additionalDriver?.licenseId || '',
+              additionalDriverLicenseDeliveryDate: _additionalDriver?.licenseDeliveryDate ? new Date(_additionalDriver.licenseDeliveryDate) : new Date(),
+              additionalDriverNationalId: _additionalDriver?.nationalId || '',
+              additionalDriverNationalIdExpirationDate: _additionalDriver?.nationalIdExpirationDate ? new Date(_additionalDriver.nationalIdExpirationDate) : new Date(),
+              paymentMethod: _booking.paymentMethod || 'cash',
+            }
+
+            setInitialValues(_initialValues)
+            setCar(_booking.car as bookcarsTypes.Car)
+
+            const _minDate = new Date(_booking.from)
+            _minDate.setDate(_minDate.getDate() + 1)
+            setMinDate(_minDate)
+
+            const _maxDate = new Date(_booking.to)
+            _maxDate.setDate(_maxDate.getDate() - 1)
+            setMaxDate(_maxDate)
+          } else {
+            setLoading(false)
+            setNoMatch(true)
           }
-        } else {
+        } catch {
           setLoading(false)
-          setNoMatch(true)
+          setError(true)
+          setVisible(false)
         }
       } else {
         setLoading(false)
@@ -460,6 +462,15 @@ const UpdateBooking = () => {
       }
     }
   }
+
+  useEffect(() => {
+    if (booking) {
+      const paid = booking.paidAmount ?? 0
+      const totalPrice = booking.price ?? 0
+      setPaidAmount(paid)
+      setRestAmount(totalPrice - paid)
+    }
+  }, [booking])
 
   return (
     <Layout onLoad={onLoad} strict>
@@ -652,14 +663,44 @@ const UpdateBooking = () => {
                     <CustomErrorMessage name="price" />
                   </FormControl>
 
-                  <FormControl fullWidth margin="dense" className="checkbox-fc">
-                    <FormControlLabel
-                      control={<Field as={Switch} name="additionalDriver" color="primary" />}
-                      label={csStrings.ADDITIONAL_DRIVER}
-                      className="checkbox-fcl"
-                      disabled={!helper.carOptionAvailable(car, 'additionalDriver')}
+                  <FormControl fullWidth margin="dense">
+                    <Field
+                      as={TextField}
+                      label={commonStrings.PAID_AMOUNT}
+                      name="paidAmount"
+                      type="number"
+                      required
+                      autoComplete="off"
+                      variant="standard"
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                        const paid = Number(e.target.value)
+                        const currentPrice = values.price
+                        if (paid >= 0 && paid <= currentPrice) {
+                          setPaidAmount(paid)
+                          setRestAmount(currentPrice - paid)
+                          setFieldValue('paidAmount', paid)
+                        }
+                      }}
+                      InputProps={{
+                        style: { color: '#00a65a' }
+                      }}
                     />
+                    <CustomErrorMessage name="paidAmount" />
                   </FormControl>
+
+                  <div style={{ marginTop: 10, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div style={{ color: '#00a65a' }}>
+                      {`${commonStrings.PAID_AMOUNT}: ${paidAmount}`}
+                    </div>
+                    <div>+</div>
+                    <div style={{ color: '#dc3545' }}>
+                      {`${commonStrings.REST_AMOUNT}: ${restAmount}`}
+                    </div>
+                    <div>=</div>
+                    <div>
+                      {`${commonStrings.TOTAL_PRICE}: ${values.price}`}
+                    </div>
+                  </div>
 
                   <FormControl fullWidth margin="dense">
                     <FormLabel required>{commonStrings.PAYMENT_METHOD}</FormLabel>
@@ -703,6 +744,15 @@ const UpdateBooking = () => {
                       )}
                     </Field>
                     <CustomErrorMessage name="paymentMethod" />
+                  </FormControl>
+
+                  <FormControl fullWidth margin="dense" className="checkbox-fc">
+                    <FormControlLabel
+                      control={<Field as={Switch} name="additionalDriver" color="primary" />}
+                      label={csStrings.ADDITIONAL_DRIVER}
+                      className="checkbox-fcl"
+                      disabled={!helper.carOptionAvailable(car, 'additionalDriver')}
+                    />
                   </FormControl>
 
                   {helper.carOptionAvailable(car, 'additionalDriver') && values.additionalDriver && (

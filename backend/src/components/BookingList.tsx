@@ -260,7 +260,7 @@ const BookingList = ({
           return (
             <div>
               <Tooltip title={commonStrings.UPDATE}>
-                <IconButton href={`update-booking?b=${row._id}`}>
+                <IconButton href={`update-booking/${row._id}`}>
                   <EditIcon />
                 </IconButton>
               </Tooltip>

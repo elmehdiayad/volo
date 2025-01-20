@@ -85,6 +85,11 @@ const bookingSchema = new Schema<env.Booking>(
       type: Number,
       required: [true, "can't be blank"],
     },
+    paidAmount: {
+      type: Number,
+      default: 0,
+      required: [true, "can't be blank"],
+    },
     deposit: {
       type: Number,
       default: 0,
