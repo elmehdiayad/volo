@@ -1,0 +1,98 @@
+.invoice-container {
+  z-index: 1002 !important;
+}
+
+.invoice-edit-content {
+  padding: 20px;
+}
+
+.invoice-edit-content .section {
+  margin-bottom: 30px;
+}
+
+.invoice-edit-content .section h6 {
+  margin-bottom: 15px;
+}
+
+.invoice-edit-content .invoice-info {
+  margin-bottom: 20px;
+}
+
+.invoice-edit-content .invoice-info-row {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.invoice-edit-content .invoice-info-row .MuiTextField-root,
+.invoice-edit-content .invoice-info-row .MuiDatePicker-root {
+  width: 200px;
+}
+
+.invoice-edit-content .section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.invoice-edit-content .MuiTextField-root {
+  margin: 8px 0;
+}
+
+.invoice-edit-content .car-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.invoice-edit-content .car-info .plate-number {
+  color: #666;
+}
+
+.invoice-edit-content .date-range {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.invoice-edit-content .date-range .MuiTextField-root,
+.invoice-edit-content .date-range .MuiDatePicker-root {
+  width: 150px;
+}
+
+.invoice-edit-content .additional-charge-row {
+  background-color: #fafafa;
+}
+
+.invoice-edit-content .totals {
+  margin-top: 20px;
+  text-align: right;
+}
+
+.invoice-edit-content .totals h6 {
+  margin-top: 10px;
+}
+
+.invoice-edit-content .tva-input {
+  margin-bottom: 15px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.invoice-edit-content .tva-input .MuiTextField-root {
+  width: 100px;
+}
+
+.invoice-edit-content .MuiTableCell-root {
+  padding: 8px;
+}
+
+.invoice-edit-content .MuiTableCell-root .MuiTextField-root {
+  margin: 0;
+  width: 100%;
+}
+
+.invoice-edit-content .MuiTableCell-root .MuiIconButton-root {
+  padding: 4px;
+}

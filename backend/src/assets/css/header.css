@@ -3,11 +3,11 @@
 .header {
   position: sticky !important;
   top: 0;
-  z-index: 1400;
+  z-index: 1000;
 }
 
 .menu {
-  z-index: 1401 !important;
+  z-index: 1001 !important;
 }
 
 .header-action {

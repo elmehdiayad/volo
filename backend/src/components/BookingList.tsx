@@ -19,7 +19,7 @@ import {
   CardContent,
   Typography
 } from '@mui/material'
-import { Edit as EditIcon, Delete as DeleteIcon, Check as CheckIcon } from '@mui/icons-material'
+import { Edit as EditIcon, Delete as DeleteIcon, Check as CheckIcon, Receipt as InvoiceIcon } from '@mui/icons-material'
 import { format } from 'date-fns'
 import { fr as dfnsFR, enUS as dfnsENUS } from 'date-fns/locale'
 import * as bookcarsTypes from ':bookcars-types'
@@ -29,9 +29,10 @@ import { strings as commonStrings } from '@/lang/common'
 import { strings as csStrings } from '@/lang/cars'
 import { strings } from '@/lang/booking-list'
 import * as helper from '@/common/helper'
-import * as BookingService from '@/services/BookingService'
 import StatusList from './StatusList'
 import BookingStatus from './BookingStatus'
+import * as BookingService from '@/services/BookingService'
+import InvoiceEdit from './InvoiceEdit'
 
 import '@/assets/css/booking-list.css'
 
@@ -95,6 +96,28 @@ const BookingList = ({
   })
   const [init, setInit] = useState(true)
   const [loading, setLoading] = useState(false)
+  const [openInvoiceDialog, setOpenInvoiceDialog] = useState(false)
+  const [selectedBookingIds, setSelectedBookingIds] = useState<string[]>([])
+
+  const handleInvoice = async (e: React.MouseEvent<HTMLElement>) => {
+    const bookingId = e.currentTarget.getAttribute('data-id')
+    if (bookingId) {
+      setSelectedBookingIds([bookingId])
+      setOpenInvoiceDialog(true)
+    }
+  }
+
+  const handleMultipleInvoices = async () => {
+    if (selectedIds.length > 0) {
+      setSelectedBookingIds(selectedIds)
+      setOpenInvoiceDialog(true)
+    }
+  }
+
+  const handleCloseInvoiceDialog = () => {
+    setOpenInvoiceDialog(false)
+    setSelectedBookingIds([])
+  }
 
   useEffect(() => {
     if (!env.isMobile) {
@@ -216,6 +239,7 @@ const BookingList = ({
         field: 'driver',
         headerName: strings.DRIVER,
         flex: 1,
+        minWidth: 200,
         renderCell: ({ row, value }: GridRenderCellParams<bookcarsTypes.Booking, string>) => <Link href={`/user?u=${(row.driver as bookcarsTypes.User)._id}`}>{value}</Link>,
         valueGetter: (value: bookcarsTypes.User) => value?.fullName,
       },
@@ -223,18 +247,21 @@ const BookingList = ({
         field: 'from',
         headerName: commonStrings.FROM,
         flex: 1,
+        minWidth: 150,
         valueGetter: (value: string) => getDate(value),
       },
       {
         field: 'to',
         headerName: commonStrings.TO,
         flex: 1,
+        minWidth: 150,
         valueGetter: (value: string) => getDate(value),
       },
       {
         field: 'price',
         headerName: strings.PRICE,
         flex: 1,
+        minWidth: 150,
         renderCell: ({ value }: GridRenderCellParams<bookcarsTypes.Booking, string>) => <span className="bp">{value}</span>,
         valueGetter: (value: number) => bookcarsHelper.formatPrice(value, commonStrings.CURRENCY, language as string),
       },
@@ -242,19 +269,26 @@ const BookingList = ({
         field: 'status',
         headerName: strings.STATUS,
         flex: 1,
+        minWidth: 150,
         renderCell: ({ value }: GridRenderCellParams<bookcarsTypes.Booking, bookcarsTypes.BookingStatus>) => <BookingStatus value={value!} showIcon />,
         valueGetter: (value: string) => value,
       },
       {
-        field: 'action',
+        field: 'actions',
         headerName: '',
         sortable: false,
         disableColumnMenu: true,
+        minWidth: 150,
         renderCell: ({ row }: GridRenderCellParams<bookcarsTypes.Booking>) => {
           const handleDelete = (e: React.MouseEvent<HTMLElement>) => {
             e.stopPropagation() // don't select this row after clicking
             setSelectedId(row._id || '')
             setopenDeleteDialog(true)
+          }
+
+          const handleInvoiceClick = (e: React.MouseEvent<HTMLElement>) => {
+            e.stopPropagation()
+            handleInvoice(e)
           }
 
           return (
@@ -269,33 +303,38 @@ const BookingList = ({
                   <DeleteIcon />
                 </IconButton>
               </Tooltip>
+              <Tooltip title={commonStrings.INVOICE}>
+                <IconButton data-id={row._id} onClick={handleInvoiceClick}>
+                  <InvoiceIcon />
+                </IconButton>
+              </Tooltip>
             </div>
           )
         },
-        renderHeader: () => (selectedIds.length > 0 ? (
-          <div>
-            <Tooltip title={strings.UPDATE_SELECTION}>
-              <IconButton
-                onClick={() => {
-                  setOpenUpdateDialog(true)
-                }}
-              >
-                <EditIcon />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title={strings.DELETE_SELECTION}>
-              <IconButton
-                onClick={() => {
-                  setopenDeleteDialog(true)
-                }}
-              >
-                <DeleteIcon />
-              </IconButton>
-            </Tooltip>
-          </div>
-        ) : (
-          <></>
-        )),
+        renderHeader: () => {
+          if (selectedIds.length > 0) {
+            return (
+              <div>
+                <Tooltip title={strings.UPDATE_SELECTION}>
+                  <IconButton onClick={() => setOpenUpdateDialog(true)}>
+                    <EditIcon />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title={strings.DELETE_SELECTION}>
+                  <IconButton onClick={() => setopenDeleteDialog(true)}>
+                    <DeleteIcon />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title={commonStrings.INVOICE}>
+                  <IconButton onClick={handleMultipleInvoices}>
+                    <InvoiceIcon />
+                  </IconButton>
+                </Tooltip>
+              </div>
+            )
+          }
+          return null
+        },
       },
     ]
 
@@ -603,6 +642,15 @@ const BookingList = ({
                       variant="contained"
                       className="btn-primary"
                       size="small"
+                      data-id={booking._id}
+                      onClick={handleInvoice}
+                    >
+                      {commonStrings.INVOICE}
+                    </Button>
+                    <Button
+                      variant="contained"
+                      className="btn-primary"
+                      size="small"
                       href={`update-booking?b=${booking._id}`}
                     >
                       {commonStrings.UPDATE}
@@ -647,6 +695,12 @@ const BookingList = ({
             className="booking-grid"
           />
         ))}
+      <InvoiceEdit
+        open={openInvoiceDialog}
+        bookingIds={selectedBookingIds}
+        onClose={handleCloseInvoiceDialog}
+        onConfirm={handleCloseInvoiceDialog}
+      />
       <Dialog disableEscapeKeyDown maxWidth="xs" open={openUpdateDialog}>
         <DialogTitle className="dialog-header">{strings.UPDATE_STATUS}</DialogTitle>
         <DialogContent className="bs-update-status">

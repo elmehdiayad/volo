@@ -13,6 +13,40 @@ div.bs-list .empty-list {
 
 div.bs-list .booking-grid {
   width: 100%;
+  min-height: 400px;
+}
+
+div.bs-list .booking-grid .MuiDataGrid-filler {
+  display: none !important;
+}
+
+div.bs-list .booking-grid .MuiDataGrid-cell {
+  padding: 8px;
+  white-space: normal !important;
+  word-wrap: break-word !important;
+  min-height: 60px !important;
+  max-height: unset !important;
+  height: auto;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid rgba(224, 224, 224, 1);
+}
+
+div.bs-list .booking-grid .MuiDataGrid-row {
+  min-height: 60px !important;
+  max-height: unset !important;
+}
+
+div.bs-list .booking-grid .MuiDataGrid-row:last-child .MuiDataGrid-cell {
+  border-bottom: none;
+}
+
+div.bs-list .booking-grid .MuiDataGrid-renderingZone {
+  max-height: none !important;
+}
+
+div.bs-list .booking-grid .MuiDataGrid-virtualScrollerContent {
+  min-height: 60px !important;
 }
 
 div.bs-list a.cell-supplier {

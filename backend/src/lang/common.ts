@@ -152,6 +152,12 @@ const strings = new LocalizedStrings({
     PAID_AMOUNT_NOT_VALID: 'Montant payé invalide',
     REST_AMOUNT_NOT_VALID: 'Reste à payer invalide',
     TOTAL_PRICE: 'Prix total',
+    INVOICE: 'Facture',
+    CLIENT: 'Client',
+    ITEMS: 'Items',
+    SERVICES: 'Services',
+    CUSTOMER: 'Customer',
+    GENERATE: 'Generate',
   },
   en: {
     GENERIC_ERROR: 'An unhandled error occurred.',
@@ -302,6 +308,12 @@ const strings = new LocalizedStrings({
     PAID_AMOUNT_NOT_VALID: 'Invalid paid amount',
     REST_AMOUNT_NOT_VALID: 'Invalid rest amount',
     TOTAL_PRICE: 'Total Price',
+    INVOICE: 'Invoice',
+    CLIENT: 'Client',
+    ITEMS: 'Items',
+    SERVICES: 'Services',
+    CUSTOMER: 'Customer',
+    GENERATE: 'Generate',
   },
   es: {
     GENERIC_ERROR: 'Se ha producido un error no controlado.',
@@ -422,6 +434,12 @@ const strings = new LocalizedStrings({
     PAID_AMOUNT_NOT_VALID: 'Monto pagado inválido',
     REST_AMOUNT_NOT_VALID: 'Resto por pagar inválido',
     TOTAL_PRICE: 'Precio total',
+    INVOICE: 'Factura',
+    CLIENT: 'Client',
+    ITEMS: 'Items',
+    SERVICES: 'Services',
+    CUSTOMER: 'Customer',
+    GENERATE: 'Generate',
   },
 })
 
