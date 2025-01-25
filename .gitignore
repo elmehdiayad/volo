@@ -6,5 +6,5 @@
 /**/.DS_Store
 
 bookcars-db/
-.env.dev.docker
-api/ara.traineddata
+compose-prod.yml
+compose-dev.yml
