@@ -14,11 +14,12 @@ const userSchema = new Schema<env.User>(
     email: {
       type: String,
       lowercase: true,
-      unique: true,
       required: [function isRequired(this: env.User) {
         return this.type === bookcarsTypes.UserType.Supplier
       }, "can't be blank"],
-      validate: [validator.isEmail, 'is not valid'],
+      validate: [function isEmail(this: env.User) {
+        return this.type === bookcarsTypes.UserType.Supplier ? validator.isEmail(this.email) : true
+      }, 'is not valid'],
       index: true,
       trim: true,
     },

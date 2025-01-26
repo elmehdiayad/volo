@@ -154,7 +154,6 @@ const DriverLicense = ({
 
         // Check if all images are uploaded and process documents
         if (!user && Object.values(updatedImages).every((img) => img !== null)) {
-          console.log('process documents', updatedImages)
           setLoading(true)
           const result = await UserService.processDocuments(Object.values(updatedImages) as string[])
           if (onUpload) {

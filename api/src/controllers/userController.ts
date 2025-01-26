@@ -161,8 +161,8 @@ export const create = async (req: Request, res: Response) => {
   const { body }: { body: bookcarsTypes.CreateUserPayload } = req
 
   try {
-    body.verified = false
-    body.blacklisted = false
+    body.verified = true
+    body.blacklisted = true
 
     if (body.password) {
       const salt = await bcrypt.genSalt(10)
@@ -236,9 +236,9 @@ export const create = async (req: Request, res: Response) => {
 
     await user.save()
 
-    if (body.password) {
-      return res.sendStatus(200)
-    }
+    // if (body.password) {
+    //   return res.sendStatus(200)
+    // }
 
     // generate token and save
     // const token = new Token({ user: user._id, token: helper.generateToken() })

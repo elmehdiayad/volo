@@ -1,69 +1,8 @@
 import OpenAI from 'openai'
-import sharp from 'sharp'
-import path from 'node:path'
-import fs from 'node:fs/promises'
-import { nanoid } from 'nanoid'
 import { createWorker } from 'tesseract.js'
 import * as logger from './logger'
 import * as env from '../config/env.config'
 import * as bookcarsTypes from ':bookcars-types'
-
-const targetWidth = 600
-const targetHeight = 400
-
-const processImage = async (buffer: Buffer, documentType: 'license' | 'id') => {
-  let pipeline = sharp(buffer)
-    .resize(targetWidth, targetHeight, {
-      fit: 'contain',
-      background: { r: 255, g: 255, b: 255, alpha: 1 },
-    })
-    .grayscale()
-
-  if (documentType === 'license') {
-    // License-specific processing
-    pipeline = pipeline
-      .linear(1.3, -0.1)
-      .sharpen({
-        sigma: 1.5,
-        m1: 1.5,
-        m2: 0.7,
-        x1: 2,
-        y2: 10,
-      })
-      .threshold(160)
-  } else {
-    // ID card-specific processing
-    pipeline = pipeline
-      .linear(1.2, 0)
-      .sharpen({
-        sigma: 1.2,
-        m1: 1.2,
-        m2: 0.5,
-        x1: 2,
-        y2: 8,
-      })
-      .threshold(150)
-  }
-
-  return pipeline
-    .normalize()
-    .median(1)
-    .jpeg({ quality: 100, force: true })
-    .toBuffer()
-}
-
-const getDocumentPrefix = (index: number): string => {
-  switch (index) {
-    case 0:
-      return 'licenseRecto'
-    case 1:
-      return 'licenseVerso'
-    case 2:
-      return 'idRecto'
-    default:
-      return 'idVerso'
-  }
-}
 
 /**
  * Process documents and extract information using OCR.
@@ -73,21 +12,8 @@ const getDocumentPrefix = (index: number): string => {
  * @param {Buffer[]} imageBuffers - Array of image buffers to process
  * @returns {Promise<{ filenames: string[], extractedInfo: bookcarsTypes.LicenseExtractedData }>}
  */
-export const processDocuments = async (imageBuffers: Buffer[]): Promise<{ filenames: string[], extractedInfo: bookcarsTypes.LicenseExtractedData }> => {
+export const processDocuments = async (imageBuffers: Buffer[]): Promise<{ extractedInfo: bookcarsTypes.LicenseExtractedData }> => {
   try {
-    // Process and save each image
-    const filenames = await Promise.all(
-      imageBuffers.map(async (buffer, index) => {
-        const documentType = index < 2 ? 'license' : 'id'
-        const processedImage = await processImage(buffer, documentType)
-        const prefix = getDocumentPrefix(index)
-        const filename = `${prefix}-${nanoid()}.jpg`
-        const filepath = path.join(env.CDN_TEMP_LICENSES, filename)
-        await fs.writeFile(filepath, processedImage)
-        return filename
-      }),
-    )
-
     // Initialize Tesseract worker
     const worker = await createWorker('ara+fra')
 
@@ -143,7 +69,7 @@ export const processDocuments = async (imageBuffers: Buffer[]): Promise<{ filena
     const extractedInfo: bookcarsTypes.LicenseExtractedData = JSON.parse(response.choices[0].message.content || '{}')
 
     logger.info('[OCR] Successfully processed documents and extracted information')
-    return { filenames, extractedInfo }
+    return { extractedInfo }
   } catch (error) {
     logger.error('[processDocuments] Error processing images:', error)
     throw new Error('Failed to extract information from images')
