@@ -71,7 +71,7 @@ const _signup = async (req: Request, res: Response, userType: bookcarsTypes.User
     if (body.avatar) {
       const avatar = path.join(env.CDN_TEMP_USERS, body.avatar)
       if (await helper.exists(avatar)) {
-        const filename = `${user._id}_${Date.now()}${path.extname(body.avatar)}`
+        const filename = `${user._id}_logo${path.extname(body.avatar)}`
         const newPath = path.join(env.CDN_USERS, filename)
 
         await fs.rename(avatar, newPath)
@@ -182,18 +182,15 @@ export const create = async (req: Request, res: Response) => {
     }
 
     const user = new User(body)
-    await user.save()
 
     // avatar
     if (body.avatar) {
       const avatar = path.join(env.CDN_TEMP_USERS, body.avatar)
       if (await helper.exists(avatar)) {
-        const filename = `${user._id}${path.extname(body.avatar)}`
+        const filename = `${user._id}_logo${path.extname(body.avatar)}`
         const newPath = path.join(env.CDN_USERS, filename)
-
         await fs.rename(avatar, newPath)
         user.avatar = filename
-        await user.save()
       }
     }
 
@@ -228,15 +225,16 @@ export const create = async (req: Request, res: Response) => {
     }
 
     if (body.signature) {
-      const signature = path.join(env.CDN_TEMP_LICENSES, body.signature)
-      if (await helper.exists(signature)) {
+      const tempFile = path.join(env.CDN_TEMP_LICENSES, body.signature)
+      if (await helper.exists(tempFile)) {
         const filename = `${user._id}_signature${path.extname(body.signature)}`
         const newPath = path.join(env.CDN_LICENSES, filename)
-        await fs.rename(signature, newPath)
+        await fs.rename(tempFile, newPath)
         user.signature = filename
-        await user.save()
       }
     }
+
+    await user.save()
 
     if (body.password) {
       return res.sendStatus(200)
@@ -247,25 +245,25 @@ export const create = async (req: Request, res: Response) => {
     await token.save()
 
     // Send email
-    i18n.locale = user.language
+    // i18n.locale = user.language
 
-    const mailOptions: nodemailer.SendMailOptions = {
-      from: env.SMTP_FROM,
-      to: user.email,
-      subject: i18n.t('ACCOUNT_ACTIVATION_SUBJECT'),
-      html:
-        `<p>
-        ${i18n.t('HELLO')}${user.fullName},<br><br>
-        ${i18n.t('ACCOUNT_ACTIVATION_LINK')}<br><br>
-        ${helper.joinURL(
-          user.type === bookcarsTypes.UserType.User ? env.FRONTEND_HOST : env.BACKEND_HOST,
-          'activate',
-        )}/?u=${encodeURIComponent(user.id)}&e=${encodeURIComponent(user.email)}&t=${encodeURIComponent(token.token)}<br><br>
-        ${i18n.t('REGARDS')}<br>
-        </p>`,
-    }
+    // const mailOptions: nodemailer.SendMailOptions = {
+    //   from: env.SMTP_FROM,
+    //   to: user.email,
+    //   subject: i18n.t('ACCOUNT_ACTIVATION_SUBJECT'),
+    //   html:
+    //     `<p>
+    //     ${i18n.t('HELLO')}${user.fullName},<br><br>
+    //     ${i18n.t('ACCOUNT_ACTIVATION_LINK')}<br><br>
+    //     ${helper.joinURL(
+    //       user.type === bookcarsTypes.UserType.User ? env.FRONTEND_HOST : env.BACKEND_HOST,
+    //       'activate',
+    //     )}/?u=${encodeURIComponent(user.id)}&e=${encodeURIComponent(user.email)}&t=${encodeURIComponent(token.token)}<br><br>
+    //     ${i18n.t('REGARDS')}<br>
+    //     </p>`,
+    // }
 
-    await mailHelper.sendMail(mailOptions)
+    // await mailHelper.sendMail(mailOptions)
     return res.sendStatus(200)
   } catch (err) {
     logger.error(`[user.create] ${i18n.t('DB_ERROR')} ${JSON.stringify(req.body)}`, err)
@@ -1252,7 +1250,7 @@ export const updateAvatar = async (req: Request, res: Response) => {
         }
       }
 
-      const filename = `${user._id}_${Date.now()}${path.extname(req.file.originalname)}`
+      const filename = `${user._id}_logo${path.extname(req.file.originalname)}`
       const filepath = path.join(env.CDN_USERS, filename)
 
       await fs.writeFile(filepath, req.file.buffer)

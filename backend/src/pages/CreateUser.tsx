@@ -270,7 +270,7 @@ const CreateUser = () => {
 
       const language = UserService.getLanguage()
       const supplier = admin ? undefined : user?._id
-      console.log(errors)
+
       const data: bookcarsTypes.CreateUserPayload = {
         email: values.email,
         phone: values.phone,
