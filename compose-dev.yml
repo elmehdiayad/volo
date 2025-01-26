@@ -16,9 +16,9 @@ services:
     depends_on:
       - mongo
     volumes:
-      - ./api:/bookcars/api
-      - /bookcars/api/node_modules
-      - cdn:/var/www/cdn/bookcars
+      - ./api:/volo/api
+      - /volo/api/node_modules
+      - cdn:/var/www/cdn/volo
     command: npm run dev
 
 

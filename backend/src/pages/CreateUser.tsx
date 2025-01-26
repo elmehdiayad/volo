@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import {
   TextField,
   FormControl,
@@ -9,7 +9,6 @@ import {
   MenuItem,
   FormControlLabel,
   Switch,
-  SelectChangeEvent,
 } from '@mui/material'
 import {
   BtnBold,
@@ -63,6 +62,7 @@ interface FormValues {
   licenseDeliveryDate: Date | null
   payLater: boolean
   licenseRequired: boolean
+  type: string
 }
 
 const CreateUser = () => {
@@ -82,8 +82,68 @@ const CreateUser = () => {
   const [signature, setSignature] = useState('')
   const [signatureError, setSignatureError] = useState(false)
 
-  const isSupplier = type === bookcarsTypes.RecordType.Supplier
-  const isDriver = type === bookcarsTypes.RecordType.User
+  const isSupplier = useMemo(() => type === bookcarsTypes.RecordType.Supplier, [type])
+  const isDriver = useMemo(() => type === bookcarsTypes.RecordType.User, [type])
+
+  const validateFullName = async (_fullName: string) => {
+    if (_fullName) {
+      try {
+        const status = await SupplierService.validate({ fullName: _fullName })
+        return status === 200
+      } catch (err) {
+        helper.error(err)
+        return true
+      }
+    }
+    return true
+  }
+
+  const validateEmail = async (_email?: string) => {
+    if (_email) {
+      if (validator.isEmail(_email)) {
+        try {
+          const status = await UserService.validateEmail({ email: _email })
+          return status === 200
+        } catch (err) {
+          helper.error(err)
+          return true
+        }
+      }
+      return false
+    }
+    return false
+  }
+
+  const validatePhone = (value: any) => {
+    if (value && typeof value === 'string') {
+      return validator.isMobilePhone(value)
+    }
+    return true
+  }
+
+  const validateBirthDate = (value: any) => {
+    if (value && bookcarsHelper.isDate(value)) {
+      const date = new Date(value)
+      const now = new Date()
+      const sub = intervalToDuration({ start: date, end: now }).years ?? 0
+      return sub >= env.MINIMUM_AGE
+    }
+    return true
+  }
+
+  const validateNationalIdExpirationDate = (value: any): boolean => {
+    if (!value) return false
+    const date = new Date(value)
+    const now = new Date()
+    return date > now
+  }
+
+  const validateLicenseDeliveryDate = (value: any): boolean => {
+    if (!value) return false
+    const date = new Date(value)
+    const now = new Date()
+    return date < now
+  }
 
   const initialValues: FormValues = {
     fullName: '',
@@ -99,118 +159,56 @@ const CreateUser = () => {
     licenseDeliveryDate: null,
     payLater: false,
     licenseRequired: false,
+    type: type || '',
   }
 
   const validationSchema = Yup.object().shape({
+    type: Yup.string(),
     fullName: Yup.string().required(commonStrings.REQUIRED_FIELD),
-    email: Yup.string().email(commonStrings.EMAIL_NOT_VALID).when('$isSupplier', {
-      is: true,
+    email: Yup.string().email(commonStrings.EMAIL_NOT_VALID).when('type', {
+      is: bookcarsTypes.RecordType.Supplier,
       then: (schema) => schema.required(commonStrings.REQUIRED_FIELD),
       otherwise: (schema) => schema.notRequired(),
     }),
-    phone: Yup.string().when('$isDriver', {
-      is: true,
+    phone: Yup.string()
+      .test('phone', commonStrings.PHONE_NOT_VALID, (value) => !value || validatePhone(value))
+      .when('type', {
+        is: bookcarsTypes.RecordType.User,
+        then: (schema) => schema.required(commonStrings.REQUIRED_FIELD),
+        otherwise: (schema) => schema.notRequired(),
+      }),
+    location: Yup.string().when('type', {
+      is: bookcarsTypes.RecordType.User,
       then: (schema) => schema.required(commonStrings.REQUIRED_FIELD),
       otherwise: (schema) => schema.notRequired(),
     }),
-    location: Yup.string().when('$isDriver', {
-      is: true,
+    birthDate: Yup.date().when('type', {
+      is: bookcarsTypes.RecordType.User,
+      then: (schema) => schema.required(commonStrings.REQUIRED_FIELD).test('birthDate', commonStrings.BIRTH_DATE_NOT_VALID, validateBirthDate),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    nationalId: Yup.string().when('type', {
+      is: bookcarsTypes.RecordType.User,
       then: (schema) => schema.required(commonStrings.REQUIRED_FIELD),
       otherwise: (schema) => schema.notRequired(),
     }),
-    birthDate: Yup.mixed().when('$isDriver', {
-      is: true,
+    licenseId: Yup.string().when('type', {
+      is: bookcarsTypes.RecordType.User,
       then: (schema) => schema.required(commonStrings.REQUIRED_FIELD),
       otherwise: (schema) => schema.notRequired(),
     }),
-    nationalId: Yup.string().when('$isDriver', {
-      is: true,
-      then: (schema) => schema.required(commonStrings.REQUIRED_FIELD),
+    nationalIdExpirationDate: Yup.date().when('type', {
+      is: bookcarsTypes.RecordType.User,
+      then: (schema) => schema.required(commonStrings.REQUIRED_FIELD).test('nationalIdExpirationDate', commonStrings.NATIONAL_ID_EXPIRATION_DATE_INVALID, validateNationalIdExpirationDate),
       otherwise: (schema) => schema.notRequired(),
     }),
-    licenseId: Yup.string().when('$isDriver', {
-      is: true,
-      then: (schema) => schema.required(commonStrings.REQUIRED_FIELD),
+    licenseDeliveryDate: Yup.date().when('type', {
+      is: bookcarsTypes.RecordType.User,
+      then: (schema) => schema.required(commonStrings.REQUIRED_FIELD).test('licenseDeliveryDate', commonStrings.LICENSE_DELIVERY_DATE_INVALID, validateLicenseDeliveryDate),
       otherwise: (schema) => schema.notRequired(),
     }),
-    nationalIdExpirationDate: Yup.mixed().when('$isDriver', {
-      is: true,
-      then: (schema) => schema.required(commonStrings.REQUIRED_FIELD),
-      otherwise: (schema) => schema.notRequired(),
-    }),
-    licenseDeliveryDate: Yup.mixed().when('$isDriver', {
-      is: true,
-      then: (schema) => schema.required(commonStrings.REQUIRED_FIELD),
-      otherwise: (schema) => schema.notRequired(),
-    }),
+    minimumRentalDays: Yup.string().matches(/^\d*$/, commonStrings.MIN_RENTAL_DAYS_NOT_VALID),
   })
-
-  const validateFullName = async (_fullName: string) => {
-    if (_fullName) {
-      try {
-        const status = await SupplierService.validate({ fullName: _fullName })
-
-        if (status === 200) {
-          return true
-        }
-        return false
-      } catch (err) {
-        helper.error(err)
-        return true
-      }
-    } else {
-      return true
-    }
-  }
-
-  const validateEmail = async (_email?: string) => {
-    if (_email) {
-      if (validator.isEmail(_email)) {
-        try {
-          const status = await UserService.validateEmail({ email: _email })
-          if (status === 200) {
-            return true
-          }
-          return false
-        } catch (err) {
-          helper.error(err)
-          return true
-        }
-      } else {
-        return false
-      }
-    } else {
-      return false
-    }
-  }
-
-  const validatePhone = (_phone?: string) => {
-    if (_phone) {
-      return validator.isMobilePhone(_phone)
-    }
-    return true
-  }
-
-  const validateBirthDate = (date?: Date) => {
-    if (date && bookcarsHelper.isDate(date) && isDriver) {
-      const now = new Date()
-      const sub = intervalToDuration({ start: date, end: now }).years ?? 0
-      return sub >= env.MINIMUM_AGE
-    }
-    return true
-  }
-
-  const validateNationalIdExpirationDate = (date?: Date): boolean => {
-    if (!date) return false
-    const now = new Date()
-    return date > now
-  }
-
-  const validateLicenseDeliveryDate = (date?: Date): boolean => {
-    if (!date) return false
-    const now = new Date()
-    return date < now
-  }
 
   const onBeforeUpload = () => {
     setLoading(true)
@@ -224,7 +222,6 @@ const CreateUser = () => {
   const handleSubmit = async (values: FormValues, { setSubmitting, setErrors }: any) => {
     try {
       const errors: { [key: string]: string } = {}
-
       const nationalIdExpirationDate = values.nationalIdExpirationDate ? new Date(values.nationalIdExpirationDate) : undefined
       const licenseDeliveryDate = values.licenseDeliveryDate ? new Date(values.licenseDeliveryDate) : undefined
       const birthDate = values.birthDate ? new Date(values.birthDate) : undefined
@@ -234,32 +231,17 @@ const CreateUser = () => {
         if (!fullNameValid) {
           errors.fullName = ccStrings.INVALID_SUPPLIER_NAME
         }
+        const _emailValid = await validateEmail(values.email)
+        if (!_emailValid) {
+          errors.email = commonStrings.EMAIL_ALREADY_REGISTERED
+        }
         if (!avatar) {
           errors.avatar = commonStrings.IMAGE_REQUIRED
         }
-        // if (!signature) {
-        //   errors.signature = commonStrings.SIGNATURE_REQUIRED
-        //   setSignatureError(true)
-        // }
-      }
-      const _emailValid = await validateEmail(values.email)
-      if (!_emailValid) {
-        errors.email = commonStrings.EMAIL_ALREADY_REGISTERED
-      }
-
-      if (!validatePhone(values.phone)) {
-        errors.phone = commonStrings.PHONE_NOT_VALID
-      }
-
-      if (!validateBirthDate(birthDate)) {
-        errors.birthDate = commonStrings.BIRTH_DATE_NOT_VALID
-      }
-
-      if (!validateNationalIdExpirationDate(nationalIdExpirationDate) && isDriver) {
-        errors.nationalIdExpirationDate = commonStrings.NATIONAL_ID_EXPIRATION_DATE_INVALID
-      }
-      if (!validateLicenseDeliveryDate(licenseDeliveryDate) && isDriver) {
-        errors.licenseDeliveryDate = commonStrings.LICENSE_DELIVERY_DATE_INVALID
+        if (!signature) {
+          errors.signature = commonStrings.SIGNATURE_REQUIRED
+          setSignatureError(true)
+        }
       }
 
       if (Object.keys(errors).length > 0) {
@@ -290,7 +272,7 @@ const CreateUser = () => {
         documents,
         signature,
       }
-      if (type === bookcarsTypes.RecordType.Supplier) {
+      if (isSupplier) {
         data.payLater = values.payLater
         data.licenseRequired = values.licenseRequired
       }
@@ -338,11 +320,6 @@ const CreateUser = () => {
     }
   }
 
-  const handleUserTypeChange = async (e: SelectChangeEvent<string>) => {
-    const _type = e.target.value
-    setType(_type)
-  }
-
   return (
     <Layout onLoad={onLoad} strict>
       {user && (
@@ -355,7 +332,8 @@ const CreateUser = () => {
               initialValues={initialValues}
               validationSchema={validationSchema}
               onSubmit={handleSubmit}
-              context={{ isDriver, isSupplier }}
+              validateOnMount={false}
+              enableReinitialize
             >
               {({ isSubmitting, setFieldValue, values }) => (
                 <Form>
@@ -380,13 +358,17 @@ const CreateUser = () => {
                   )}
 
                   {admin && (
-                    <FormControl fullWidth margin="dense" style={{ marginTop: isSupplier ? 0 : 39 }}>
+                    <FormControl fullWidth margin="dense">
                       <Select
+                        name="type"
                         label={commonStrings.TYPE}
-                        value={type}
-                        onChange={handleUserTypeChange}
+                        value={values.type}
+                        onChange={(e) => {
+                          setFieldValue('type', e.target.value)
+                          setType(e.target.value)
+                        }}
                         variant="standard"
-                        required
+                        required={admin}
                         fullWidth
                       >
                         <MenuItem value={bookcarsTypes.RecordType.Admin}>{helper.getUserType(bookcarsTypes.UserType.Admin)}</MenuItem>
@@ -404,7 +386,7 @@ const CreateUser = () => {
                           if (extractedInfo.fullName) setFieldValue('fullName', extractedInfo.fullName)
                           if (extractedInfo.nationalId) setFieldValue('nationalId', extractedInfo.nationalId)
                           if (extractedInfo.licenseId) setFieldValue('licenseId', extractedInfo.licenseId)
-                          if (extractedInfo.dateOfBirth) setFieldValue('birthDate', new Date(extractedInfo.dateOfBirth).toISOString().split('T')[0])
+                          if (extractedInfo.dateOfBirth) setFieldValue('birthDate', new Date(extractedInfo.dateOfBirth))
                           if (extractedInfo.nationalIdExpirationDate) setFieldValue('nationalIdExpirationDate', new Date(extractedInfo.nationalIdExpirationDate).toISOString().split('T')[0])
                           if (extractedInfo.licenseDeliveryDate) setFieldValue('licenseDeliveryDate', new Date(extractedInfo.licenseDeliveryDate).toISOString().split('T')[0])
                         }
@@ -423,6 +405,10 @@ const CreateUser = () => {
                       required
                       autoComplete="off"
                       variant="standard"
+                      inputProps={{
+                        autoCapitalize: 'words',
+                        spellCheck: false
+                      }}
                     />
                     <CustomErrorMessage name="fullName" />
                   </FormControl>
@@ -437,6 +423,9 @@ const CreateUser = () => {
                       required={isSupplier}
                       autoComplete="off"
                       variant="standard"
+                      inputProps={{
+                        spellCheck: false
+                      }}
                     />
                     <CustomErrorMessage name="email" />
                   </FormControl>
@@ -450,7 +439,7 @@ const CreateUser = () => {
                           name="nationalId"
                           type="text"
                           label={commonStrings.NATIONAL_ID}
-                          required
+                          required={isDriver}
                           autoComplete="off"
                           variant="standard"
                         />
@@ -472,7 +461,7 @@ const CreateUser = () => {
                           name="licenseId"
                           type="text"
                           label={commonStrings.LICENSE_ID}
-                          required
+                          required={isDriver}
                           autoComplete="off"
                           variant="standard"
                         />
@@ -483,7 +472,7 @@ const CreateUser = () => {
                           label={commonStrings.LICENSE_DELIVERY_DATE}
                           value={values.licenseDeliveryDate || undefined}
                           onChange={(date) => setFieldValue('licenseDeliveryDate', date)}
-                          required
+                          required={isDriver}
                         />
                         <CustomErrorMessage name="licenseDeliveryDate" />
                       </FormControl>
@@ -492,7 +481,7 @@ const CreateUser = () => {
                           label={strings.BIRTH_DATE}
                           value={values.birthDate || undefined}
                           onChange={(date) => setFieldValue('birthDate', date)}
-                          required
+                          required={isDriver}
                           language={(user && user.language) || env.DEFAULT_LANGUAGE}
                         />
                         <CustomErrorMessage name="birthDate" />
@@ -505,11 +494,14 @@ const CreateUser = () => {
                       as={TextField}
                       id="phone"
                       name="phone"
-                      type="text"
+                      type="tel"
                       label={commonStrings.PHONE}
                       required={isDriver}
                       autoComplete="off"
                       variant="standard"
+                      inputProps={{
+                        spellCheck: false
+                      }}
                     />
                     <CustomErrorMessage name="phone" />
                   </FormControl>
@@ -524,6 +516,10 @@ const CreateUser = () => {
                       required={isDriver}
                       autoComplete="off"
                       variant="standard"
+                      inputProps={{
+                        autoCapitalize: 'words',
+                        spellCheck: false
+                      }}
                     />
                     <CustomErrorMessage name="location" />
                   </FormControl>
@@ -573,7 +569,11 @@ const CreateUser = () => {
                           type="text"
                           label={commonStrings.MIN_RENTAL_DAYS}
                           autoComplete="off"
-                          inputProps={{ inputMode: 'numeric', pattern: '^\\d+$' }}
+                          inputProps={{
+                            inputMode: 'numeric',
+                            pattern: '^\\d+$',
+                            spellCheck: false
+                          }}
                           variant="standard"
                         />
                         <CustomErrorMessage name="minimumRentalDays" />
@@ -588,7 +588,6 @@ const CreateUser = () => {
                         </Editor>
                         <CustomErrorMessage name="bio" />
                       </EditorProvider>
-
                     </>
                   )}
 

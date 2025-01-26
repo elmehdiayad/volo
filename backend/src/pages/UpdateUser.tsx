@@ -9,7 +9,6 @@ import {
   MenuItem,
   FormControlLabel,
   Switch,
-  SelectChangeEvent,
 } from '@mui/material'
 import {
   BtnBold,
@@ -71,90 +70,6 @@ const UpdateUser = () => {
   const isSupplier = type === bookcarsTypes.RecordType.Supplier
   const isDriver = type === bookcarsTypes.RecordType.User
 
-  const onLoad = async () => {
-    if (id && id !== '') {
-      try {
-        const _user = await UserService.getUser(id)
-        if (_user) {
-          setUser(_user)
-          setAdmin(helper.admin(_user))
-          setType(_user.type || '')
-          setAvatar(_user.avatar || '')
-          setLicense(_user.license || '')
-          setSignature(_user.signature || '')
-          setVisible(true)
-        } else {
-          navigate('/users')
-        }
-      } catch (err) {
-        helper.error(err)
-      }
-    } else {
-      setLoading(false)
-    }
-  }
-
-  const initialValues = {
-    fullName: user?.fullName || '',
-    email: user?.email || '',
-    phone: user?.phone || '',
-    location: user?.location || '',
-    bio: user?.bio || '',
-    birthDate: user?.birthDate ? new Date(user.birthDate) : new Date(),
-    minimumRentalDays: user?.minimumRentalDays || '',
-    nationalId: user?.nationalId || '',
-    licenseId: user?.licenseId || '',
-    nationalIdExpirationDate: user?.nationalIdExpirationDate ? new Date(user.nationalIdExpirationDate) : new Date(),
-    licenseDeliveryDate: user?.licenseDeliveryDate ? new Date(user.licenseDeliveryDate) : new Date(),
-    payLater: user?.payLater || false,
-    licenseRequired: user?.licenseRequired || false,
-    signature: user?.signature || '',
-  }
-
-  const validationSchema = Yup.object().shape({
-    fullName: Yup.string().required(commonStrings.REQUIRED_FIELD),
-    email: Yup.string().email(commonStrings.EMAIL_NOT_VALID).when('$isSupplier', {
-      is: true,
-      then: (schema) => schema.required(commonStrings.REQUIRED_FIELD),
-      otherwise: (schema) => schema.notRequired(),
-    }),
-    phone: Yup.string().when('$isDriver', {
-      is: true,
-      then: (schema) => schema.required(commonStrings.REQUIRED_FIELD),
-      otherwise: (schema) => schema.notRequired(),
-    }),
-    location: Yup.string().when('$isDriver', {
-      is: true,
-      then: (schema) => schema.required(commonStrings.REQUIRED_FIELD),
-      otherwise: (schema) => schema.notRequired(),
-    }),
-    birthDate: Yup.date().when('$isDriver', {
-      is: true,
-      then: (schema) => schema.required(commonStrings.REQUIRED_FIELD),
-      otherwise: (schema) => schema.notRequired(),
-    }),
-    nationalId: Yup.string().when('$isDriver', {
-      is: true,
-      then: (schema) => schema.required(commonStrings.REQUIRED_FIELD),
-      otherwise: (schema) => schema.notRequired(),
-    }),
-    licenseId: Yup.string().when('$isDriver', {
-      is: true,
-      then: (schema) => schema.required(commonStrings.REQUIRED_FIELD),
-      otherwise: (schema) => schema.notRequired(),
-    }),
-    nationalIdExpirationDate: Yup.date().when('$isDriver', {
-      is: true,
-      then: (schema) => schema.required(commonStrings.REQUIRED_FIELD),
-      otherwise: (schema) => schema.notRequired(),
-    }),
-    licenseDeliveryDate: Yup.date().when('$isDriver', {
-      is: true,
-      then: (schema) => schema.required(commonStrings.REQUIRED_FIELD),
-      otherwise: (schema) => schema.notRequired(),
-    }),
-  })
-
   const validateFullName = async (_fullName: string) => {
     if (_fullName !== user?.fullName) {
       try {
@@ -201,6 +116,95 @@ const UpdateUser = () => {
     return date < now
   }
 
+  const onLoad = async () => {
+    if (id && id !== '') {
+      try {
+        const _user = await UserService.getUser(id)
+        if (_user) {
+          setUser(_user)
+          setAdmin(helper.admin(_user))
+          setType(_user.type || '')
+          setAvatar(_user.avatar || '')
+          setLicense(_user.license || '')
+          setSignature(_user.signature || '')
+          setVisible(true)
+        } else {
+          navigate('/users')
+        }
+      } catch (err) {
+        helper.error(err)
+      }
+    } else {
+      setLoading(false)
+    }
+  }
+
+  const initialValues = {
+    fullName: user?.fullName || '',
+    email: user?.email || '',
+    phone: user?.phone || '',
+    location: user?.location || '',
+    bio: user?.bio || '',
+    birthDate: user?.birthDate ? new Date(user.birthDate) : new Date(),
+    minimumRentalDays: user?.minimumRentalDays || '',
+    nationalId: user?.nationalId || '',
+    licenseId: user?.licenseId || '',
+    nationalIdExpirationDate: user?.nationalIdExpirationDate ? new Date(user.nationalIdExpirationDate) : new Date(),
+    licenseDeliveryDate: user?.licenseDeliveryDate ? new Date(user.licenseDeliveryDate) : new Date(),
+    payLater: user?.payLater || false,
+    licenseRequired: user?.licenseRequired || false,
+    signature: user?.signature || '',
+    type: type || '',
+  }
+
+  const validationSchema = Yup.object().shape({
+    type: Yup.string(),
+    fullName: Yup.string().required(commonStrings.REQUIRED_FIELD),
+    email: Yup.string().email(commonStrings.EMAIL_NOT_VALID).when('type', {
+      is: bookcarsTypes.RecordType.Supplier,
+      then: (schema) => schema.required(commonStrings.REQUIRED_FIELD),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    phone: Yup.string()
+      .test('phone', commonStrings.PHONE_NOT_VALID, (value) => !value || validatePhone(value))
+      .when('type', {
+        is: bookcarsTypes.RecordType.User,
+        then: (schema) => schema.required(commonStrings.REQUIRED_FIELD),
+        otherwise: (schema) => schema.notRequired(),
+      }),
+    location: Yup.string().when('type', {
+      is: bookcarsTypes.RecordType.User,
+      then: (schema) => schema.required(commonStrings.REQUIRED_FIELD),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    birthDate: Yup.date().when('type', {
+      is: bookcarsTypes.RecordType.User,
+      then: (schema) => schema.required(commonStrings.REQUIRED_FIELD).test('birthDate', commonStrings.BIRTH_DATE_NOT_VALID, validateBirthDate),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    nationalId: Yup.string().when('type', {
+      is: bookcarsTypes.RecordType.User,
+      then: (schema) => schema.required(commonStrings.REQUIRED_FIELD),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    licenseId: Yup.string().when('type', {
+      is: bookcarsTypes.RecordType.User,
+      then: (schema) => schema.required(commonStrings.REQUIRED_FIELD),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    nationalIdExpirationDate: Yup.date().when('type', {
+      is: bookcarsTypes.RecordType.User,
+      then: (schema) => schema.required(commonStrings.REQUIRED_FIELD).test('nationalIdExpirationDate', commonStrings.NATIONAL_ID_EXPIRATION_DATE_INVALID, validateNationalIdExpirationDate),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    licenseDeliveryDate: Yup.date().when('type', {
+      is: bookcarsTypes.RecordType.User,
+      then: (schema) => schema.required(commonStrings.REQUIRED_FIELD).test('licenseDeliveryDate', commonStrings.LICENSE_DELIVERY_DATE_INVALID, validateLicenseDeliveryDate),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    minimumRentalDays: Yup.string().matches(/^\d*$/, commonStrings.MIN_RENTAL_DAYS_NOT_VALID),
+  })
+
   const onBeforeUpload = () => {
     setLoading(true)
   }
@@ -228,22 +232,6 @@ const UpdateUser = () => {
         }
         if (!signature) {
           errors.signature = commonStrings.SIGNATURE_REQUIRED
-        }
-      }
-
-      if (!validatePhone(values.phone)) {
-        errors.phone = commonStrings.PHONE_NOT_VALID
-      }
-
-      if (!validateBirthDate(birthDate)) {
-        errors.birthDate = commonStrings.BIRTH_DATE_NOT_VALID
-      }
-      if (isDriver) {
-        if (!validateNationalIdExpirationDate(nationalIdExpirationDate)) {
-          errors.nationalIdExpirationDate = commonStrings.NATIONAL_ID_EXPIRATION_DATE_INVALID
-        }
-        if (!validateLicenseDeliveryDate(licenseDeliveryDate)) {
-          errors.licenseDeliveryDate = commonStrings.LICENSE_DELIVERY_DATE_INVALID
         }
       }
 
@@ -277,7 +265,8 @@ const UpdateUser = () => {
         documents,
         signature,
       }
-      if (type === bookcarsTypes.RecordType.Supplier) {
+
+      if (isSupplier) {
         data.payLater = values.payLater
         data.licenseRequired = values.licenseRequired
       }
@@ -314,11 +303,6 @@ const UpdateUser = () => {
     }
   }
 
-  const handleUserTypeChange = async (e: SelectChangeEvent<string>) => {
-    const _type = e.target.value
-    setType(_type)
-  }
-
   return (
     <Layout onLoad={onLoad} strict>
       {user && (
@@ -331,10 +315,10 @@ const UpdateUser = () => {
               initialValues={initialValues}
               validationSchema={validationSchema}
               onSubmit={handleSubmit}
+              validateOnMount={false}
               enableReinitialize
-              context={{ isDriver, isSupplier }}
             >
-              {({ isSubmitting, setFieldValue }) => (
+              {({ isSubmitting, setFieldValue, values }) => (
                 <Form>
                   {isSupplier && (
                     <>
@@ -359,11 +343,15 @@ const UpdateUser = () => {
                   {admin && (
                     <FormControl fullWidth margin="dense" style={{ marginTop: isSupplier ? 0 : 39 }}>
                       <Select
+                        name="type"
                         label={commonStrings.TYPE}
-                        value={type}
-                        onChange={handleUserTypeChange}
+                        value={values.type}
+                        onChange={(e) => {
+                          setFieldValue('type', e.target.value)
+                          setType(e.target.value)
+                        }}
                         variant="standard"
-                        required
+                        required={admin}
                         fullWidth
                       >
                         <MenuItem value={bookcarsTypes.RecordType.Admin}>{helper.getUserType(bookcarsTypes.UserType.Admin)}</MenuItem>
