@@ -113,7 +113,11 @@ const UpdateUser = () => {
 
   const validationSchema = Yup.object().shape({
     fullName: Yup.string().required(commonStrings.REQUIRED_FIELD),
-    email: Yup.string().email(commonStrings.EMAIL_NOT_VALID).required(commonStrings.REQUIRED_FIELD),
+    email: Yup.string().email(commonStrings.EMAIL_NOT_VALID).when('$isSupplier', {
+      is: true,
+      then: (schema) => schema.required(commonStrings.REQUIRED_FIELD),
+      otherwise: (schema) => schema.notRequired(),
+    }),
     phone: Yup.string().when('$isDriver', {
       is: true,
       then: (schema) => schema.required(commonStrings.REQUIRED_FIELD),
@@ -328,7 +332,7 @@ const UpdateUser = () => {
               validationSchema={validationSchema}
               onSubmit={handleSubmit}
               enableReinitialize
-              context={{ isDriver }}
+              context={{ isDriver, isSupplier }}
             >
               {({ isSubmitting, setFieldValue }) => (
                 <Form>
@@ -408,7 +412,7 @@ const UpdateUser = () => {
                       name="email"
                       type="text"
                       label={commonStrings.EMAIL}
-                      required
+                      required={isSupplier}
                       autoComplete="off"
                       disabled
                       variant="standard"

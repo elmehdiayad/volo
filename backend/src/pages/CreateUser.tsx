@@ -103,7 +103,11 @@ const CreateUser = () => {
 
   const validationSchema = Yup.object().shape({
     fullName: Yup.string().required(commonStrings.REQUIRED_FIELD),
-    email: Yup.string().email(commonStrings.EMAIL_NOT_VALID).required(commonStrings.REQUIRED_FIELD),
+    email: Yup.string().email(commonStrings.EMAIL_NOT_VALID).when('$isSupplier', {
+      is: true,
+      then: (schema) => schema.required(commonStrings.REQUIRED_FIELD),
+      otherwise: (schema) => schema.notRequired(),
+    }),
     phone: Yup.string().when('$isDriver', {
       is: true,
       then: (schema) => schema.required(commonStrings.REQUIRED_FIELD),
@@ -233,11 +237,11 @@ const CreateUser = () => {
         if (!avatar) {
           errors.avatar = commonStrings.IMAGE_REQUIRED
         }
-        if (!signature) {
-          errors.signature = commonStrings.SIGNATURE_REQUIRED
-        }
+        // if (!signature) {
+        //   errors.signature = commonStrings.SIGNATURE_REQUIRED
+        //   setSignatureError(true)
+        // }
       }
-
       const _emailValid = await validateEmail(values.email)
       if (!_emailValid) {
         errors.email = commonStrings.EMAIL_ALREADY_REGISTERED
@@ -251,10 +255,10 @@ const CreateUser = () => {
         errors.birthDate = commonStrings.BIRTH_DATE_NOT_VALID
       }
 
-      if (!validateNationalIdExpirationDate(nationalIdExpirationDate)) {
+      if (!validateNationalIdExpirationDate(nationalIdExpirationDate) && isDriver) {
         errors.nationalIdExpirationDate = commonStrings.NATIONAL_ID_EXPIRATION_DATE_INVALID
       }
-      if (!validateLicenseDeliveryDate(licenseDeliveryDate)) {
+      if (!validateLicenseDeliveryDate(licenseDeliveryDate) && isDriver) {
         errors.licenseDeliveryDate = commonStrings.LICENSE_DELIVERY_DATE_INVALID
       }
 
@@ -266,7 +270,7 @@ const CreateUser = () => {
 
       const language = UserService.getLanguage()
       const supplier = admin ? undefined : user?._id
-
+      console.log(errors)
       const data: bookcarsTypes.CreateUserPayload = {
         email: values.email,
         phone: values.phone,
@@ -286,7 +290,6 @@ const CreateUser = () => {
         documents,
         signature,
       }
-
       if (type === bookcarsTypes.RecordType.Supplier) {
         data.payLater = values.payLater
         data.licenseRequired = values.licenseRequired
@@ -352,7 +355,7 @@ const CreateUser = () => {
               initialValues={initialValues}
               validationSchema={validationSchema}
               onSubmit={handleSubmit}
-              context={{ isDriver }}
+              context={{ isDriver, isSupplier }}
             >
               {({ isSubmitting, setFieldValue, values }) => (
                 <Form>
@@ -431,7 +434,7 @@ const CreateUser = () => {
                       name="email"
                       type="text"
                       label={commonStrings.EMAIL}
-                      required
+                      required={isSupplier}
                       autoComplete="off"
                       variant="standard"
                     />

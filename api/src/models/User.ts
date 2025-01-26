@@ -15,7 +15,9 @@ const userSchema = new Schema<env.User>(
       type: String,
       lowercase: true,
       unique: true,
-      required: [true, "can't be blank"],
+      required: [function isRequired(this: env.User) {
+        return this.type === bookcarsTypes.UserType.Supplier
+      }, "can't be blank"],
       validate: [validator.isEmail, 'is not valid'],
       index: true,
       trim: true,
