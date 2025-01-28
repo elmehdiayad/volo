@@ -1,9 +1,9 @@
 # syntax=docker/dockerfile:1
 
 FROM node:lts-alpine
-WORKDIR /bookcars/api
+WORKDIR /volo/api
 COPY ./api ./
-COPY ./packages /bookcars/packages
+COPY ./packages /volo/packages
 # Install Chromium and dependencies
 RUN apk add \
     chromium \
