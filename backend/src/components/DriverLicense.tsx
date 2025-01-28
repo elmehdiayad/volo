@@ -107,6 +107,7 @@ const DriverLicense = ({
     if (!imageRef || !currentImage) return
 
     try {
+      setLoading(true)
       const croppedBlob = await getCroppedImg(imageRef)
       const file = new File([croppedBlob], 'cropped.jpg', { type: 'image/jpeg' })
 
@@ -124,7 +125,6 @@ const DriverLicense = ({
         }
         uploadResult = await UserService.createDocument(file, currentType)
       }
-
       if (uploadResult) {
         const updatedImages = {
           ...images,
@@ -144,6 +144,7 @@ const DriverLicense = ({
         setCropDialogOpen(false)
         setCurrentImage(null)
         setCurrentType('')
+
         // Reset crop and rotation states
         setCrop({
           unit: '%',
@@ -155,14 +156,13 @@ const DriverLicense = ({
 
         // Check if all images are uploaded and process documents
         if (!user && Object.values(updatedImages).every((img) => img !== null)) {
-          setLoading(true)
           const result = await UserService.processDocuments(Object.values(updatedImages) as string[])
           if (onUpload) {
             onUpload(result.extractedInfo)
           }
-          setLoading(false)
         }
       }
+      setLoading(false)
     } catch (err) {
       helper.error(err)
       setCropDialogOpen(false)
