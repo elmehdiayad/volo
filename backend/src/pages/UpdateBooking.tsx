@@ -68,7 +68,7 @@ interface FormValues {
   additionalDriverLicenseId: string
   additionalDriverLicenseDeliveryDate: Date
   additionalDriverNationalId: string
-  additionalDriverNationalIdExpirationDate: Date
+  additionalDrivernationalIdExpiryDate: Date
   paymentMethod: 'card' | 'cash' | 'check' | 'other'
 }
 
@@ -117,7 +117,7 @@ const UpdateBooking = () => {
     additionalDriverLicenseId: '',
     additionalDriverLicenseDeliveryDate: new Date(),
     additionalDriverNationalId: '',
-    additionalDriverNationalIdExpirationDate: new Date(),
+    additionalDrivernationalIdExpiryDate: new Date(),
     paymentMethod: 'cash',
   })
 
@@ -173,7 +173,7 @@ const UpdateBooking = () => {
       then: (schema) => schema.required(commonStrings.NATIONAL_ID_REQUIRED),
       otherwise: (schema) => schema.notRequired(),
     }),
-    additionalDriverNationalIdExpirationDate: Yup.date().when('additionalDriver', {
+    additionalDrivernationalIdExpiryDate: Yup.date().when('additionalDriver', {
       is: true,
       then: (schema) => schema.required(commonStrings.NATIONAL_ID_EXPIRATION_DATE_REQUIRED),
       otherwise: (schema) => schema.notRequired(),
@@ -214,7 +214,7 @@ const UpdateBooking = () => {
     return date < now
   }
 
-  const validateNationalIdExpirationDate = (date?: Date): boolean => {
+  const validatenationalIdExpiryDate = (date?: Date): boolean => {
     if (!date) return false
     const now = new Date()
     return date > now
@@ -249,7 +249,7 @@ const UpdateBooking = () => {
           return
         }
 
-        if (!validateLicenseDeliveryDate(values.additionalDriverLicenseDeliveryDate) || !validateNationalIdExpirationDate(values.additionalDriverNationalIdExpirationDate)) {
+        if (!validateLicenseDeliveryDate(values.additionalDriverLicenseDeliveryDate) || !validatenationalIdExpiryDate(values.additionalDrivernationalIdExpiryDate)) {
           helper.error()
           return
         }
@@ -287,7 +287,7 @@ const UpdateBooking = () => {
           licenseId: values.additionalDriverLicenseId,
           licenseDeliveryDate: values.additionalDriverLicenseDeliveryDate,
           nationalId: values.additionalDriverNationalId,
-          nationalIdExpirationDate: values.additionalDriverNationalIdExpirationDate,
+          nationalIdExpiryDate: values.additionalDrivernationalIdExpiryDate,
         }
 
         payload = { booking: _booking, additionalDriver: _additionalDriver }
@@ -433,7 +433,7 @@ const UpdateBooking = () => {
               additionalDriverLicenseId: _additionalDriver?.licenseId || '',
               additionalDriverLicenseDeliveryDate: _additionalDriver?.licenseDeliveryDate ? new Date(_additionalDriver.licenseDeliveryDate) : new Date(),
               additionalDriverNationalId: _additionalDriver?.nationalId || '',
-              additionalDriverNationalIdExpirationDate: _additionalDriver?.nationalIdExpirationDate ? new Date(_additionalDriver.nationalIdExpirationDate) : new Date(),
+              additionalDrivernationalIdExpiryDate: _additionalDriver?.nationalIdExpiryDate ? new Date(_additionalDriver.nationalIdExpiryDate) : new Date(),
               paymentMethod: _booking.paymentMethod || 'cash',
             }
 
@@ -855,12 +855,12 @@ const UpdateBooking = () => {
                       <FormControl fullWidth margin="dense">
                         <DatePicker
                           label={commonStrings.NATIONAL_ID_EXPIRATION_DATE}
-                          value={values.additionalDriverNationalIdExpirationDate}
-                          onChange={(date) => date && setFieldValue('additionalDriverNationalIdExpirationDate', date)}
+                          value={values.additionalDrivernationalIdExpiryDate}
+                          onChange={(date) => date && setFieldValue('additionalDrivernationalIdExpiryDate', date)}
                           required
                           language={UserService.getLanguage()}
                         />
-                        <CustomErrorMessage name="additionalDriverNationalIdExpirationDate" />
+                        <CustomErrorMessage name="additionalDrivernationalIdExpiryDate" />
                       </FormControl>
                     </>
                   )}

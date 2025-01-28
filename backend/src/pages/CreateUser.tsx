@@ -58,7 +58,7 @@ interface FormValues {
   minimumRentalDays: string
   nationalId: string
   licenseId: string
-  nationalIdExpirationDate: Date | null
+  nationalIdExpiryDate: Date | null
   licenseDeliveryDate: Date | null
   payLater: boolean
   licenseRequired: boolean
@@ -131,7 +131,7 @@ const CreateUser = () => {
     return true
   }
 
-  const validateNationalIdExpirationDate = (value: any): boolean => {
+  const validateNationalIdExpiryDate = (value: any): boolean => {
     if (!value) return false
     const date = new Date(value)
     const now = new Date()
@@ -155,7 +155,7 @@ const CreateUser = () => {
     minimumRentalDays: '',
     nationalId: '',
     licenseId: '',
-    nationalIdExpirationDate: null,
+    nationalIdExpiryDate: null,
     licenseDeliveryDate: null,
     payLater: false,
     licenseRequired: false,
@@ -197,9 +197,9 @@ const CreateUser = () => {
       then: (schema) => schema.required(commonStrings.REQUIRED_FIELD),
       otherwise: (schema) => schema.notRequired(),
     }),
-    nationalIdExpirationDate: Yup.date().when('type', {
+    nationalIdExpiryDate: Yup.date().when('type', {
       is: bookcarsTypes.RecordType.User,
-      then: (schema) => schema.required(commonStrings.REQUIRED_FIELD).test('nationalIdExpirationDate', commonStrings.NATIONAL_ID_EXPIRATION_DATE_INVALID, validateNationalIdExpirationDate),
+      then: (schema) => schema.required(commonStrings.REQUIRED_FIELD).test('nationalIdExpiryDate', commonStrings.NATIONAL_ID_EXPIRATION_DATE_INVALID, validateNationalIdExpiryDate),
       otherwise: (schema) => schema.notRequired(),
     }),
     licenseDeliveryDate: Yup.date().when('type', {
@@ -222,7 +222,7 @@ const CreateUser = () => {
   const handleSubmit = async (values: FormValues, { setSubmitting, setErrors }: any) => {
     try {
       const errors: { [key: string]: string } = {}
-      const nationalIdExpirationDate = values.nationalIdExpirationDate ? new Date(values.nationalIdExpirationDate) : undefined
+      const nationalIdExpiryDate = values.nationalIdExpiryDate ? new Date(values.nationalIdExpiryDate) : undefined
       const licenseDeliveryDate = values.licenseDeliveryDate ? new Date(values.licenseDeliveryDate) : undefined
       const birthDate = values.birthDate ? new Date(values.birthDate) : undefined
 
@@ -267,7 +267,7 @@ const CreateUser = () => {
         minimumRentalDays: values.minimumRentalDays ? Number(values.minimumRentalDays) : undefined,
         nationalId: values.nationalId,
         licenseId: values.licenseId,
-        nationalIdExpirationDate,
+        nationalIdExpiryDate,
         licenseDeliveryDate,
         documents,
         signature,
@@ -387,8 +387,9 @@ const CreateUser = () => {
                           if (extractedInfo.nationalId) setFieldValue('nationalId', extractedInfo.nationalId)
                           if (extractedInfo.licenseId) setFieldValue('licenseId', extractedInfo.licenseId)
                           if (extractedInfo.dateOfBirth) setFieldValue('birthDate', new Date(extractedInfo.dateOfBirth))
-                          if (extractedInfo.nationalIdExpirationDate) setFieldValue('nationalIdExpirationDate', new Date(extractedInfo.nationalIdExpirationDate).toISOString().split('T')[0])
-                          if (extractedInfo.licenseDeliveryDate) setFieldValue('licenseDeliveryDate', new Date(extractedInfo.licenseDeliveryDate).toISOString().split('T')[0])
+                          if (extractedInfo.nationalIdExpiryDate) setFieldValue('nationalIdExpiryDate', new Date(extractedInfo.nationalIdExpiryDate))
+                          if (extractedInfo.licenseDeliveryDate) setFieldValue('licenseDeliveryDate', new Date(extractedInfo.licenseDeliveryDate))
+                          if (extractedInfo.location) setFieldValue('location', extractedInfo.location)
                         }
                       }}
                       onDocumentsChange={setDocuments}
@@ -448,11 +449,11 @@ const CreateUser = () => {
                       <FormControl fullWidth margin="dense">
                         <DatePicker
                           label={commonStrings.NATIONAL_ID_EXPIRATION_DATE}
-                          value={values.nationalIdExpirationDate || undefined}
-                          onChange={(date) => setFieldValue('nationalIdExpirationDate', date)}
+                          value={values.nationalIdExpiryDate || undefined}
+                          onChange={(date) => setFieldValue('nationalIdExpiryDate', date)}
                           required
                         />
-                        <CustomErrorMessage name="nationalIdExpirationDate" />
+                        <CustomErrorMessage name="nationalIdExpiryDate" />
                       </FormControl>
                       <FormControl fullWidth margin="dense">
                         <Field

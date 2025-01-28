@@ -31,7 +31,7 @@ const ADDITIONAL_DRIVER: bookcarsTypes.AdditionalDriver = {
   phone: '',
   licenseId: '1234567890',
   nationalId: '1234567890',
-  nationalIdExpirationDate: new Date(2025, 2, 25),
+  nationalIdExpiryDate: new Date(2025, 2, 25),
   location: '1234567890',
   licenseDeliveryDate: new Date(2025, 2, 25),
 }

@@ -423,7 +423,7 @@ const Checkout = () => {
           birthDate: addiontalDriverBirthDate,
           licenseId: '',
           nationalId: '',
-          nationalIdExpirationDate: new Date(),
+          nationalIdExpiryDate: new Date(),
           location: '',
           licenseDeliveryDate: new Date(),
         }

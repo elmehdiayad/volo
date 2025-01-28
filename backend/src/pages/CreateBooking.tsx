@@ -107,7 +107,7 @@ const CreateBooking = () => {
       then: (schema) => schema.required(commonStrings.NATIONAL_ID_REQUIRED),
       otherwise: (schema) => schema.notRequired(),
     }),
-    additionalDriverNationalIdExpirationDate: Yup.date().when('additionalDriver', {
+    additionalDrivernationalIdExpiryDate: Yup.date().when('additionalDriver', {
       is: true,
       then: (schema) => schema.required(commonStrings.NATIONAL_ID_EXPIRATION_DATE_REQUIRED),
       otherwise: (schema) => schema.notRequired(),
@@ -135,7 +135,7 @@ const CreateBooking = () => {
     additionalDriverLicenseId: '',
     additionalDriverLicenseDeliveryDate: new Date(),
     additionalDriverNationalId: '',
-    additionalDriverNationalIdExpirationDate: new Date(),
+    additionalDrivernationalIdExpiryDate: new Date(),
     paymentMethod: 'cash' as 'cash' | 'card' | 'check' | 'other',
     paidAmount: 0,
     price: 0,
@@ -174,7 +174,7 @@ const CreateBooking = () => {
     return date < now
   }
 
-  const validateNationalIdExpirationDate = (date?: Date): boolean => {
+  const validatenationalIdExpiryDate = (date?: Date): boolean => {
     if (!date) return false
     const now = new Date()
     return date > now
@@ -209,7 +209,7 @@ const CreateBooking = () => {
           return
         }
 
-        if (!validateLicenseDeliveryDate(values.additionalDriverLicenseDeliveryDate) || !validateNationalIdExpirationDate(values.additionalDriverNationalIdExpirationDate)) {
+        if (!validateLicenseDeliveryDate(values.additionalDriverLicenseDeliveryDate) || !validatenationalIdExpiryDate(values.additionalDrivernationalIdExpiryDate)) {
           helper.error()
           return
         }
@@ -246,7 +246,7 @@ const CreateBooking = () => {
           location: values.additionalDriverLocation,
           licenseDeliveryDate: values.additionalDriverLicenseDeliveryDate,
           nationalId: values.additionalDriverNationalId,
-          nationalIdExpirationDate: values.additionalDriverNationalIdExpirationDate,
+          nationalIdExpiryDate: values.additionalDrivernationalIdExpiryDate,
         }
       }
 
@@ -593,12 +593,12 @@ const CreateBooking = () => {
                     <FormControl fullWidth margin="dense">
                       <DatePicker
                         label={commonStrings.NATIONAL_ID_EXPIRATION_DATE}
-                        value={values.additionalDriverNationalIdExpirationDate}
-                        onChange={(date) => date && setFieldValue('additionalDriverNationalIdExpirationDate', date)}
+                        value={values.additionalDrivernationalIdExpiryDate}
+                        onChange={(date) => date && setFieldValue('additionalDrivernationalIdExpiryDate', date)}
                         required
                         language={UserService.getLanguage()}
                       />
-                      <CustomErrorMessage name="additionalDriverNationalIdExpirationDate" />
+                      <CustomErrorMessage name="additionalDrivernationalIdExpiryDate" />
                     </FormControl>
                   </>
                 )}

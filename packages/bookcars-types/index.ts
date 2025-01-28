@@ -131,7 +131,7 @@ export interface AdditionalDriver {
   phone: string
   licenseId: string
   nationalId: string
-  nationalIdExpirationDate: Date
+  nationalIdExpiryDate: Date
   location: string
   birthDate: Date
   licenseDeliveryDate: Date
@@ -274,7 +274,7 @@ export interface CreateUserPayload {
   license?: string
   licenseId?: string
   nationalId?: string
-  nationalIdExpirationDate?: Date | number
+  nationalIdExpiryDate?: Date | number
   licenseDeliveryDate?: Date | number
   documents?: {
     licenseRecto?: string
@@ -386,7 +386,7 @@ export interface User {
   minimumRentalDays?: number
   nationalId?: string
   licenseId?: string
-  nationalIdExpirationDate?: Date
+  nationalIdExpiryDate?: Date
   licenseDeliveryDate?: Date
   documents?: {
     licenseRecto?: string
@@ -600,10 +600,10 @@ export interface LicenseExtractedData {
   fullName: string | null
   dateOfBirth: string | null
   placeOfBirth: string | null
-  documentNumber: string | null
-  expiryDate: string | null
   nationalId: string | null
   licenseId: string | null
   licenseDeliveryDate: string | null
-  nationalIdExpirationDate: string | null
+  licenseExpiryDate: string | null
+  nationalIdExpiryDate: string | null
+  location: string | null
 }

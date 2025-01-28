@@ -982,7 +982,7 @@ export const update = async (req: Request, res: Response) => {
       licenseRequired,
       minimumRentalDays,
       licenseId,
-      nationalIdExpirationDate,
+      nationalIdExpiryDate,
       licenseDeliveryDate,
       documents,
     } = body
@@ -996,7 +996,7 @@ export const update = async (req: Request, res: Response) => {
     user.birthDate = birthDate ? new Date(birthDate) : undefined
     user.minimumRentalDays = minimumRentalDays
     user.nationalId = nationalId
-    user.nationalIdExpirationDate = nationalIdExpirationDate ? new Date(nationalIdExpirationDate) : undefined
+    user.nationalIdExpiryDate = nationalIdExpiryDate ? new Date(nationalIdExpiryDate) : undefined
     user.licenseDeliveryDate = licenseDeliveryDate ? new Date(licenseDeliveryDate) : undefined
 
     // Handle licenseId update for driver type
@@ -1176,7 +1176,7 @@ export const getUser = async (req: Request, res: Response) => {
       minimumRentalDays: 1,
       nationalId: 1,
       licenseId: 1,
-      nationalIdExpirationDate: 1,
+      nationalIdExpiryDate: 1,
       licenseDeliveryDate: 1,
       documents: 1,
       signature: 1,

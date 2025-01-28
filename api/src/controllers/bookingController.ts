@@ -502,7 +502,7 @@ export const update = async (req: Request, res: Response) => {
           licenseId,
           licenseDeliveryDate,
           nationalId,
-          nationalIdExpirationDate,
+          nationalIdExpiryDate,
         } = body.additionalDriver
 
         if (booking._additionalDriver) {
@@ -520,7 +520,7 @@ export const update = async (req: Request, res: Response) => {
           additionalDriver.licenseId = licenseId
           additionalDriver.licenseDeliveryDate = licenseDeliveryDate
           additionalDriver.nationalId = nationalId
-          additionalDriver.nationalIdExpirationDate = nationalIdExpirationDate
+          additionalDriver.nationalIdExpiryDate = nationalIdExpiryDate
           await additionalDriver.save()
         } else {
           const additionalDriver = new AdditionalDriver({
@@ -532,7 +532,7 @@ export const update = async (req: Request, res: Response) => {
             licenseId,
             licenseDeliveryDate,
             nationalId,
-            nationalIdExpirationDate,
+            nationalIdExpiryDate,
           })
 
           await additionalDriver.save()

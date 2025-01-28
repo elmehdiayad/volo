@@ -49,7 +49,7 @@ const ADDITIONAL_DRIVER: bookcarsTypes.AdditionalDriver = {
   phone: '0102010101',
   licenseId: '1234567890',
   nationalId: '1234567890',
-  nationalIdExpirationDate: new Date(2025, 2, 25),
+  nationalIdExpiryDate: new Date(2025, 2, 25),
   location: '1234567890',
   licenseDeliveryDate: new Date(2025, 2, 25),
 }
@@ -633,7 +633,7 @@ describe('POST /api/checkout', () => {
       phone: '01010101',
       licenseId: '1234567890',
       nationalId: '1234567890',
-      nationalIdExpirationDate: new Date(2025, 2, 25),
+      nationalIdExpiryDate: new Date(2025, 2, 25),
       location: '1234567890',
       licenseDeliveryDate: new Date(2025, 2, 25),
     }

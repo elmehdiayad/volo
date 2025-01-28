@@ -125,7 +125,7 @@ export const generateContract = async (req: Request, res: Response) => {
         birthDate: booking.driver?.birthDate ? new Date(booking.driver.birthDate).toLocaleDateString('fr-FR') : '',
         licenseId: booking.driver?.licenseId || '',
         nationalId: booking.driver?.nationalId || '',
-        nationalIdExpirationDate: booking.driver?.nationalIdExpirationDate ? new Date(booking.driver.nationalIdExpirationDate).toLocaleDateString('fr-FR') : '',
+        nationalIdExpiryDate: booking.driver?.nationalIdExpiryDate ? new Date(booking.driver.nationalIdExpiryDate).toLocaleDateString('fr-FR') : '',
         licenseDeliveryDate: booking.driver?.licenseDeliveryDate ? new Date(booking.driver.licenseDeliveryDate).toLocaleDateString('fr-FR') : '',
         address: booking.driver?.location || '',
         phone: booking.driver?.phone || '',
@@ -137,7 +137,7 @@ export const generateContract = async (req: Request, res: Response) => {
         phone: booking._additionalDriver?.phone || '',
         address: booking._additionalDriver?.location || '',
         nationalId: booking._additionalDriver?.nationalId || '',
-        nationalIdExpirationDate: booking._additionalDriver?.nationalIdExpirationDate ? new Date(booking._additionalDriver.nationalIdExpirationDate).toLocaleDateString('fr-FR') : '',
+        nationalIdExpiryDate: booking._additionalDriver?.nationalIdExpiryDate ? new Date(booking._additionalDriver.nationalIdExpiryDate).toLocaleDateString('fr-FR') : '',
         licenseDeliveryDate: booking._additionalDriver?.licenseDeliveryDate ? new Date(booking._additionalDriver.licenseDeliveryDate).toLocaleDateString('fr-FR') : '',
       },
       vehicle: {

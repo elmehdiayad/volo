@@ -140,7 +140,7 @@ const userSchema = new Schema<env.User>(
       required: false,
       trim: true,
     },
-    nationalIdExpirationDate: {
+    nationalIdExpiryDate: {
       type: Date,
       required: false,
     },
@@ -150,6 +150,10 @@ const userSchema = new Schema<env.User>(
       trim: true,
     },
     licenseDeliveryDate: {
+      type: Date,
+      required: false,
+    },
+    licenseExpiryDate: {
       type: Date,
       required: false,
     },

@@ -104,7 +104,7 @@ const UpdateUser = () => {
     return true
   }
 
-  const validateNationalIdExpirationDate = (date?: Date): boolean => {
+  const validatenationalIdExpiryDate = (date?: Date): boolean => {
     if (!date) return false
     const now = new Date()
     return date > now
@@ -149,7 +149,7 @@ const UpdateUser = () => {
     minimumRentalDays: user?.minimumRentalDays || '',
     nationalId: user?.nationalId || '',
     licenseId: user?.licenseId || '',
-    nationalIdExpirationDate: user?.nationalIdExpirationDate ? new Date(user.nationalIdExpirationDate) : new Date(),
+    nationalIdExpiryDate: user?.nationalIdExpiryDate ? new Date(user.nationalIdExpiryDate) : new Date(),
     licenseDeliveryDate: user?.licenseDeliveryDate ? new Date(user.licenseDeliveryDate) : new Date(),
     payLater: user?.payLater || false,
     licenseRequired: user?.licenseRequired || false,
@@ -192,9 +192,9 @@ const UpdateUser = () => {
       then: (schema) => schema.required(commonStrings.REQUIRED_FIELD),
       otherwise: (schema) => schema.notRequired(),
     }),
-    nationalIdExpirationDate: Yup.date().when('type', {
+    nationalIdExpiryDate: Yup.date().when('type', {
       is: bookcarsTypes.RecordType.User,
-      then: (schema) => schema.required(commonStrings.REQUIRED_FIELD).test('nationalIdExpirationDate', commonStrings.NATIONAL_ID_EXPIRATION_DATE_INVALID, validateNationalIdExpirationDate),
+      then: (schema) => schema.required(commonStrings.REQUIRED_FIELD).test('nationalIdExpiryDate', commonStrings.NATIONAL_ID_EXPIRATION_DATE_INVALID, validatenationalIdExpiryDate),
       otherwise: (schema) => schema.notRequired(),
     }),
     licenseDeliveryDate: Yup.date().when('type', {
@@ -218,7 +218,7 @@ const UpdateUser = () => {
     try {
       const errors: { [key: string]: string } = {}
 
-      const nationalIdExpirationDate = new Date(values.nationalIdExpirationDate)
+      const nationalIdExpiryDate = new Date(values.nationalIdExpiryDate)
       const licenseDeliveryDate = new Date(values.licenseDeliveryDate)
       const birthDate = new Date(values.birthDate)
 
@@ -260,7 +260,7 @@ const UpdateUser = () => {
         license,
         nationalId: values.nationalId,
         licenseId: values.licenseId,
-        nationalIdExpirationDate,
+        nationalIdExpiryDate,
         licenseDeliveryDate,
         documents,
         signature,
@@ -371,7 +371,7 @@ const UpdateUser = () => {
                           if (extractedInfo.nationalId) setFieldValue('nationalId', extractedInfo.nationalId)
                           if (extractedInfo.licenseId) setFieldValue('licenseId', extractedInfo.licenseId)
                           if (extractedInfo.dateOfBirth) setFieldValue('birthDate', new Date(extractedInfo.dateOfBirth).toISOString().split('T')[0])
-                          if (extractedInfo.nationalIdExpirationDate) setFieldValue('nationalIdExpirationDate', new Date(extractedInfo.nationalIdExpirationDate).toISOString().split('T')[0])
+                          if (extractedInfo.nationalIdExpiryDate) setFieldValue('nationalIdExpiryDate', new Date(extractedInfo.nationalIdExpiryDate).toISOString().split('T')[0])
                           if (extractedInfo.licenseDeliveryDate) setFieldValue('licenseDeliveryDate', new Date(extractedInfo.licenseDeliveryDate).toISOString().split('T')[0])
                         }
                       }}
@@ -425,11 +425,11 @@ const UpdateUser = () => {
                       <FormControl fullWidth margin="dense">
                         <DatePicker
                           label={commonStrings.NATIONAL_ID_EXPIRATION_DATE}
-                          value={initialValues.nationalIdExpirationDate}
-                          onChange={(date) => setFieldValue('nationalIdExpirationDate', date)}
+                          value={initialValues.nationalIdExpiryDate}
+                          onChange={(date) => setFieldValue('nationalIdExpiryDate', date)}
                           required
                         />
-                        <CustomErrorMessage name="nationalIdExpirationDate" />
+                        <CustomErrorMessage name="nationalIdExpiryDate" />
                       </FormControl>
                       <FormControl fullWidth margin="dense">
                         <Field

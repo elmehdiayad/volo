@@ -57,7 +57,7 @@ const additionalDriverSchema = new Schema<env.AdditionalDriver>(
       required: [true, "can't be blank"],
       trim: true,
     },
-    nationalIdExpirationDate: {
+    nationalIdExpiryDate: {
       type: Date,
       required: [true, "can't be blank"],
     },
