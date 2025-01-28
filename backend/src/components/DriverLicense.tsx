@@ -19,6 +19,7 @@ interface DriverLicenseProps {
   onUpload?: (extractedInfo?: bookcarsTypes.LicenseExtractedData) => void
   onDelete?: () => void
   onDocumentsChange?: (documents: { [key: string]: string }) => void
+  setLoading: (loading: boolean) => void
 }
 
 const DriverLicense = ({
@@ -28,6 +29,7 @@ const DriverLicense = ({
   onUpload,
   onDelete,
   onDocumentsChange,
+  setLoading,
 }: DriverLicenseProps) => {
   const [images, setImages] = useState<{ [key: string]: string | null }>(user?.documents || {
     licenseRecto: null,
@@ -46,7 +48,6 @@ const DriverLicense = ({
     y: 5
   })
   const [imageRef, setImageRef] = useState<HTMLImageElement | null>(null)
-  const [loading, setLoading] = useState(false)
 
   const getCroppedImg = (image: HTMLImageElement): Promise<Blob> => {
     const canvas = document.createElement('canvas')
@@ -198,22 +199,6 @@ const DriverLicense = ({
     <>
       <div className={`driver-documents ${className || ''}`}>
         <Box display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={2} position="relative">
-          {loading && (
-            <Box
-              position="absolute"
-              top={0}
-              left={0}
-              right={0}
-              bottom={0}
-              display="flex"
-              alignItems="center"
-              justifyContent="center"
-              bgcolor="rgba(255, 255, 255, 0.7)"
-              zIndex={1}
-            >
-              <h3>{commonStrings.PLEASE_WAIT}</h3>
-            </Box>
-          )}
           {documentTypes.map((doc) => (
             <div key={doc.key}>
               <div className="document-upload">

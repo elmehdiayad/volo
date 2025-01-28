@@ -393,6 +393,7 @@ const CreateUser = () => {
                         }
                       }}
                       onDocumentsChange={setDocuments}
+                      setLoading={setLoading}
                     />
                   )}
 

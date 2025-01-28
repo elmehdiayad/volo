@@ -376,6 +376,7 @@ const UpdateUser = () => {
                         }
                       }}
                       onDocumentsChange={setDocuments}
+                      setLoading={setLoading}
                     />
                   )}
 
