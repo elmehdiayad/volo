@@ -418,6 +418,7 @@ export interface User extends Document {
   licenseDeliveryDate?: Date
   licenseExpiryDate?: Date
   signature?: string | null
+  ice?: string | null
   documents?: {
     licenseRecto?: string | null
     licenseVerso?: string | null
@@ -455,6 +456,7 @@ export interface UserInfo {
   licenseRequired?: boolean,
   license?: string
   signature?: string
+  ice?: string
 }
 
 /**

@@ -35,41 +35,17 @@ function formatDate(date: Date, timeZone?: string): string {
 export const generateInvoice = async (req: Request, res: Response) => {
   let browser = null
   try {
-    const { bookingIds, currencySymbol, clientTimezone, signed } = req.body // Accept multiple booking IDs
+    const { signed, data, currencySymbol } = req.body
 
-    if (!bookingIds || !Array.isArray(bookingIds) || bookingIds.length === 0) {
-      return res.status(400).json({ error: 'No booking IDs provided' })
-    }
-
-    // Fetch all bookings
-    const bookings = await Booking.find({ _id: { $in: bookingIds } })
-      .populate<{ supplier: env.UserInfo }>('supplier')
-      .populate<{ car: env.CarInfo }>({
-        path: 'car',
-        populate: {
-          path: 'supplier',
-          model: 'User',
-        },
-      })
-      .populate<{ driver: env.User }>('driver')
-      .lean()
-
-    if (!bookings || bookings.length === 0) {
-      return res.status(404).json({ error: 'No bookings found' })
-    }
-
-    // Use the first booking's supplier for company info
-    const firstBooking = bookings[0]
-
-    // Read template and company logo
-    const invoiceTemplate = readFileSync(join(process.cwd(), 'src', 'templates', 'invoice.html'), 'utf8')
     let companyLogo = ''
     let signature = ''
 
+    const invoiceTemplate = readFileSync(join(process.cwd(), 'src', 'templates', 'invoice.html'), 'utf8')
+
     try {
-      const supplierLogo = firstBooking.supplier?.avatar?.toString()
+      const supplierLogo = data.supplier?.companyLogo?.toString()
       if (supplierLogo) {
-        const logoPath = join(env.CDN_USERS, `${supplierLogo}`)
+        const logoPath = join(env.CDN_USERS, supplierLogo)
         companyLogo = readFileSync(logoPath).toString('base64')
       }
     } catch (error: any) {
@@ -77,82 +53,28 @@ export const generateInvoice = async (req: Request, res: Response) => {
     }
 
     try {
-      const signaturePath = join(env.CDN_LICENSES, `${firstBooking.supplier?.signature}`)
+      const supplierSignature = data.supplier?.signature?.toString()
+      const signaturePath = join(env.CDN_LICENSES, supplierSignature)
       signature = readFileSync(signaturePath).toString('base64')
     } catch (error: any) {
       logger.error(`[invoice.generateInvoice] Signature not found: ${error.message}`)
     }
 
-    // Calculate totals and prepare items
-    let totalHT = 0
-    const items = bookings.map((booking) => {
-      const days = Math.ceil((new Date(booking.to).getTime() - new Date(booking.from).getTime()) / (1000 * 3600 * 24))
-      const price = booking.price || 0
-      const pricePerDay = price / days
-      totalHT += price
-
-      const item = {
-        designation: `${booking.car?.name} Immatriculation ${booking.car?.plateNumber}`,
-        days,
-        pricePerDay: pricePerDay.toFixed(2),
-        total: price.toFixed(2),
-        from: formatDate(new Date(booking.from), clientTimezone),
-        to: formatDate(new Date(booking.to), clientTimezone),
-      }
-
-      // Add additional charges if any
-      const additionalCharges = []
-      if (booking.cancellation) {
-        additionalCharges.push({ name: 'Cancellation Insurance', amount: (booking.car?.cancellation || 0).toFixed(2) })
-      }
-      if (booking.amendments) {
-        additionalCharges.push({ name: 'Amendments Insurance', amount: (booking.car?.amendments || 0).toFixed(2) })
-      }
-      if (booking.collisionDamageWaiver) {
-        additionalCharges.push({ name: 'Collision Damage Waiver', amount: (booking.car?.collisionDamageWaiver || 0).toFixed(2) })
-      }
-      if (booking.theftProtection) {
-        additionalCharges.push({ name: 'Theft Protection', amount: (booking.car?.theftProtection || 0).toFixed(2) })
-      }
-      if (booking.fullInsurance) {
-        additionalCharges.push({ name: 'Full Insurance', amount: (booking.car?.fullInsurance || 0).toFixed(2) })
-      }
-      if (booking.additionalDriver) {
-        additionalCharges.push({ name: 'Additional Driver', amount: (booking.car?.additionalDriver || 0).toFixed(2) })
-      }
-
-      if (additionalCharges.length > 0) {
-        return { ...item, additionalCharges }
-      }
-      return item
-    })
-
-    const tvaPercentage = 20
-    const tvaAmount = totalHT * (tvaPercentage / 100)
-    const totalTTC = totalHT + tvaAmount
-
-    // Create template data
+    // Create template data using values from the frontend
     const templateData = {
       companyLogo: companyLogo ? `data:image/png;base64,${companyLogo}` : '',
       signature: signature && signed === 'true' ? `data:image/png;base64,${signature}` : '',
-      invoiceNumber: firstBooking._id,
-      date: formatDate(new Date(), clientTimezone),
-      supplier: {
-        name: firstBooking.supplier?.fullName || '',
-        location: firstBooking.supplier?.location || '',
-        phone: firstBooking.supplier?.phone || '',
-        email: firstBooking.supplier?.email || '',
-      },
-      client: {
-        name: firstBooking.driver?.fullName || '',
-        ice: firstBooking.driver?.nationalId || '',
-      },
-      items,
+      invoiceNumber: data.invoiceNumber,
+      date: formatDate(new Date(data.date)),
+      supplier: data.supplier,
+      client: data.client,
+      items: data.items,
       currencySymbol,
-      totalHT: totalHT.toFixed(2),
-      tvaPercentage,
-      tvaAmount: tvaAmount.toFixed(2),
-      totalTTC: totalTTC.toFixed(2),
+      totalHT: data.totalHT,
+      tvaPercentage: data.tvaPercentage,
+      tvaAmount: data.tvaAmount,
+      totalTTC: data.totalTTC,
+      place: data.place,
     }
 
     // Compile and render template
@@ -186,7 +108,7 @@ export const generateInvoice = async (req: Request, res: Response) => {
     })
 
     res.setHeader('Content-Type', 'application/pdf')
-    res.setHeader('Content-Disposition', `attachment; filename="invoice_${firstBooking._id}.pdf"`)
+    res.setHeader('Content-Disposition', `attachment; filename="invoice_${data.invoiceNumber}.pdf"`)
     res.send(pdfBuffer)
     return Promise.resolve()
   } catch (err) {
@@ -201,7 +123,7 @@ export const generateInvoice = async (req: Request, res: Response) => {
 
 export const getInvoiceData = async (req: Request, res: Response) => {
   try {
-    const { bookingIds } = req.body
+    const { bookingIds, clientTimezone } = req.body
 
     if (!bookingIds || !Array.isArray(bookingIds) || bookingIds.length === 0) {
       return res.status(400).json({ error: 'No booking IDs provided' })
@@ -236,12 +158,10 @@ export const getInvoiceData = async (req: Request, res: Response) => {
       totalHT += price
 
       const item = {
-        designation: `${booking.car?.name} Immatriculation ${booking.car?.plateNumber}`,
+        designation: `${booking.car?.name} Immatriculation ${booking.car?.plateNumber} De ${formatDate(new Date(booking.from), clientTimezone)} au ${formatDate(new Date(booking.to), clientTimezone)}`,
         days,
         pricePerDay: pricePerDay.toFixed(2),
         total: price.toFixed(2),
-        from: booking.from,
-        to: booking.to,
       }
 
       // Add additional charges if any
@@ -280,20 +200,20 @@ export const getInvoiceData = async (req: Request, res: Response) => {
       invoiceNumber: firstBooking._id,
       date: new Date().toISOString(),
       supplier: {
-        name: firstBooking.supplier?.fullName || '',
-        location: firstBooking.supplier?.location || '',
-        phone: firstBooking.supplier?.phone || '',
-        email: firstBooking.supplier?.email || '',
+        bio: firstBooking.supplier?.bio || '',
+        companyLogo: firstBooking.supplier?.avatar || '',
+        signature: firstBooking.supplier?.signature || '',
       },
       client: {
         name: firstBooking.driver?.fullName || '',
-        ice: firstBooking.driver?.nationalId || '',
+        ice: firstBooking.driver?.ice || '',
       },
       items,
       totalHT: totalHT.toFixed(2),
       tvaPercentage,
       tvaAmount: tvaAmount.toFixed(2),
       totalTTC: totalTTC.toFixed(2),
+      place: '',
     }
 
     return res.json(invoiceData)

@@ -16,6 +16,14 @@ import {
   Typography,
   IconButton,
 } from '@mui/material'
+import {
+  BtnBold,
+  Editor,
+  BtnItalic,
+  EditorProvider,
+  Toolbar,
+  ContentEditableEvent,
+} from 'react-simple-wysiwyg'
 import { Add as AddIcon, Delete as DeleteIcon } from '@mui/icons-material'
 import { Formik, Form, FieldArray } from 'formik'
 import { strings as commonStrings } from '@/lang/common'
@@ -108,44 +116,13 @@ const InvoiceEdit = ({
                         onChange={(date) => setFieldValue('date', date ? date.toISOString().split('T')[0] : '')}
                         variant="outlined"
                       />
+                      <TextField
+                        name="place"
+                        label="Lieu"
+                        value={values.place}
+                        onChange={handleChange}
+                      />
                     </div>
-                  </div>
-
-                  {/* Supplier Info */}
-                  <div className="section">
-                    <Typography variant="h6">{commonStrings.SUPPLIER}</Typography>
-                    <TextField
-                      name="supplier.name"
-                      label={commonStrings.NAME}
-                      value={values.supplier.name}
-                      onChange={handleChange}
-                      fullWidth
-                      margin="normal"
-                    />
-                    <TextField
-                      name="supplier.location"
-                      label={commonStrings.LOCATION}
-                      value={values.supplier.location}
-                      onChange={handleChange}
-                      fullWidth
-                      margin="normal"
-                    />
-                    <TextField
-                      name="supplier.phone"
-                      label={commonStrings.PHONE}
-                      value={values.supplier.phone}
-                      onChange={handleChange}
-                      fullWidth
-                      margin="normal"
-                    />
-                    <TextField
-                      name="supplier.email"
-                      label={commonStrings.EMAIL}
-                      value={values.supplier.email}
-                      onChange={handleChange}
-                      fullWidth
-                      margin="normal"
-                    />
                   </div>
 
                   {/* Client Info */}
@@ -176,11 +153,11 @@ const InvoiceEdit = ({
                       <Table>
                         <TableHead>
                           <TableRow>
-                            <TableCell>Désignation</TableCell>
-                            <TableCell>Dates</TableCell>
-                            <TableCell>P.U</TableCell>
-                            <TableCell>Total</TableCell>
-                            <TableCell>Actions</TableCell>
+                            <TableCell style={{ width: '60%', whiteSpace: 'normal' }}>Désignation</TableCell>
+                            <TableCell style={{ width: '15%' }}>Jours</TableCell>
+                            <TableCell style={{ width: '15%' }}>P.U</TableCell>
+                            <TableCell style={{ width: '15%' }}>Total</TableCell>
+                            <TableCell style={{ width: '10%' }}>Actions</TableCell>
                           </TableRow>
                         </TableHead>
                         <TableBody>
@@ -193,65 +170,20 @@ const InvoiceEdit = ({
                                   return (
                                     <React.Fragment key={itemKey}>
                                       <TableRow>
-                                        <TableCell>
-                                          <div className="car-info">
-                                            <TextField
-                                              name={`items.${itemIndex}.designation`}
-                                              value={item.designation}
-                                              onChange={(e) => {
-                                                setFieldValue(`items.${itemIndex}.designation`, e.target.value)
-                                              }}
-                                              fullWidth
-                                            />
-                                            {item.car && (
-                                              <Typography variant="caption" className="plate-number">
-                                                {item.car.plateNumber}
-                                              </Typography>
-                                            )}
-                                          </div>
-                                        </TableCell>
-                                        <TableCell>
-                                          <div className="date-range">
-                                            <DatePicker
-                                              value={item.from ? new Date(item.from) : undefined}
-                                              onChange={(date) => {
-                                                setFieldValue(`items.${itemIndex}.from`, date ? date.toISOString().split('T')[0] : '')
-                                                // Update days and total when date changes
-                                                if (date && item.to) {
-                                                  const days = Math.ceil((new Date(item.to).getTime() - date.getTime()) / (1000 * 60 * 60 * 24)) + 1
-                                                  setFieldValue(`items.${itemIndex}.days`, days)
-                                                  setFieldValue(`items.${itemIndex}.total`, days * Number(item.pricePerDay))
-                                                }
-                                              }}
-                                              variant="outlined"
-                                            />
-                                            <DatePicker
-                                              value={item.to ? new Date(item.to) : undefined}
-                                              onChange={(date) => {
-                                                setFieldValue(`items.${itemIndex}.to`, date ? date.toISOString().split('T')[0] : '')
-                                                // Update days and total when date changes
-                                                if (date && item.from) {
-                                                  const days = Math.ceil((date.getTime() - new Date(item.from).getTime()) / (1000 * 60 * 60 * 24)) + 1
-                                                  setFieldValue(`items.${itemIndex}.days`, days)
-                                                  setFieldValue(`items.${itemIndex}.total`, days * Number(item.pricePerDay))
-                                                }
-                                              }}
-                                              variant="outlined"
-                                            />
-                                          </div>
-                                        </TableCell>
-                                        <TableCell>
+                                        <TableCell style={{ whiteSpace: 'normal', wordBreak: 'break-word' }}>
                                           <TextField
-                                            type="number"
-                                            name={`items.${itemIndex}.pricePerDay`}
-                                            value={item.pricePerDay}
+                                            name={`items.${itemIndex}.designation`}
+                                            value={item.designation}
                                             onChange={(e) => {
-                                              const newPrice = Number(e.target.value)
-                                              setFieldValue(`items.${itemIndex}.pricePerDay`, newPrice)
-                                              setFieldValue(`items.${itemIndex}.total`, Number(item.days) * newPrice)
+                                              setFieldValue(`items.${itemIndex}.designation`, e.target.value)
                                             }}
+                                            fullWidth
+                                            multiline
+                                            minRows={1}
                                           />
                                         </TableCell>
+                                        <TableCell>{item.days}</TableCell>
+                                        <TableCell>{item.pricePerDay}</TableCell>
                                         <TableCell>{item.total}</TableCell>
                                         <TableCell>
                                           <IconButton
@@ -281,8 +213,8 @@ const InvoiceEdit = ({
                                                       fullWidth
                                                     />
                                                   </TableCell>
-                                                  <TableCell colSpan={2} />
-                                                  <TableCell>
+                                                  <TableCell colSpan={1} />
+                                                  <TableCell colSpan={2}>
                                                     <TextField
                                                       name={`items.${itemIndex}.additionalCharges.${chargeIndex}.amount`}
                                                       type="number"
@@ -348,22 +280,24 @@ const InvoiceEdit = ({
                       />
                     </div>
                     <Typography>
-                      Total H.T:
-                      {' '}
-                      {totals.totalHT}
+                      {`Total H.T: ${totals.totalHT}`}
                     </Typography>
                     <Typography>
-                      TVA (
-                      {values.tvaPercentage}
-                      %):
-                      {' '}
-                      {totals.tvaAmount}
+                      {`TVA (${values.tvaPercentage}%): ${totals.tvaAmount}`}
                     </Typography>
                     <Typography variant="h6">
-                      Total TTC:
-                      {' '}
-                      {totals.totalTTC}
+                      {`Total TTC: ${totals.totalTTC}`}
                     </Typography>
+                  </div>
+                  <div className="section">
+                    <EditorProvider>
+                      <Editor value={values.supplier.bio} onChange={(e: ContentEditableEvent) => setFieldValue('supplier.bio', e.target.value)}>
+                        <Toolbar>
+                          <BtnBold />
+                          <BtnItalic />
+                        </Toolbar>
+                      </Editor>
+                    </EditorProvider>
                   </div>
                 </div>
               </DialogContent>
@@ -372,7 +306,7 @@ const InvoiceEdit = ({
                   {commonStrings.CANCEL}
                 </Button>
                 <Button type="submit" color="primary" variant="contained" disabled={loading}>
-                  {commonStrings.SAVE}
+                  {commonStrings.DOWNLOAD}
                 </Button>
               </DialogActions>
             </Form>

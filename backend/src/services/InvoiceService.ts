@@ -32,11 +32,9 @@ export interface InvoiceItem {
 export interface InvoiceData {
   invoiceNumber: string
   date: string
+  place: string
   supplier: {
-    name: string
-    location: string
-    phone: string
-    email: string
+    bio: string
   }
   client: {
     name: string
@@ -61,7 +59,6 @@ export const getInvoiceData = async (bookingIds: string[]): Promise<InvoiceData>
     currencySymbol: getCurrencySymbol(),
     clientTimezone: getClientTimezone(),
   })
-  console.log(response.data)
   return response.data
 }
 

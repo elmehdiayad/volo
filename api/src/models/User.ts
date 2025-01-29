@@ -179,6 +179,10 @@ const userSchema = new Schema<env.User>(
       type: String,
       required: false,
     },
+    ice: {
+      type: String,
+      required: false,
+    },
   },
   {
     timestamps: true,
