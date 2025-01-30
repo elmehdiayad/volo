@@ -20,6 +20,7 @@ interface DriverLicenseProps {
   onDelete?: () => void
   onDocumentsChange?: (documents: { [key: string]: string }) => void
   setLoading: (loading: boolean) => void
+  loading?: boolean
 }
 
 const DriverLicense = ({
@@ -30,6 +31,7 @@ const DriverLicense = ({
   onDelete,
   onDocumentsChange,
   setLoading,
+  loading
 }: DriverLicenseProps) => {
   const [images, setImages] = useState<{ [key: string]: string | null }>(user?.documents || {
     licenseRecto: null,
@@ -315,6 +317,8 @@ const DriverLicense = ({
               variant="contained"
               color="primary"
               onClick={handleCropComplete}
+              loading={loading}
+              loadingPosition="start"
             >
               {commonStrings.SAVE}
             </Button>

@@ -305,7 +305,7 @@ const InvoiceEdit = ({
                 <Button onClick={onClose} color="primary">
                   {commonStrings.CANCEL}
                 </Button>
-                <Button type="submit" color="primary" variant="contained" disabled={loading}>
+                <Button type="submit" color="primary" variant="contained" loading={loading} loadingPosition="start">
                   {commonStrings.DOWNLOAD}
                 </Button>
               </DialogActions>

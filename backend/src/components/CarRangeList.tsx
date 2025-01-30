@@ -29,7 +29,6 @@ const CarRangeList = ({
   }, [carRangeValue])
 
   const handleChange = (e: SelectChangeEvent<string>) => {
-    console.log(e.target.value)
     const _value = e.target.value || ''
     setValue(_value)
 

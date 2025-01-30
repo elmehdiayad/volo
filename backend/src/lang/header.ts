@@ -4,6 +4,7 @@ import * as langHelper from '@/common/langHelper'
 const strings = new LocalizedStrings({
   fr: {
     DASHBOARD: 'Tableau de bord',
+    BOOKINGS: 'Réservations',
     HOME: 'Accueil',
     COMPANIES: 'Fournisseurs',
     LOCATIONS: 'Lieux',
@@ -19,6 +20,7 @@ const strings = new LocalizedStrings({
   },
   en: {
     DASHBOARD: 'Dashboard',
+    BOOKINGS: 'Bookings',
     HOME: 'Home',
     COMPANIES: 'Suppliers',
     LOCATIONS: 'Locations',
@@ -34,6 +36,7 @@ const strings = new LocalizedStrings({
   },
   es: {
     DASHBOARD: 'Panel de control',
+    BOOKINGS: 'Reservas',
     HOME: 'Inicio',
     COMPANIES: 'Proveedores',
     LOCATIONS: 'Ubicaciones',

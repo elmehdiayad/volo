@@ -58,7 +58,7 @@ export const getInvoiceData = async (bookingIds: string[]): Promise<InvoiceData>
     bookingIds,
     currencySymbol: getCurrencySymbol(),
     clientTimezone: getClientTimezone(),
-  })
+  }, { withCredentials: true })
   return response.data
 }
 
@@ -77,8 +77,9 @@ export const generateInvoice = async (bookingIds: string[], data?: InvoiceData):
     currencySymbol: getCurrencySymbol(),
     clientTimezone: getClientTimezone(),
   }, {
+    withCredentials: true,
     responseType: 'arraybuffer',
-  })
+  },)
 
   // Create blob link to download
   const blob = new Blob([response.data], { type: 'application/pdf' })

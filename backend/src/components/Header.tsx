@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { toast } from 'react-toastify'
 import {
   AppBar,
@@ -17,7 +17,7 @@ import {
 } from '@mui/material'
 import {
   Menu as MenuIcon,
-  Mail as MailIcon,
+  // Mail as MailIcon,
   Notifications as NotificationsIcon,
   More as MoreIcon,
   Language as LanguageIcon,
@@ -27,12 +27,13 @@ import {
   LocationOn as LocationsIcon,
   DirectionsCar as CarsIcon,
   People as UsersIcon,
-  InfoTwoTone as AboutIcon,
-  DescriptionTwoTone as TosIcon,
+  // InfoTwoTone as AboutIcon,
+  // DescriptionTwoTone as TosIcon,
   ExitToApp as SignoutIcon,
   Flag as CountriesIcon,
+  FormatListBulleted as BookingsIcon
 } from '@mui/icons-material'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import * as bookcarsTypes from ':bookcars-types'
 import env from '@/config/env.config'
 import { strings } from '@/lang/header'
@@ -43,7 +44,7 @@ import Avatar from './Avatar'
 import * as langHelper from '@/common/langHelper'
 import * as helper from '@/common/helper'
 import { useGlobalContext, GlobalContextType } from '@/context/GlobalContext'
-
+import Logo from '@/components/Logo'
 import '@/assets/css/header.css'
 
 interface HeaderProps {
@@ -73,6 +74,8 @@ const Header = ({
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl)
   const isLangMenuOpen = Boolean(langAnchorEl)
   const isSideMenuOpen = Boolean(sideAnchorEl)
+
+  const isAdmin = useMemo(() => user?.type === 'admin', [user])
 
   const classes = {
     list: {
@@ -285,6 +288,9 @@ const Header = ({
               <MenuIcon />
             </IconButton>
           )}
+          <Link to="/" className="logo">
+            <Logo fillColor="#fff" />
+          </Link>
           <>
             <Drawer open={isSideMenuOpen} onClose={handleSideMenuClose} className="menu">
               <List sx={classes.list}>
@@ -292,18 +298,26 @@ const Header = ({
                   <ListItemIcon><DashboardIcon /></ListItemIcon>
                   <ListItemText primary={strings.DASHBOARD} />
                 </ListItemLink>
+                <ListItemLink href="/bookings">
+                  <ListItemIcon><BookingsIcon /></ListItemIcon>
+                  <ListItemText primary={strings.BOOKINGS} />
+                </ListItemLink>
                 <ListItemLink href="/suppliers">
                   <ListItemIcon><SuppliersIcon /></ListItemIcon>
                   <ListItemText primary={strings.COMPANIES} />
                 </ListItemLink>
-                <ListItemLink href="/countries">
-                  <ListItemIcon><CountriesIcon /></ListItemIcon>
-                  <ListItemText primary={strings.COUNTRIES} />
-                </ListItemLink>
-                <ListItemLink href="/locations">
-                  <ListItemIcon><LocationsIcon /></ListItemIcon>
-                  <ListItemText primary={strings.LOCATIONS} />
-                </ListItemLink>
+                {isAdmin && (
+                  <>
+                    <ListItemLink href="/countries">
+                      <ListItemIcon><CountriesIcon /></ListItemIcon>
+                      <ListItemText primary={strings.COUNTRIES} />
+                    </ListItemLink>
+                    <ListItemLink href="/locations">
+                      <ListItemIcon><LocationsIcon /></ListItemIcon>
+                      <ListItemText primary={strings.LOCATIONS} />
+                    </ListItemLink>
+                  </>
+                )}
                 <ListItemLink href="/cars">
                   <ListItemIcon><CarsIcon /></ListItemIcon>
                   <ListItemText primary={strings.CARS} />
@@ -312,7 +326,7 @@ const Header = ({
                   <ListItemIcon><UsersIcon /></ListItemIcon>
                   <ListItemText primary={strings.USERS} />
                 </ListItemLink>
-                <ListItemLink href="/about">
+                {/* <ListItemLink href="/about">
                   <ListItemIcon><AboutIcon /></ListItemIcon>
                   <ListItemText primary={strings.ABOUT} />
                 </ListItemLink>
@@ -323,7 +337,7 @@ const Header = ({
                 <ListItemLink href="/contact">
                   <ListItemIcon><MailIcon /></ListItemIcon>
                   <ListItemText primary={strings.CONTACT} />
-                </ListItemLink>
+                </ListItemLink> */}
               </List>
             </Drawer>
           </>

@@ -1,0 +1,100 @@
+.dashboard {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+/* Device width is lower than or equal to 960px */
+@media only screen and (width <= 960px) {
+  .dashboard {
+    top: 56px;
+    overflow-y: auto;
+
+  }
+
+  .dashboard .col-1,
+  .dashboard .col-2 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .dashboard .col-2 {
+    padding: 10px;
+  }
+  .dashboard .col-1 .cl-supplier-filter label.accordion,
+  .dashboard .col-1 .cl-status-filter label.accordion,
+  .dashboard .col-1 .cl-booking-filter label.accordion {
+    background: #fff;
+  }
+
+  .dashboard .col-1 .cl-supplier-filter,
+  .dashboard .col-1 .cl-status-filter,
+  .dashboard .col-1 .cl-booking-filter {
+    margin: 5px 10px;
+    background-color: #fff;
+    max-width: 480px;
+    width: calc(100% - 20px);
+  }
+
+  .dashboard .col-1 .cl-booking-filter div.panel,
+  .dashboard .col-1 .cl-booking-filter div.panel-collapse {
+    padding-right: 15px;
+    padding-left: 15px;
+  }
+}
+
+/* Device width is greater than or equal to 960px */
+@media only screen and (width >= 960px) {
+  .dashboard {
+    top: 64px;
+  }
+
+  .dashboard .col-1 {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 300px;
+    padding: 12px 0 0 12px;
+    background: #fefefe;
+    overflow: auto;
+  }
+
+  .dashboard .col-1 .cl-supplier-filter label.accordion,
+  .dashboard .col-1 .cl-status-filter label.accordion,
+  .dashboard .col-1 .cl-booking-filter label.accordion {
+    background: #fafafa;
+  }
+
+  .dashboard .col-1 .cl-supplier-filter,
+  .dashboard .col-1 .cl-status-filter,
+  .dashboard .col-1 .cl-booking-filter {
+    margin: 10px 10px 10px 0;
+    background-color: #fafafa;
+  }
+
+  .dashboard .col-1 .cl-booking-filter div.panel,
+  .dashboard .col-1 .cl-booking-filter div.panel-collapse {
+    padding-right: 15px;
+    padding-left: 15px;
+  }
+
+  .dashboard .col-1 .cl-status-filter,
+  .dashboard .col-1 .cl-booking-filter {
+    margin-bottom: 10px;
+  }
+
+  .dashboard .col-2 {
+    position: absolute;
+    inset: 0 0 0 300px;
+    overflow-y: auto;
+    padding: 20px;
+  }
+}
+
+.cl-supplier-filter {
+  margin-bottom: 20px;
+} 

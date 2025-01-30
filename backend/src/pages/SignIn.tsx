@@ -15,7 +15,6 @@ import * as UserService from '@/services/UserService'
 import Header from '@/components/Header'
 import Error from '@/components/Error'
 import * as langHelper from '@/common/langHelper'
-
 import '@/assets/css/signin.css'
 
 const SignIn = () => {

@@ -36,6 +36,7 @@ const NoMatch = lazy(() => import('@/pages/NoMatch'))
 const Countries = lazy(() => import('@/pages/Countries'))
 const CreateCountry = lazy(() => import('@/pages/CreateCountry'))
 const UpdateCountry = lazy(() => import('@/pages/UpdateCountry'))
+const Dashboard = lazy(() => import('@/pages/Dashboard'))
 
 const App = () => (
   <BrowserRouter>
@@ -50,7 +51,8 @@ const App = () => (
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/sign-up" element={<SignUp />} />
-            <Route path="/" element={<Bookings />} />
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/bookings" element={<Bookings />} />
             <Route path="/suppliers" element={<Suppliers />} />
             <Route path="/supplier" element={<Supplier />} />
             <Route path="/create-supplier" element={<CreateSupplier />} />

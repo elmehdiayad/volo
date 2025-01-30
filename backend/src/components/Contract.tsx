@@ -131,7 +131,8 @@ const Contract = ({
           variant="contained"
           color="primary"
           onClick={handleGenerateContract}
-          disabled={loading}
+          loading={loading}
+          loadingPosition="start"
           className="generate-button"
         >
           {commonStrings.CONTRACT}

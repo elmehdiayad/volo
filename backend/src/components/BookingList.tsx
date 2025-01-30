@@ -14,11 +14,12 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Button,
   Card,
   CardContent,
   Typography
 } from '@mui/material'
+import Button from '@mui/material/Button'
+
 import { Edit as EditIcon, Delete as DeleteIcon, Check as CheckIcon, Receipt as InvoiceIcon } from '@mui/icons-material'
 import { format } from 'date-fns'
 import { fr as dfnsFR, enUS as dfnsENUS } from 'date-fns/locale'

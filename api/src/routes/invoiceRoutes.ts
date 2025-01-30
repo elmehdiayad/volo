@@ -1,9 +1,11 @@
 import express from 'express'
+import authJwt from '../middlewares/authJwt'
 import * as invoiceController from '../controllers/invoiceController'
+import routeNames from '../config/invoiceRoutes.config'
 
-const router = express.Router()
+const routers = express.Router()
 
-router.post('/data', invoiceController.getInvoiceData)
-router.post('/generate', invoiceController.generateInvoice)
+routers.post(routeNames.data, authJwt.verifyToken, invoiceController.getInvoiceData)
+routers.post(routeNames.generate, authJwt.verifyToken, invoiceController.generateInvoice)
 
-export default router
+export default routers
