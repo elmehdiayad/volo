@@ -8,3 +8,4 @@
 bookcars-db/
 compose-prod.yml
 compose-dev.yml
+backup.sh
