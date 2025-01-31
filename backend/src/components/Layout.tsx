@@ -53,44 +53,37 @@ const Layout = ({
 
     const currentUser = UserService.getCurrentUser()
 
-    if (currentUser) {
-      try {
-        const status = await UserService.validateAccessToken()
+    if (!currentUser) {
+      await exit()
+      return
+    }
 
-        if (status === 200) {
-          const _user = await UserService.getUser(currentUser._id)
+    try {
+      // Only validate token and get user details if we have a stored user
+      const [status, _user] = await Promise.all([
+        UserService.validateAccessToken(),
+        UserService.getUser(currentUser._id)
+      ])
 
-          if (_user) {
-            if (_user.blacklisted) {
-              setUser(_user)
-              setUnauthorized(true)
-              setLoading(false)
-              return
-            }
-
-            if (admin && _user.type !== bookcarsTypes.RecordType.Admin) {
-              setUser(_user)
-              setUnauthorized(true)
-              setLoading(false)
-              return
-            }
-
-            setUser(_user)
-            setLoading(false)
-
-            if (onLoad) {
-              onLoad(_user)
-            }
-          } else {
-            await exit()
-          }
-        } else {
-          await exit()
-        }
-      } catch {
+      if (status !== 200 || !_user) {
         await exit()
+        return
       }
-    } else {
+
+      if (_user.blacklisted || (admin && _user.type !== bookcarsTypes.RecordType.Admin)) {
+        setUser(_user)
+        setUnauthorized(true)
+        setLoading(false)
+        return
+      }
+
+      setUser(_user)
+      setLoading(false)
+
+      if (onLoad) {
+        onLoad(_user)
+      }
+    } catch {
       await exit()
     }
   })

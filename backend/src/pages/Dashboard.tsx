@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import {
   Grid,
   Paper,
@@ -108,7 +108,7 @@ const Dashboard = () => {
   const [allSuppliers, setAllSuppliers] = useState<bookcarsTypes.User[]>([])
   const [suppliers, setSuppliers] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
-  const [statuses, setStatuses] = useState(helper.getBookingStatuses().map((status) => status.value))
+  const [statuses] = useState(helper.getBookingStatuses().map((status) => status.value))
   const [filter, setFilter] = useState<bookcarsTypes.Filter | null>(null)
 
   const [dashboardData, setDashboardData] = useState<DashboardData>({
@@ -123,17 +123,13 @@ const Dashboard = () => {
 
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042']
 
-  const handleSupplierFilterChange = (_suppliers: string[]) => {
+  const handleSupplierFilterChange = useCallback((_suppliers: string[]) => {
     setSuppliers(_suppliers)
-  }
+  }, [])
 
-  const handleStatusFilterChange = (_statuses: bookcarsTypes.BookingStatus[]) => {
-    setStatuses(_statuses)
-  }
-
-  const handleBookingFilterSubmit = (_filter: bookcarsTypes.Filter | null) => {
+  const handleBookingFilterSubmit = useCallback((_filter: bookcarsTypes.Filter | null) => {
     setFilter(_filter)
-  }
+  }, [])
 
   const fetchDashboardData = useCallback(async () => {
     try {
@@ -147,23 +143,30 @@ const Dashboard = () => {
     }
   }, [suppliers, statuses, filter])
 
+  // Combined effect for initial data loading and filter changes
   useEffect(() => {
-    fetchDashboardData()
-  }, [fetchDashboardData])
+    if (suppliers.length > 0) {
+      fetchDashboardData()
+    }
+  }, [fetchDashboardData, suppliers])
 
-  const onLoad = async (_user?: bookcarsTypes.User) => {
+  const onLoad = useCallback(async (_user?: bookcarsTypes.User) => {
     if (_user) {
       const _admin = helper.admin(_user)
       setUser(_user)
       setAdmin(_admin)
       setLeftPanel(true)
 
-      const _allSuppliers = await SupplierService.getAllSuppliers()
-      const _suppliers = _admin ? bookcarsHelper.flattenSuppliers(_allSuppliers) : [_user._id ?? '']
-      setAllSuppliers(_allSuppliers)
-      setSuppliers(_suppliers)
+      try {
+        const _allSuppliers = await SupplierService.getAllSuppliers()
+        const _suppliers = _admin ? bookcarsHelper.flattenSuppliers(_allSuppliers) : [_user._id ?? '']
+        setAllSuppliers(_allSuppliers)
+        setSuppliers(_suppliers)
+      } catch (err) {
+        helper.error(err)
+      }
     }
-  }
+  }, [])
 
   return (
     <Layout onLoad={onLoad} strict>
@@ -180,7 +183,6 @@ const Dashboard = () => {
                   />
                 )}
                 <StatusFilter
-                  onChange={handleStatusFilterChange}
                   className="cl-status-filter"
                 />
                 <BookingFilter
@@ -308,4 +310,4 @@ const Dashboard = () => {
   )
 }
 
-export default Dashboard
+export default React.memo(Dashboard)
