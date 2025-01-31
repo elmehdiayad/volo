@@ -1,11 +1,13 @@
 import React from 'react'
 import CircularProgress from '@mui/material/CircularProgress'
 import Box from '@mui/material/Box'
+import Logo from './Logo'
 
 const LoadingSpinner = () => (
   <Box
     sx={{
       display: 'flex',
+      flexDirection: 'column',
       justifyContent: 'center',
       alignItems: 'center',
       height: '100vh',
@@ -15,9 +17,11 @@ const LoadingSpinner = () => (
       left: 0,
       backgroundColor: '#fff',
       zIndex: 9999,
+      gap: 2
     }}
   >
-    <CircularProgress />
+    <Logo />
+    <CircularProgress size={40} thickness={4} />
   </Box>
 )
 

@@ -56,50 +56,34 @@ const App = () => (
           <Route path="/activate" element={<Activate />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
-          <Route
-            path="/"
-            element={(
-              <PrivateRoute>
-                <Dashboard />
-              </PrivateRoute>
-            )}
-          />
-          <Suspense fallback={<LoadingSpinner />}>
-            <Route
-              path="/suppliers"
-              element={(
-                <PrivateRoute>
-                  <Suppliers />
-                </PrivateRoute>
-              )}
-            />
-            <Route path="/bookings" element={<PrivateRoute><Bookings /></PrivateRoute>} />
-            <Route path="/supplier" element={<PrivateRoute><Supplier /></PrivateRoute>} />
-            <Route path="/create-supplier" element={<PrivateRoute><CreateSupplier /></PrivateRoute>} />
-            <Route path="/update-supplier" element={<PrivateRoute><UpdateSupplier /></PrivateRoute>} />
-            <Route path="/locations" element={<PrivateRoute><Locations /></PrivateRoute>} />
-            <Route path="/create-location" element={<PrivateRoute><CreateLocation /></PrivateRoute>} />
-            <Route path="/update-location" element={<PrivateRoute><UpdateLocation /></PrivateRoute>} />
-            <Route path="/cars" element={<PrivateRoute><Cars /></PrivateRoute>} />
-            <Route path="/car" element={<PrivateRoute><Car /></PrivateRoute>} />
-            <Route path="/create-car" element={<PrivateRoute><CreateCar /></PrivateRoute>} />
-            <Route path="/update-car" element={<PrivateRoute><UpdateCar /></PrivateRoute>} />
-            <Route path="/update-booking/:id" element={<PrivateRoute><UpdateBooking /></PrivateRoute>} />
-            <Route path="/create-booking" element={<PrivateRoute><CreateBooking /></PrivateRoute>} />
-            <Route path="/users" element={<PrivateRoute><Users /></PrivateRoute>} />
-            <Route path="/user" element={<PrivateRoute><User /></PrivateRoute>} />
-            <Route path="/create-user" element={<PrivateRoute><CreateUser /></PrivateRoute>} />
-            <Route path="/update-user/:id" element={<PrivateRoute><UpdateUser /></PrivateRoute>} />
-            <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
-            <Route path="/notifications" element={<PrivateRoute><Notifications /></PrivateRoute>} />
-            <Route path="/change-password" element={<PrivateRoute><ChangePassword /></PrivateRoute>} />
-            <Route path="/about" element={<About />} />
-            <Route path="/tos" element={<ToS />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/countries" element={<PrivateRoute><Countries /></PrivateRoute>} />
-            <Route path="/create-country" element={<PrivateRoute><CreateCountry /></PrivateRoute>} />
-            <Route path="/update-country" element={<PrivateRoute><UpdateCountry /></PrivateRoute>} />
-          </Suspense>
+          <Route path="/" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+          <Route path="/bookings" element={<PrivateRoute><Bookings /></PrivateRoute>} />
+          <Route path="/suppliers" element={<PrivateRoute><Suppliers /></PrivateRoute>} />
+          <Route path="/supplier" element={<PrivateRoute><Supplier /></PrivateRoute>} />
+          <Route path="/create-supplier" element={<PrivateRoute><CreateSupplier /></PrivateRoute>} />
+          <Route path="/update-supplier" element={<PrivateRoute><UpdateSupplier /></PrivateRoute>} />
+          <Route path="/locations" element={<PrivateRoute><Locations /></PrivateRoute>} />
+          <Route path="/create-location" element={<PrivateRoute><CreateLocation /></PrivateRoute>} />
+          <Route path="/update-location" element={<PrivateRoute><UpdateLocation /></PrivateRoute>} />
+          <Route path="/cars" element={<PrivateRoute><Cars /></PrivateRoute>} />
+          <Route path="/car" element={<PrivateRoute><Car /></PrivateRoute>} />
+          <Route path="/create-car" element={<PrivateRoute><CreateCar /></PrivateRoute>} />
+          <Route path="/update-car" element={<PrivateRoute><UpdateCar /></PrivateRoute>} />
+          <Route path="/update-booking/:id" element={<PrivateRoute><UpdateBooking /></PrivateRoute>} />
+          <Route path="/create-booking" element={<PrivateRoute><CreateBooking /></PrivateRoute>} />
+          <Route path="/users" element={<PrivateRoute><Users /></PrivateRoute>} />
+          <Route path="/user" element={<PrivateRoute><User /></PrivateRoute>} />
+          <Route path="/create-user" element={<PrivateRoute><CreateUser /></PrivateRoute>} />
+          <Route path="/update-user/:id" element={<PrivateRoute><UpdateUser /></PrivateRoute>} />
+          <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
+          <Route path="/notifications" element={<PrivateRoute><Notifications /></PrivateRoute>} />
+          <Route path="/change-password" element={<PrivateRoute><ChangePassword /></PrivateRoute>} />
+          <Route path="/about" element={<About />} />
+          <Route path="/tos" element={<ToS />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/countries" element={<PrivateRoute><Countries /></PrivateRoute>} />
+          <Route path="/create-country" element={<PrivateRoute><CreateCountry /></PrivateRoute>} />
+          <Route path="/update-country" element={<PrivateRoute><UpdateCountry /></PrivateRoute>} />
           <Route path="*" element={<NoMatch />} />
         </Routes>
       </Suspense>
