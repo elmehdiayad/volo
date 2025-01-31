@@ -2,7 +2,7 @@ import React, { lazy, Suspense } from 'react'
 import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom'
 import { GlobalProvider } from '@/context/GlobalContext'
 import ScrollToTop from '@/components/ScrollToTop'
-import Logo from './components/Logo'
+import LoadingSpinner from '@/components/LoadingSpinner'
 import * as UserService from '@/services/UserService'
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
@@ -49,18 +49,31 @@ const App = () => (
   <BrowserRouter>
     <GlobalProvider>
       <ScrollToTop />
-
-      <div className="app">
-        <Suspense fallback={<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}><Logo /></div>}>
-          <Routes>
-            <Route path="/sign-in" element={<SignIn />} />
-            <Route path="/activate" element={<Activate />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/sign-up" element={<SignUp />} />
-            <Route path="/" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+      <Suspense fallback={<LoadingSpinner />}>
+        <Routes>
+          <Route path="/sign-in" element={<SignIn />} />
+          <Route path="/sign-up" element={<SignUp />} />
+          <Route path="/activate" element={<Activate />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route
+            path="/"
+            element={(
+              <PrivateRoute>
+                <Dashboard />
+              </PrivateRoute>
+            )}
+          />
+          <Suspense fallback={<LoadingSpinner />}>
+            <Route
+              path="/suppliers"
+              element={(
+                <PrivateRoute>
+                  <Suppliers />
+                </PrivateRoute>
+              )}
+            />
             <Route path="/bookings" element={<PrivateRoute><Bookings /></PrivateRoute>} />
-            <Route path="/suppliers" element={<PrivateRoute><Suppliers /></PrivateRoute>} />
             <Route path="/supplier" element={<PrivateRoute><Supplier /></PrivateRoute>} />
             <Route path="/create-supplier" element={<PrivateRoute><CreateSupplier /></PrivateRoute>} />
             <Route path="/update-supplier" element={<PrivateRoute><UpdateSupplier /></PrivateRoute>} />
@@ -86,11 +99,10 @@ const App = () => (
             <Route path="/countries" element={<PrivateRoute><Countries /></PrivateRoute>} />
             <Route path="/create-country" element={<PrivateRoute><CreateCountry /></PrivateRoute>} />
             <Route path="/update-country" element={<PrivateRoute><UpdateCountry /></PrivateRoute>} />
-
-            <Route path="*" element={<NoMatch />} />
-          </Routes>
-        </Suspense>
-      </div>
+          </Suspense>
+          <Route path="*" element={<NoMatch />} />
+        </Routes>
+      </Suspense>
     </GlobalProvider>
   </BrowserRouter>
 )
