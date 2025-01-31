@@ -652,7 +652,7 @@ const BookingList = ({
                       variant="contained"
                       className="btn-primary"
                       size="small"
-                      href={`update-booking?b=${booking._id}`}
+                      href={`update-booking/${booking._id}`}
                     >
                       {commonStrings.UPDATE}
                     </Button>

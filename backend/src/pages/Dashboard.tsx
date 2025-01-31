@@ -220,7 +220,7 @@ const Dashboard = () => {
                   <Grid item xs={12} sm={6} md={3}>
                     <KPICard
                       title="Total Revenue"
-                      value={`$${dashboardData.totalRevenue.toLocaleString()}`}
+                      value={`${dashboardData.totalRevenue.toLocaleString()} ${env.CURRENCY}`}
                       icon={<AttachMoneyIcon sx={{ color: 'white' }} />}
                       color={theme.palette.warning.main}
                     />

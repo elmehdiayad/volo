@@ -4,7 +4,7 @@
   margin: 0 auto;
 }
 
-.header {
+.contract-header {
   display: flex;
   justify-content: space-between;
   align-items: center;

@@ -58,7 +58,7 @@ const Contract = ({
 
   return (
     <Paper className="contract-preview">
-      <Box className="header">
+      <Box className="contract-header">
         <Typography variant="h5" className="contract-title">
           {contractStrings.CONTRACT_DETAILS}
         </Typography>
