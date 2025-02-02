@@ -1020,35 +1020,23 @@ export const update = async (req: Request, res: Response) => {
     if (typeof licenseRequired !== 'undefined') {
       user.licenseRequired = licenseRequired
     }
-
     // Handle documents
     if (documents) {
-      const newDocuments = { ...user.documents } as {
+      const oldDocuments = { ...user.documents } as {
         licenseRecto?: string,
         licenseVerso?: string,
         idRecto?: string,
         idVerso?: string
       }
+
       for (const [key, value] of Object.entries(documents)) {
-        if (value && (key === 'licenseRecto' || key === 'licenseVerso' || key === 'idRecto' || key === 'idVerso')) {
-          // If it's a temp file, move it to permanent storage
-          const tempFile = path.join(env.CDN_TEMP_LICENSES, value)
-          if (await helper.exists(tempFile)) {
-            // Delete old file if exists
-            if (user.documents?.[key]) {
-              const oldFile = path.join(env.CDN_LICENSES, user.documents[key])
-              if (await helper.exists(oldFile)) {
-                await fs.unlink(oldFile)
-              }
-            }
-            const filename = `${user._id}_${key}${path.extname(value)}`
-            const newPath = path.join(env.CDN_LICENSES, filename)
-            await fs.rename(tempFile, newPath)
-            newDocuments[key] = filename
-          }
+        if (value === undefined && (key === 'licenseRecto' || key === 'licenseVerso' || key === 'idRecto' || key === 'idVerso')) {
+          // If the document is undefined, remove it from newDocuments
+          delete oldDocuments[key]
         }
       }
-      user.documents = newDocuments
+
+      user.documents = { ...oldDocuments, ...documents }
     }
 
     if (body.signature) {

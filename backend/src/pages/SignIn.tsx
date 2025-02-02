@@ -49,25 +49,11 @@ const SignIn = () => {
       if (res.status === 200) {
         if (res.data.blacklisted) {
           await UserService.signout(false)
-          setError(false)
           setBlacklisted(true)
         } else {
-          setError(false)
-
-          const params = new URLSearchParams(window.location.search)
-
-          if (params.has('u')) {
-            navigate(`/user${window.location.search}`)
-          } else if (params.has('c')) {
-            navigate(`/supplier${window.location.search}`)
-          } else if (params.has('cr')) {
-            navigate(`/car${window.location.search}`)
-          } else if (params.has('b')) {
-            navigate(`/update-booking${window.location.search}`)
-          } else {
-            navigate('/')
-          }
+          navigate('/')
         }
+        setError(false)
       } else {
         setError(true)
         setBlacklisted(false)
