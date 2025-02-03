@@ -5,7 +5,7 @@ import {
   Toolbar,
   Typography,
   IconButton,
-  Badge,
+  // Badge,
   MenuItem,
   Menu,
   Button,
@@ -18,7 +18,7 @@ import {
 import {
   Menu as MenuIcon,
   // Mail as MailIcon,
-  Notifications as NotificationsIcon,
+  // Notifications as NotificationsIcon,
   More as MoreIcon,
   Language as LanguageIcon,
   Settings as SettingsIcon,
@@ -39,11 +39,11 @@ import env from '@/config/env.config'
 import { strings } from '@/lang/header'
 import { strings as commonStrings } from '@/lang/common'
 import * as UserService from '@/services/UserService'
-import * as NotificationService from '@/services/NotificationService'
+// import * as NotificationService from '@/services/NotificationService'
 import Avatar from './Avatar'
 import * as langHelper from '@/common/langHelper'
 import * as helper from '@/common/helper'
-import { useGlobalContext, GlobalContextType } from '@/context/GlobalContext'
+// import { useGlobalContext, GlobalContextType } from '@/context/GlobalContext'
 import Logo from '@/components/Logo'
 import '@/assets/css/header.css'
 
@@ -59,7 +59,7 @@ const Header = ({
   hidden,
 }: HeaderProps) => {
   const navigate = useNavigate()
-  const { notificationCount, setNotificationCount } = useGlobalContext() as GlobalContextType
+  // const { notificationCount, setNotificationCount } = useGlobalContext() as GlobalContextType
 
   const [lang, setLang] = useState(helper.getLanguage(env.DEFAULT_LANGUAGE))
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
@@ -180,9 +180,9 @@ const Header = ({
     setSideAnchorEl(null)
   }
 
-  const handleNotificationsClick = () => {
-    navigate('/notifications')
-  }
+  // const handleNotificationsClick = () => {
+  //   navigate('/notifications')
+  // }
 
   useEffect(() => {
     const language = langHelper.getLanguage()
@@ -193,19 +193,19 @@ const Header = ({
   useEffect(() => {
     if (!hidden) {
       if (user) {
-        NotificationService.getNotificationCounter(user._id as string)
-          .then((notificationCounter) => {
-            setIsSignedIn(true)
-            setNotificationCount(notificationCounter.count)
-            setIsLoading(false)
-            setIsLoaded(true)
-          })
+        // NotificationService.getNotificationCounter(user._id as string)
+        //   .then((notificationCounter) => {
+        setIsSignedIn(true)
+        // setNotificationCount(notificationCounter.count)
+        setIsLoading(false)
+        setIsLoaded(true)
+        // })
       } else {
         setIsLoading(false)
         setIsLoaded(true)
       }
     }
-  }, [hidden, user, setNotificationCount])
+  }, [hidden, user])
 
   const menuId = 'primary-account-menu'
   const renderMenu = (
@@ -343,13 +343,13 @@ const Header = ({
           </>
           <div style={classes.grow} />
           <div className="header-desktop">
-            {isSignedIn && (
+            {/* {isSignedIn && (
               <IconButton aria-label="" color="inherit" onClick={handleNotificationsClick}>
                 <Badge badgeContent={notificationCount > 0 ? notificationCount : null} color="error">
                   <NotificationsIcon />
                 </Badge>
               </IconButton>
-            )}
+            )} */}
             {isLoaded && !loading && (
               <Button variant="contained" startIcon={<LanguageIcon />} onClick={handleLangMenuOpen} disableElevation className="btn-primary">
                 {lang?.label}
@@ -367,13 +367,13 @@ const Header = ({
                 {lang?.label}
               </Button>
             )}
-            {isSignedIn && (
+            {/* {isSignedIn && (
               <IconButton color="inherit" onClick={handleNotificationsClick}>
                 <Badge badgeContent={notificationCount > 0 ? notificationCount : null} color="error">
                   <NotificationsIcon />
                 </Badge>
               </IconButton>
-            )}
+            )} */}
             {isSignedIn && (
               <IconButton aria-label="show more" aria-controls={mobileMenuId} aria-haspopup="true" onClick={handleMobileMenuOpen} color="inherit">
                 <MoreIcon />

@@ -179,7 +179,7 @@ const Supplier = () => {
             <div className="supplier-actions">
               {edit && (
                 <Tooltip title={commonStrings.UPDATE}>
-                  <IconButton href={`/update-supplier?c=${supplier._id}`}>
+                  <IconButton href={`/update-user/${supplier._id}`}>
                     <EditIcon />
                   </IconButton>
                 </Tooltip>

@@ -237,7 +237,7 @@ const NotificationList = ({ user }: NotificationListProps) => {
                                   }
 
                                   const __navigate__ = () => {
-                                    navigate(`/update-booking?b=${row.booking}`)
+                                    navigate(`/update-booking/${row.booking}`)
                                   }
 
                                   if (!row.isRead) {

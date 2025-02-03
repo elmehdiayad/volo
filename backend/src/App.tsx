@@ -17,8 +17,6 @@ const ResetPassword = lazy(() => import('@/pages/ResetPassword'))
 const SignUp = lazy(() => import('@/pages/SignUp'))
 const Suppliers = lazy(() => import('@/pages/Suppliers'))
 const Supplier = lazy(() => import('@/pages/Supplier'))
-const CreateSupplier = lazy(() => import('@/pages/CreateSupplier'))
-const UpdateSupplier = lazy(() => import('@/pages/UpdateSupplier'))
 const Locations = lazy(() => import('@/pages/Locations'))
 const CreateLocation = lazy(() => import('@/pages/CreateLocation'))
 const UpdateLocation = lazy(() => import('@/pages/UpdateLocation'))
@@ -59,9 +57,7 @@ const App = () => (
           <Route path="/" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
           <Route path="/bookings" element={<PrivateRoute><Bookings /></PrivateRoute>} />
           <Route path="/suppliers" element={<PrivateRoute><Suppliers /></PrivateRoute>} />
-          <Route path="/supplier" element={<PrivateRoute><Supplier /></PrivateRoute>} />
-          <Route path="/create-supplier" element={<PrivateRoute><CreateSupplier /></PrivateRoute>} />
-          <Route path="/update-supplier" element={<PrivateRoute><UpdateSupplier /></PrivateRoute>} />
+          <Route path="/supplier/:id" element={<PrivateRoute><Supplier /></PrivateRoute>} />
           <Route path="/locations" element={<PrivateRoute><Locations /></PrivateRoute>} />
           <Route path="/create-location" element={<PrivateRoute><CreateLocation /></PrivateRoute>} />
           <Route path="/update-location" element={<PrivateRoute><UpdateLocation /></PrivateRoute>} />
@@ -72,7 +68,7 @@ const App = () => (
           <Route path="/update-booking/:id" element={<PrivateRoute><UpdateBooking /></PrivateRoute>} />
           <Route path="/create-booking" element={<PrivateRoute><CreateBooking /></PrivateRoute>} />
           <Route path="/users" element={<PrivateRoute><Users /></PrivateRoute>} />
-          <Route path="/user" element={<PrivateRoute><User /></PrivateRoute>} />
+          <Route path="/user/:id" element={<PrivateRoute><User /></PrivateRoute>} />
           <Route path="/create-user" element={<PrivateRoute><CreateUser /></PrivateRoute>} />
           <Route path="/update-user/:id" element={<PrivateRoute><UpdateUser /></PrivateRoute>} />
           <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />

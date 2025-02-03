@@ -438,7 +438,7 @@ const CarList = ({
                           <span className="car-supplier-logo">
                             <img src={bookcarsHelper.joinURL(env.CDN_USERS, car.supplier.avatar)} alt={car.supplier.fullName} />
                           </span>
-                          <a href={`/supplier?c=${car.supplier._id}`} className="car-supplier-info">
+                          <a href={`/supplier/${car.supplier._id}`} className="car-supplier-info">
                             {car.supplier.fullName}
                           </a>
                         </div>

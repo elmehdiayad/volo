@@ -241,7 +241,7 @@ const BookingList = ({
         headerName: strings.DRIVER,
         flex: 1,
         minWidth: 200,
-        renderCell: ({ row, value }: GridRenderCellParams<bookcarsTypes.Booking, string>) => <Link href={`/user?u=${(row.driver as bookcarsTypes.User)._id}`}>{value}</Link>,
+        renderCell: ({ row, value }: GridRenderCellParams<bookcarsTypes.Booking, string>) => <Link href={`/user/${(row.driver as bookcarsTypes.User)._id}`}>{value}</Link>,
         valueGetter: (value: bookcarsTypes.User) => value?.fullName,
       },
       {
@@ -359,7 +359,7 @@ const BookingList = ({
         headerName: commonStrings.SUPPLIER,
         flex: 1,
         renderCell: ({ row, value }: GridRenderCellParams<bookcarsTypes.Booking, string>) => (
-          <Link href={`/supplier?c=${(row.supplier as bookcarsTypes.User)._id}`} className="cell-supplier">
+          <Link href={`/supplier/${(row.supplier as bookcarsTypes.User)._id}`} className="cell-supplier">
             <img src={bookcarsHelper.joinURL(env.CDN_USERS, (row.supplier as bookcarsTypes.User).avatar)} alt={value} />
           </Link>
         ),

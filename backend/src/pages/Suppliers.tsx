@@ -49,7 +49,7 @@ const Suppliers = () => {
                   variant="contained"
                   className="btn-primary new-supplier"
                   size="small"
-                  href="/create-supplier"
+                  href="/create-user"
                 >
                   {strings.NEW_SUPPLIER}
                 </Button>

@@ -25,7 +25,6 @@ import { strings } from '@/lang/supplier-list'
 import * as SupplierService from '@/services/SupplierService'
 import * as helper from '@/common/helper'
 import Pager from './Pager'
-import * as UserService from '@/services/UserService'
 
 import '@/assets/css/supplier-list.css'
 
@@ -215,13 +214,13 @@ const SupplierList = ({
                   )}
                   {edit && (
                     <Tooltip title={commonStrings.UPDATE}>
-                      <IconButton href={`/update-supplier?c=${supplier._id}`}>
+                      <IconButton href={`/update-user/${supplier._id}`}>
                         <EditIcon />
                       </IconButton>
                     </Tooltip>
                   )}
                   <Tooltip title={strings.VIEW_SUPPLIER}>
-                    <IconButton href={`/supplier?c=${supplier._id}`}>
+                    <IconButton href={`/supplier/${supplier._id}`}>
                       <ViewIcon />
                     </IconButton>
                   </Tooltip>

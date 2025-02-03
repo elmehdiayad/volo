@@ -18,6 +18,11 @@ interface LayoutProps {
   onLoad?: (user?: bookcarsTypes.User) => void
 }
 
+// Extend the User type to include timestamp
+interface CachedUser extends bookcarsTypes.User {
+  _timestamp?: number
+}
+
 const Layout = ({
   user: masterUser,
   strict,
@@ -27,7 +32,7 @@ const Layout = ({
   children,
   onLoad
 }: LayoutProps) => {
-  const [user, setUser] = useState<bookcarsTypes.User>()
+  const [user, setUser] = useState<CachedUser>()
   const [loading, setLoading] = useState(true)
   const [unauthorized, setUnauthorized] = useState(false)
 
@@ -51,7 +56,7 @@ const Layout = ({
       }
     }
 
-    const currentUser = UserService.getCurrentUser()
+    const currentUser = UserService.getCurrentUser() as CachedUser
 
     if (!currentUser) {
       await exit()
@@ -59,13 +64,26 @@ const Layout = ({
     }
 
     try {
-      // Only validate token and get user details if we have a stored user
-      const [status, _user] = await Promise.all([
-        UserService.validateAccessToken(),
-        UserService.getUser(currentUser._id)
-      ])
+      const CACHE_DURATION = 5 * 60 * 1000 // 5 minutes
+      const now = Date.now()
+      const timestamp = currentUser._timestamp
 
-      if (status !== 200 || !_user) {
+      let _user: CachedUser | null = null
+
+      // If we have a recent timestamp and all required data, use the cached user
+      if (timestamp && (now - timestamp) < CACHE_DURATION && currentUser.verified !== undefined) {
+        _user = currentUser
+      } else {
+        // Fetch fresh user data if cache expired or missing required fields
+        _user = await UserService.getUser(currentUser._id) as CachedUser
+        if (_user) {
+          // Update the stored user with fresh data and timestamp
+          _user._timestamp = now
+          localStorage.setItem('bc-be-user', JSON.stringify(_user))
+        }
+      }
+
+      if (!_user) {
         await exit()
         return
       }
