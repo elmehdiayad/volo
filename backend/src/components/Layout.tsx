@@ -1,5 +1,6 @@
 import React, { useState, useEffect, CSSProperties, ReactNode } from 'react'
 import { Button } from '@mui/material'
+import { Preferences } from '@capacitor/preferences'
 import * as bookcarsTypes from ':bookcars-types'
 import { strings } from '@/lang/master'
 import Header from './Header'
@@ -44,6 +45,7 @@ const Layout = ({
 
   useInit(async () => {
     const exit = async () => {
+      console.log('Exiting')
       if (strict) {
         await UserService.signout()
       } else {
@@ -56,7 +58,8 @@ const Layout = ({
       }
     }
 
-    const currentUser = UserService.getCurrentUser() as CachedUser
+    const _currentUser = await Preferences.get({ key: 'bc-be-user' })
+    const currentUser = JSON.parse(_currentUser.value ?? 'null') as CachedUser
 
     if (!currentUser) {
       await exit()
@@ -77,13 +80,16 @@ const Layout = ({
         // Fetch fresh user data if cache expired or missing required fields
         _user = await UserService.getUser(currentUser._id) as CachedUser
         if (_user) {
+          console.log('Updating user', _user)
           // Update the stored user with fresh data and timestamp
           _user._timestamp = now
-          localStorage.setItem('bc-be-user', JSON.stringify(_user))
+          // localStorage.setItem('bc-be-user', JSON.stringify(_user))
+          await Preferences.set({ key: 'bc-be-user', value: JSON.stringify(_user) })
         }
       }
 
       if (!_user) {
+        console.log('No user found')
         await exit()
         return
       }

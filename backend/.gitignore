@@ -30,7 +30,39 @@ yarn-error.log*
 vite.config.d.ts
 vite.config.js
 
+# iOS specific
+ios/App/Pods
+ios/App/App/public
+ios/App/build
+ios/DerivedData
+ios/App.xcarchive
+ios/App.xcworkspace
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+*.xcuserstate
+*.xcworkspace/
+xcuserdata/
+*.moved-aside
+*.mobileprovision
+*.ipa
+*.dSYM.zip
+*.dSYM
 
-# Capacitor
-ios
-android
+# Android specific
+android/app/build/
+android/build/
+android/app/release/
+android/captures/
+android/local.properties
+android/.gradle/
+android/.idea/
+*.apk
+*.aab
+*.iml
+.gradle/
+.idea/
+
+*.pbxproj
+*.lock

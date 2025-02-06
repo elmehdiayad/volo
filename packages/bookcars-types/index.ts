@@ -7,6 +7,7 @@ export enum UserType {
 export enum AppType {
   Backend = 'backend',
   Frontend = 'frontend',
+  Mobile = 'mobile',
 }
 
 export enum CarType {

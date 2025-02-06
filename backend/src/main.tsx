@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
 import CssBaseline from '@mui/material/CssBaseline'
 import { ToastContainer } from 'react-toastify'
+import { Preferences } from '@capacitor/preferences'
 
 import { frFR as corefrFR, enUS as coreenUS, esES as coresES } from '@mui/material/locale'
 import { frFR, enUS, esES } from '@mui/x-date-pickers/locales'
@@ -22,7 +23,8 @@ if (import.meta.env.VITE_NODE_ENV === 'production') {
 }
 
 let language = env.DEFAULT_LANGUAGE
-const user = JSON.parse(localStorage.getItem('bc-be-user') ?? 'null')
+const user = await Preferences.get({ key: 'bc-be-user' })
+const userData = JSON.parse(user.value ?? 'null')
 let lang = UserService.getQueryLanguage()
 
 if (lang) {
@@ -36,10 +38,10 @@ if (lang) {
 
   try {
     if (user) {
-      language = user.language
-      if (lang && lang.length === 2 && user.language !== lang) {
+      language = userData.language
+      if (lang && lang.length === 2 && userData.language !== lang) {
         const data = {
-          id: user.id,
+          id: userData.id,
           language: lang,
         }
 

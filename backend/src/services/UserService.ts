@@ -1,3 +1,4 @@
+import { Preferences } from '@capacitor/preferences'
 import * as bookcarsTypes from ':bookcars-types'
 import axiosInstance from './axiosInstance'
 import env from '@/config/env.config'
@@ -116,8 +117,9 @@ export const signin = (data: bookcarsTypes.SignInPayload): Promise<{ status: num
       data,
       { withCredentials: true }
     )
-    .then((res) => {
+    .then(async (res) => {
       localStorage.setItem('bc-be-user', JSON.stringify(res.data))
+      await Preferences.set({ key: 'bc-be-user', value: JSON.stringify(res.data) })
       return { status: res.status, data: res.data }
     })
 

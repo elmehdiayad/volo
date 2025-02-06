@@ -8,6 +8,7 @@ import {
   Link
 } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
+import { Capacitor } from '@capacitor/core'
 import * as bookcarsTypes from ':bookcars-types'
 import { strings as commonStrings } from '@/lang/common'
 import { strings } from '@/lang/sign-in'
@@ -42,6 +43,7 @@ const SignIn = () => {
         email,
         password,
         stayConnected,
+        mobile: Capacitor.isNativePlatform(),
       }
 
       const res = await UserService.signin(data)
@@ -73,10 +75,11 @@ const SignIn = () => {
   useEffect(() => {
     const init = async () => {
       try {
+        console.log('Initializing')
         langHelper.setLanguage(strings)
 
         const currentUser = UserService.getCurrentUser()
-
+        console.log('Current user', currentUser)
         if (currentUser) {
           const status = await UserService.validateAccessToken()
 
@@ -107,6 +110,7 @@ const SignIn = () => {
         <div className="signin">
           <Paper className="signin-form" elevation={10}>
             <form onSubmit={handleSubmit}>
+              test something
               <h1 className="signin-form-title">{strings.SIGN_IN_HEADING}</h1>
               <FormControl fullWidth margin="dense">
                 <InputLabel htmlFor="email">{commonStrings.EMAIL}</InputLabel>

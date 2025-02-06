@@ -26,7 +26,10 @@ const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
   } else {
     token = req.headers[env.X_ACCESS_TOKEN] as string // mobile app and unit tests
   }
-
+  console.log('req.url', req.url)
+  console.log('token', token)
+  console.log('isBackend', isBackend)
+  console.log('isFrontend', isFrontend)
   if (token) {
     // Check token
     try {
