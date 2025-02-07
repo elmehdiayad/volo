@@ -10,7 +10,7 @@ import {
   Tooltip,
 } from '@mui/material'
 import { Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import * as bookcarsTypes from ':bookcars-types'
 import * as bookcarsHelper from ':bookcars-helper'
 import env from '@/config/env.config'
@@ -30,6 +30,7 @@ import '@/assets/css/supplier.css'
 
 const Supplier = () => {
   const navigate = useNavigate()
+  const { id } = useParams<{ id: string }>()
   const [user, setUser] = useState<bookcarsTypes.User>()
   const [supplier, setSupplier] = useState<bookcarsTypes.User>()
   const [suppliers, setSuppliers] = useState<string[]>([])
@@ -99,35 +100,31 @@ const Supplier = () => {
     setLanguage(_user?.language as string)
 
     if (_user && _user.verified) {
-      const params = new URLSearchParams(window.location.search)
-      if (params.has('c')) {
-        const id = params.get('c')
-        if (id && id !== '') {
-          try {
-            const _supplier = await SupplierService.getSupplier(id)
+      if (id && id !== '') {
+        try {
+          const _supplier = await SupplierService.getSupplier(id)
 
-            if (_supplier) {
-              setSupplier(_supplier)
-              setSuppliers([_supplier._id as string])
-              setVisible(true)
-              setLoading(false)
-            } else {
-              setLoading(false)
-              setNoMatch(true)
-            }
-          } catch {
+          if (_supplier) {
+            setSupplier(_supplier)
+            setSuppliers([_supplier._id as string])
+            setVisible(true)
             setLoading(false)
-            setError(true)
-            setVisible(false)
+          } else {
+            setLoading(false)
+            setNoMatch(true)
           }
-        } else {
+        } catch {
           setLoading(false)
-          setNoMatch(true)
+          setError(true)
+          setVisible(false)
         }
       } else {
         setLoading(false)
         setNoMatch(true)
       }
+    } else {
+      setLoading(false)
+      setNoMatch(true)
     }
   }
 

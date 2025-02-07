@@ -605,12 +605,12 @@ const CarList = ({
                     {edit && (
                       <>
                         <Tooltip title={strings.VIEW_CAR}>
-                          <IconButton href={`/car?cr=${car._id}`}>
+                          <IconButton href={`/car/${car._id}`}>
                             <ViewIcon />
                           </IconButton>
                         </Tooltip>
                         <Tooltip title={commonStrings.UPDATE}>
-                          <IconButton href={`/update-car?cr=${car._id}`}>
+                          <IconButton href={`/update-car/${car._id}`}>
                             <EditIcon />
                           </IconButton>
                         </Tooltip>

@@ -217,7 +217,7 @@ const LocationList = ({
                 secondaryAction={(
                   <div>
                     <Tooltip title={commonStrings.UPDATE}>
-                      <IconButton edge="end" href={`/update-location?loc=${location._id}`}>
+                      <IconButton edge="end" href={`/update-location/${location._id}`}>
                         <EditIcon />
                       </IconButton>
                     </Tooltip>

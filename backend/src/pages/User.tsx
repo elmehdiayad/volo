@@ -11,7 +11,7 @@ import {
   Link,
 } from '@mui/material'
 import { Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import * as bookcarsTypes from ':bookcars-types'
 import * as bookcarsHelper from ':bookcars-helper'
 import env from '@/config/env.config'
@@ -30,8 +30,8 @@ import '@/assets/css/user.css'
 
 const User = () => {
   const navigate = useNavigate()
+  const { id } = useParams<{ id: string }>()
   const statuses = helper.getBookingStatuses().map((status) => status.value)
-
   const [loggedUser, setLoggedUser] = useState<bookcarsTypes.User>()
   const [user, setUser] = useState<bookcarsTypes.User>()
   const [visible, setVisible] = useState(false)
@@ -91,47 +91,43 @@ const User = () => {
     if (_loggedUser && _loggedUser.verified) {
       setLoading(true)
 
-      const params = new URLSearchParams(window.location.search)
-      if (params.has('u')) {
-        const id = params.get('u')
-        if (id && id !== '') {
-          try {
-            const _user = await UserService.getUser(id)
+      if (id && id !== '') {
+        try {
+          const _user = await UserService.getUser(id)
 
-            if (_user) {
-              const setState = (_suppliers: string[]) => {
-                setSuppliers(_suppliers)
-                setLoggedUser(_loggedUser)
-                setUser(_user)
-                setVisible(true)
-                setLoading(false)
-              }
-
-              const admin = helper.admin(_loggedUser)
-              if (admin) {
-                const _suppliers = await SupplierService.getAllSuppliers()
-                const supplierIds = bookcarsHelper.flattenSuppliers(_suppliers)
-                setState(supplierIds)
-              } else {
-                setState([_loggedUser._id as string])
-              }
-            } else {
+          if (_user) {
+            const setState = (_suppliers: string[]) => {
+              setSuppliers(_suppliers)
+              setLoggedUser(_loggedUser)
+              setUser(_user)
+              setVisible(true)
               setLoading(false)
-              setNoMatch(true)
             }
-          } catch (err) {
-            helper.error(err)
+
+            const admin = helper.admin(_loggedUser)
+            if (admin) {
+              const _suppliers = await SupplierService.getAllSuppliers()
+              const supplierIds = bookcarsHelper.flattenSuppliers(_suppliers)
+              setState(supplierIds)
+            } else {
+              setState([_loggedUser._id as string])
+            }
+          } else {
             setLoading(false)
-            setVisible(false)
+            setNoMatch(true)
           }
-        } else {
+        } catch (err) {
+          helper.error(err)
           setLoading(false)
-          setNoMatch(true)
+          setVisible(false)
         }
       } else {
         setLoading(false)
         setNoMatch(true)
       }
+    } else {
+      setLoading(false)
+      setNoMatch(true)
     }
   }
 

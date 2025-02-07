@@ -60,11 +60,11 @@ const App = () => (
           <Route path="/supplier/:id" element={<PrivateRoute><Supplier /></PrivateRoute>} />
           <Route path="/locations" element={<PrivateRoute><Locations /></PrivateRoute>} />
           <Route path="/create-location" element={<PrivateRoute><CreateLocation /></PrivateRoute>} />
-          <Route path="/update-location" element={<PrivateRoute><UpdateLocation /></PrivateRoute>} />
+          <Route path="/update-location/:id" element={<PrivateRoute><UpdateLocation /></PrivateRoute>} />
           <Route path="/cars" element={<PrivateRoute><Cars /></PrivateRoute>} />
-          <Route path="/car" element={<PrivateRoute><Car /></PrivateRoute>} />
+          <Route path="/car/:id" element={<PrivateRoute><Car /></PrivateRoute>} />
           <Route path="/create-car" element={<PrivateRoute><CreateCar /></PrivateRoute>} />
-          <Route path="/update-car" element={<PrivateRoute><UpdateCar /></PrivateRoute>} />
+          <Route path="/update-car/:id" element={<PrivateRoute><UpdateCar /></PrivateRoute>} />
           <Route path="/update-booking/:id" element={<PrivateRoute><UpdateBooking /></PrivateRoute>} />
           <Route path="/create-booking" element={<PrivateRoute><CreateBooking /></PrivateRoute>} />
           <Route path="/users" element={<PrivateRoute><Users /></PrivateRoute>} />
@@ -79,7 +79,7 @@ const App = () => (
           <Route path="/contact" element={<Contact />} />
           <Route path="/countries" element={<PrivateRoute><Countries /></PrivateRoute>} />
           <Route path="/create-country" element={<PrivateRoute><CreateCountry /></PrivateRoute>} />
-          <Route path="/update-country" element={<PrivateRoute><UpdateCountry /></PrivateRoute>} />
+          <Route path="/update-country/:id" element={<PrivateRoute><UpdateCountry /></PrivateRoute>} />
           <Route path="*" element={<NoMatch />} />
         </Routes>
       </Suspense>

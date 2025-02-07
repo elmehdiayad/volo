@@ -10,6 +10,7 @@ import {
 } from '@mui/material'
 import { Info as InfoIcon } from '@mui/icons-material'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
+import { useParams } from 'react-router-dom'
 import * as Yup from 'yup'
 import * as bookcarsTypes from ':bookcars-types'
 import Layout from '@/components/Layout'
@@ -43,6 +44,7 @@ const CustomErrorMessage = ({ name }: { name: string }) => (
 )
 
 const UpdateCar = () => {
+  const { id } = useParams<{ id: string }>()
   const [user, setUser] = useState<bookcarsTypes.User>()
   const [car, setCar] = useState<bookcarsTypes.Car>()
   const [noMatch, setNoMatch] = useState(false)
@@ -263,49 +265,46 @@ const UpdateCar = () => {
       if (_user.type === bookcarsTypes.RecordType.Supplier) {
         setIsSupplier(true)
       }
-      const params = new URLSearchParams(window.location.search)
-      if (params.has('cr')) {
-        const id = params.get('cr')
-        if (id && id !== '') {
-          try {
-            const _car = await CarService.getCar(id)
 
-            if (_car) {
-              if (_user.type === bookcarsTypes.RecordType.Supplier && _user._id !== _car.supplier._id) {
-                setLoading(false)
-                setNoMatch(true)
-                return
-              }
-              _car._supplier = {
-                _id: _car.supplier._id as string,
-                name: _car.supplier.fullName,
-                image: _car.supplier.avatar,
-              } as bookcarsTypes.Option
+      if (id && id !== '') {
+        try {
+          const _car = await CarService.getCar(id)
 
-              setCar(_car)
-              setImageRequired(!_car.image)
-              setImage(_car.image || '')
-              setVisible(true)
+          if (_car) {
+            if (_user.type === bookcarsTypes.RecordType.Supplier && _user._id !== _car.supplier._id) {
               setLoading(false)
+              setNoMatch(true)
               return
             }
+            _car._supplier = {
+              _id: _car.supplier._id as string,
+              name: _car.supplier.fullName,
+              image: _car.supplier.avatar,
+            } as bookcarsTypes.Option
+
+            setCar(_car)
+            setImageRequired(!_car.image)
+            setImage(_car.image || '')
+            setVisible(true)
             setLoading(false)
-            setNoMatch(true)
-            return
-          } catch (err) {
-            helper.error(err)
-            setLoading(false)
-            setError(true)
-            setVisible(false)
             return
           }
+          setLoading(false)
+          setNoMatch(true)
+          return
+        } catch (err) {
+          helper.error(err)
+          setLoading(false)
+          setError(true)
+          setVisible(false)
+          return
         }
-        setLoading(false)
-        setNoMatch(true)
       }
       setLoading(false)
       setNoMatch(true)
     }
+    setLoading(false)
+    setNoMatch(true)
   }
 
   const admin = user && user.type === bookcarsTypes.RecordType.Admin

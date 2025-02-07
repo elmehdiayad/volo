@@ -7,6 +7,7 @@ import {
   Button,
   Paper
 } from '@mui/material'
+import { useParams } from 'react-router-dom'
 import * as bookcarsTypes from ':bookcars-types'
 import * as bookcarsHelper from ':bookcars-helper'
 import Layout from '@/components/Layout'
@@ -23,10 +24,10 @@ import CountrySelectList from '@/components/CountrySelectList'
 import Avatar from '@/components/Avatar'
 import PositionInput from '@/components/PositionInput'
 import ParkingSpotEditList from '@/components/ParkingSpotEditList'
-
 import '@/assets/css/update-location.css'
 
 const UpdateLocation = () => {
+  const { id } = useParams<{ id: string }>()
   const [visible, setVisible] = useState(false)
   const [loading, setLoading] = useState(false)
   const [names, setNames] = useState<bookcarsTypes.LocationName[]>([])
@@ -134,9 +135,6 @@ const UpdateLocation = () => {
     if (user && user.verified) {
       setLoading(true)
 
-      const params = new URLSearchParams(window.location.search)
-      if (params.has('loc')) {
-        const id = params.get('loc')
         if (id && id !== '') {
           try {
             const _location = await LocationService.getLocation(id)
@@ -178,7 +176,6 @@ const UpdateLocation = () => {
       } else {
         setLoading(false)
         setNoMatch(true)
-      }
     }
   }
 

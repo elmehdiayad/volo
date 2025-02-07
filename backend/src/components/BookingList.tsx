@@ -348,7 +348,7 @@ const BookingList = ({
         field: 'car',
         headerName: strings.CAR,
         flex: 1,
-        renderCell: ({ row, value }: GridRenderCellParams<bookcarsTypes.Booking, string>) => <Link href={`/car?cr=${(row.car as bookcarsTypes.Car)._id}`}>{value}</Link>,
+        renderCell: ({ row, value }: GridRenderCellParams<bookcarsTypes.Booking, string>) => <Link href={`/car/${(row.car as bookcarsTypes.Car)._id}`}>{value}</Link>,
         valueGetter: (value: bookcarsTypes.Car) => value?.name,
       })
     }
@@ -543,13 +543,13 @@ const BookingList = ({
                   <div className="booking-detail" style={{ height: bookingDetailHeight }}>
                     <span className="booking-detail-title">{strings.CAR}</span>
                     <div className="booking-detail-value">
-                      <Link href={`car/?cr=${(booking.car as bookcarsTypes.Car)._id}`}>{(booking.car as bookcarsTypes.Car).name}</Link>
+                      <Link href={`car/${(booking.car as bookcarsTypes.Car)._id}`}>{(booking.car as bookcarsTypes.Car).name}</Link>
                     </div>
                   </div>
                   <div className="booking-detail" style={{ height: bookingDetailHeight }}>
                     <span className="booking-detail-title">{strings.DRIVER}</span>
                     <div className="booking-detail-value">
-                      <Link href={`user/?u=${(booking.driver as bookcarsTypes.User)._id}`}>{(booking.driver as bookcarsTypes.User).fullName}</Link>
+                      <Link href={`user/${(booking.driver as bookcarsTypes.User)._id}`}>{(booking.driver as bookcarsTypes.User).fullName}</Link>
                     </div>
                   </div>
                   <div className="booking-detail" style={{ height: bookingDetailHeight }}>

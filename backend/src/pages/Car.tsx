@@ -17,6 +17,7 @@ import {
   Clear as UncheckIcon,
   LocationOn as LocationIcon,
 } from '@mui/icons-material'
+import { useParams } from 'react-router-dom'
 import * as bookcarsTypes from ':bookcars-types'
 import * as bookcarsHelper from ':bookcars-helper'
 import Layout from '@/components/Layout'
@@ -37,6 +38,7 @@ import DoorsIcon from '@/assets/img/car-door.png'
 import '@/assets/css/car.css'
 
 const Car = () => {
+  const { id } = useParams<{ id: string }>()
   const [user, setUser] = useState<bookcarsTypes.User>()
   const [car, setCar] = useState<bookcarsTypes.Car>()
   const [error, setError] = useState(false)
@@ -116,9 +118,7 @@ const Car = () => {
     setUser(_user)
     setLanguage(UserService.getLanguage())
 
-    const params = new URLSearchParams(window.location.search)
-    if (_user && _user.verified && params.has('cr')) {
-      const id = params.get('cr')
+    if (_user && _user.verified) {
       if (id && id !== '') {
         try {
           const _car = await CarService.getCar(id)
@@ -337,7 +337,7 @@ const Car = () => {
             </section>
             {edit && (
               <section className="buttons action">
-                <Button variant="contained" className="btn-primary btn-margin btn-margin-bottom" size="small" href={`/update-car?cr=${car._id}`}>
+                <Button variant="contained" className="btn-primary btn-margin btn-margin-bottom" size="small" href={`/update-car/${car._id}`}>
                   {commonStrings.UPDATE}
                 </Button>
                 <Button variant="contained" className="btn-margin-bottom" color="error" size="small" onClick={handleDelete}>
