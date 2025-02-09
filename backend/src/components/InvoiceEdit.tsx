@@ -30,6 +30,7 @@ import { strings as commonStrings } from '@/lang/common'
 import * as InvoiceService from '@/services/InvoiceService'
 import DatePicker from '@/components/DatePicker'
 import '@/assets/css/invoice-edit.css'
+import env from '@/config/env.config'
 
 interface InvoiceEditProps {
   open: boolean
@@ -115,6 +116,7 @@ const InvoiceEdit = ({
                         value={values.date ? new Date(values.date) : undefined}
                         onChange={(date) => setFieldValue('date', date ? date.toISOString().split('T')[0] : '')}
                         variant="outlined"
+                        language={env.DEFAULT_LANGUAGE}
                       />
                       <TextField
                         name="place"

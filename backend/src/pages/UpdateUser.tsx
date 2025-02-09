@@ -428,6 +428,7 @@ const UpdateUser = () => {
                           label={commonStrings.NATIONAL_ID_EXPIRATION_DATE}
                           value={initialValues.nationalIdExpiryDate}
                           onChange={(date) => setFieldValue('nationalIdExpiryDate', date)}
+                          language={(user && user.language) || env.DEFAULT_LANGUAGE}
                           required
                         />
                         <CustomErrorMessage name="nationalIdExpiryDate" />

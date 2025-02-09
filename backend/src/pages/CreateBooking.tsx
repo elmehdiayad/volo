@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useMemo } from 'react'
 import {
   FormControl,
   Button,
@@ -59,7 +59,7 @@ const CreateBooking = () => {
   const [maxDate, setMaxDate] = useState<Date>()
   const [fromError, setFromError] = useState(false)
   const [toError, setToError] = useState(false)
-
+  const language = useMemo(() => UserService.getLanguage(), [])
   const validationSchema = Yup.object().shape({
     supplier: Yup.string().when('$isSupplier', {
       is: false,
@@ -541,7 +541,7 @@ const CreateBooking = () => {
                         value={values.additionalDriverBirthDate}
                         onChange={(date) => date && setFieldValue('additionalDriverBirthDate', date)}
                         required
-                        language={UserService.getLanguage()}
+                        language={language}
                       />
                       <CustomErrorMessage name="additionalDriverBirthDate" />
                     </FormControl>
@@ -574,7 +574,7 @@ const CreateBooking = () => {
                         value={values.additionalDriverLicenseDeliveryDate}
                         onChange={(date) => date && setFieldValue('additionalDriverLicenseDeliveryDate', date)}
                         required
-                        language={UserService.getLanguage()}
+                        language={language}
                       />
                       <CustomErrorMessage name="additionalDriverLicenseDeliveryDate" />
                     </FormControl>
@@ -596,7 +596,7 @@ const CreateBooking = () => {
                         value={values.additionalDrivernationalIdExpiryDate}
                         onChange={(date) => date && setFieldValue('additionalDrivernationalIdExpiryDate', date)}
                         required
-                        language={UserService.getLanguage()}
+                        language={language}
                       />
                       <CustomErrorMessage name="additionalDrivernationalIdExpiryDate" />
                     </FormControl>

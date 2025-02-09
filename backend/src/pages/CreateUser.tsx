@@ -454,6 +454,7 @@ const CreateUser = () => {
                           value={values.nationalIdExpiryDate || undefined}
                           onChange={(date) => setFieldValue('nationalIdExpiryDate', date)}
                           required
+                          language={(user && user.language) || env.DEFAULT_LANGUAGE}
                         />
                         <CustomErrorMessage name="nationalIdExpiryDate" />
                       </FormControl>
@@ -476,6 +477,7 @@ const CreateUser = () => {
                           value={values.licenseDeliveryDate || undefined}
                           onChange={(date) => setFieldValue('licenseDeliveryDate', date)}
                           required={isDriver}
+                          language={(user && user.language) || env.DEFAULT_LANGUAGE}
                         />
                         <CustomErrorMessage name="licenseDeliveryDate" />
                       </FormControl>
