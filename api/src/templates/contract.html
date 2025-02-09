@@ -15,6 +15,9 @@
         max-width: 210mm;
         font-size: 12px;
       }
+      .contract-header {
+        margin-bottom: 50px;
+      }
       /* Separate styles for company logo */
       .company-logo {
         position: absolute;
@@ -104,14 +107,22 @@
         height: 80px;
         margin-top: 4px;
         background-color: white;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: visible;
       }
       .signature-image {
-        max-height: 100px;
-        max-width: 150px;
+        position: absolute;
+        max-height: 160px;
+        max-width: 160px;
+        height: auto;
+        width: auto;
         display: block;
-        margin: auto;
         background-color: transparent;
         mix-blend-mode: multiply;
+        z-index: 1;
       }
       .footer {
         text-align: center;
@@ -148,7 +159,8 @@
     </style>
   </head>
   <body>
-    <img
+    <div class="contract-header">
+      <img
       class="company-logo"
       src="{{companyLogo}}"
       onerror="this.style.display='none'"
@@ -161,6 +173,8 @@
       <div>DATE:<span class="input-line">{{date}}</span></div>
     </div>
 
+    </div>
+    
     <div class="drivers-grid">
       <div class="driver-section">
         <div class="driver-header">Conducteur (1)</div>
@@ -202,6 +216,7 @@
           >
         </div>
       </div>
+      {{#if driver2}}
       <div class="driver-section">
         <div class="driver-header">Conducteur (2)</div>
         <div>
@@ -236,14 +251,13 @@
             >{{driver2.licenseDeliveryDate}}</span
           >
         </div>
-        
         <div>
           N° Télephone:<span class="input-line" id="driver2-phone"
             >{{driver2.phone}}</span
           >
         </div>
-        </div>
       </div>
+      {{/if}}
     </div>
 
     <div class="payment-grid">
@@ -386,24 +400,39 @@
         <div>Signature conducteur:</div>
         <div class="signature-box"></div>
       </div>
+      {{#if driver2}}
       <div>
         <div>Signature 2éme conducteur:</div>
         <div class="signature-box"></div>
       </div>
-    </div>
-
-    <div class="vehicle-status">
-      <div>
-      </div>
+      {{else}}
       <div>
         <div>Visa de la direction:</div>
+        <div class="signature-box">
           <img
             class="signature-image"
             src="{{signature}}"
             onerror="this.style.display='none'"
           />
+        </div>
+      </div>
+      {{/if}}
+    </div>
+
+    {{#if driver2}}
+    <div class="signature-section">
+      <div>
+        <div>Visa de la direction:</div>
+        <div class="signature-box">
+          <img
+            class="signature-image"
+            src="{{signature}}"
+            onerror="this.style.display='none'"
+          />
+        </div>
       </div>
     </div>
+    {{/if}}
 
     <div class="footer"> 
       {{{supplier.bio}}}
