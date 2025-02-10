@@ -13,8 +13,9 @@ const additionalDriverSchema = new Schema<env.AdditionalDriver>(
     email: {
       type: String,
       lowercase: true,
-      required: [true, "can't be blank"],
-      validate: [validator.isEmail, 'is not valid'],
+      validate: [function isEmail(this: env.AdditionalDriver) {
+        return this.email ? validator.isEmail(this.email) : true
+      }, 'is not valid'],
       index: true,
       trim: true,
     },

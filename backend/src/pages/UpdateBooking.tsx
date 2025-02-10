@@ -145,7 +145,7 @@ const UpdateBooking = () => {
     }),
     additionalDriverEmail: Yup.string().when('additionalDriver', {
       is: true,
-      then: (schema) => schema.required(commonStrings.REQUIRED_FIELD).email(commonStrings.EMAIL_NOT_VALID),
+      then: (schema) => schema.email(commonStrings.EMAIL_NOT_VALID),
       otherwise: (schema) => schema.notRequired(),
     }),
     additionalDriverPhone: Yup.string().when('additionalDriver', {
@@ -180,16 +180,6 @@ const UpdateBooking = () => {
     }),
     paymentMethod: Yup.string().required(commonStrings.PAYMENT_METHOD_REQUIRED),
   })
-
-  const _validateEmail = (email: string) => {
-    if (email) {
-      if (validator.isEmail(email)) {
-        return true
-      }
-      return false
-    }
-    return true
-  }
 
   const _validatePhone = (phone?: string) => {
     if (phone) {
@@ -234,11 +224,6 @@ const UpdateBooking = () => {
       const additionalDriverSet = helper.carOptionAvailable(car, 'additionalDriver') && values.additionalDriver
 
       if (additionalDriverSet) {
-        const emailValid = _validateEmail(values.additionalDriverEmail)
-        if (!emailValid) {
-          return
-        }
-
         const phoneValid = _validatePhone(values.additionalDriverPhone)
         if (!phoneValid) {
           return
@@ -779,7 +764,6 @@ const UpdateBooking = () => {
                           label={commonStrings.EMAIL}
                           name="additionalDriverEmail"
                           type="text"
-                          required
                           autoComplete="off"
                           variant="standard"
                         />
@@ -804,6 +788,7 @@ const UpdateBooking = () => {
                           onChange={(date) => date && setFieldValue('additionalDriverBirthDate', date)}
                           required
                           language={UserService.getLanguage()}
+                          maxDate={new Date()}
                         />
                         <CustomErrorMessage name="additionalDriverBirthDate" />
                       </FormControl>
@@ -837,6 +822,7 @@ const UpdateBooking = () => {
                           onChange={(date) => date && setFieldValue('additionalDriverLicenseDeliveryDate', date)}
                           required
                           language={UserService.getLanguage()}
+                          maxDate={new Date()}
                         />
                         <CustomErrorMessage name="additionalDriverLicenseDeliveryDate" />
                       </FormControl>
@@ -859,6 +845,7 @@ const UpdateBooking = () => {
                           onChange={(date) => date && setFieldValue('additionalDrivernationalIdExpiryDate', date)}
                           required
                           language={UserService.getLanguage()}
+                          minDate={new Date()}
                         />
                         <CustomErrorMessage name="additionalDrivernationalIdExpiryDate" />
                       </FormControl>

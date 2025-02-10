@@ -97,13 +97,35 @@
         margin-top: 10px;
       }
       .signature-section {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
+        display: flex;
         gap: 8px;
         margin-top: 12px;
       }
-      .signature-box {
+      .drivers-signatures {
+        flex: 0.6;
         border: 1px solid black;
+        padding: 8px;
+      }
+      .drivers-container {
+        display: flex;
+        gap: 8px;
+        height: 100%;
+      }
+      .driver-signature {
+        flex: 1;
+      }
+      .signature-divider {
+        width: 0;
+        border-left: 1px dashed black;
+        margin: 0 4px;
+        height: 100%;
+      }
+      .visa-signature {
+        flex: 0.4;
+        border: 1px solid black;
+        padding: 8px;
+      }
+      .signature-box {
         height: 80px;
         margin-top: 4px;
         background-color: white;
@@ -396,32 +418,22 @@
     </div>
 
     <div class="signature-section">
-      <div>
-        <div>Signature conducteur:</div>
-        <div class="signature-box"></div>
-      </div>
-      {{#if driver2}}
-      <div>
-        <div>Signature 2éme conducteur:</div>
-        <div class="signature-box"></div>
-      </div>
-      {{else}}
-      <div>
-        <div>Visa de la direction:</div>
-        <div class="signature-box">
-          <img
-            class="signature-image"
-            src="{{signature}}"
-            onerror="this.style.display='none'"
-          />
+      <div class="drivers-signatures">
+        <div class="drivers-container">
+          <div class="driver-signature">
+            <div>Signature conducteur:</div>
+            <div class="signature-box"></div>
+          </div>
+          {{#if driver2}}
+          <div class="signature-divider"></div>
+          <div class="driver-signature">
+            <div>Signature 2éme conducteur:</div>
+            <div class="signature-box"></div>
+          </div>
+          {{/if}}
         </div>
       </div>
-      {{/if}}
-    </div>
-
-    {{#if driver2}}
-    <div class="signature-section">
-      <div>
+      <div class="visa-signature">
         <div>Visa de la direction:</div>
         <div class="signature-box">
           <img
@@ -432,7 +444,6 @@
         </div>
       </div>
     </div>
-    {{/if}}
 
     <div class="footer"> 
       {{{supplier.bio}}}
