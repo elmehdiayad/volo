@@ -414,10 +414,14 @@ const CreateBooking = () => {
                       type="number"
                       variant="standard"
                       value={days}
-                      inputProps={{ min: 1 }}
+                      slotProps={{
+                        input: {
+                          inputProps: { min: 1 },
+                        },
+                      }}
                       onChange={(e) => {
                         const newDays = parseInt(e.target.value, 10)
-                        if (!Number.isNaN(newDays) && newDays >= 1 && values.from) {
+                        if (values.from) {
                           setDays(newDays)
                           const newToDate = new Date(values.from)
                           newToDate.setDate(newToDate.getDate() + newDays)
@@ -425,6 +429,19 @@ const CreateBooking = () => {
                           const _maxDate = new Date(newToDate)
                           _maxDate.setDate(_maxDate.getDate() - 1)
                           setMaxDate(_maxDate)
+                        }
+                      }}
+                      onBlur={(e) => {
+                        if (e.target.value === '') {
+                          setDays(1)
+                          if (values.from) {
+                            const newToDate = new Date(values.from)
+                            newToDate.setDate(newToDate.getDate() + 1)
+                            setFieldValue('to', newToDate)
+                            const _maxDate = new Date(newToDate)
+                            _maxDate.setDate(_maxDate.getDate() - 1)
+                            setMaxDate(_maxDate)
+                          }
                         }
                       }}
                     />

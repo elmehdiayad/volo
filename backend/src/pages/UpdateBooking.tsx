@@ -593,12 +593,12 @@ const UpdateBooking = () => {
                         value={days}
                         slotProps={{
                           input: {
-                            inputProps: { min: 1 },
+                            inputProps: { min: 0 },
                           },
                         }}
                         onChange={(e) => {
                           const newDays = parseInt(e.target.value, 10)
-                          if (newDays && newDays > 0 && values.from) {
+                          if (values.from) {
                             setDays(newDays)
                             const newToDate = new Date(values.from)
                             newToDate.setDate(newToDate.getDate() + newDays)
@@ -624,6 +624,36 @@ const UpdateBooking = () => {
                                   helper.error(err)
                                 },
                               )
+                            }
+                          }
+                        }}
+                        onBlur={(e) => {
+                          if (e.target.value === '') {
+                            setDays(1)
+                            if (values.from) {
+                              const newToDate = new Date(values.from)
+                              newToDate.setDate(newToDate.getDate() + 1)
+                              setFieldValue('to', newToDate)
+                              const _maxDate = new Date(newToDate)
+                              _maxDate.setDate(_maxDate.getDate() - 1)
+                              setMaxDate(_maxDate)
+                              if (booking && car) {
+                                const _booking = bookcarsHelper.clone(booking)
+                                _booking.to = newToDate
+                                helper.price(
+                                  _booking,
+                                  car,
+                                  (_price) => {
+                                    setPrice(_price)
+                                    _booking.price = _price
+                                    setBooking(_booking)
+                                    setFieldValue('price', _price)
+                                  },
+                                  (err) => {
+                                    helper.error(err)
+                                  },
+                                )
+                              }
                             }
                           }
                         }}
