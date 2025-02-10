@@ -159,6 +159,7 @@ const strings = new LocalizedStrings({
     SERVICES: 'Services',
     CUSTOMER: 'Customer',
     GENERATE: 'Generate',
+    NUMBER_OF_DAYS: 'Nombre de jours',
   },
   en: {
     GENERIC_ERROR: 'An unhandled error occurred.',
@@ -316,6 +317,7 @@ const strings = new LocalizedStrings({
     SERVICES: 'Services',
     CUSTOMER: 'Customer',
     GENERATE: 'Generate',
+    NUMBER_OF_DAYS: 'Number of days',
   },
   es: {
     GENERIC_ERROR: 'Se ha producido un error no controlado.',
@@ -443,6 +445,7 @@ const strings = new LocalizedStrings({
     SERVICES: 'Services',
     CUSTOMER: 'Customer',
     GENERATE: 'Generate',
+    NUMBER_OF_DAYS: 'Number of days',
   },
 })
 

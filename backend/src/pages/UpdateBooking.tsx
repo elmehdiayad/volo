@@ -97,6 +97,7 @@ const UpdateBooking = () => {
   const [toError, setToError] = useState(false)
   const [paidAmount, setPaidAmount] = useState<number>(0)
   const [restAmount, setRestAmount] = useState<number>(0)
+  const [days, setDays] = useState<number>(1)
 
   const [initialValues, setInitialValues] = useState<FormValues>({
     supplier: { _id: '', name: '', image: '' },
@@ -399,6 +400,13 @@ const UpdateBooking = () => {
             const dol = _booking.dropOffLocation as bookcarsTypes.Location
             const _additionalDriver = _booking._additionalDriver as bookcarsTypes.AdditionalDriver
 
+            // Calculate initial number of days
+            const from = new Date(_booking.from)
+            const to = new Date(_booking.to)
+            const diffTime = Math.abs(to.getTime() - from.getTime())
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+            setDays(diffDays)
+
             const _initialValues: FormValues = {
               supplier: { _id: cmp._id, name: cmp.fullName, image: cmp.avatar } as bookcarsTypes.Option,
               driver: { _id: drv._id, name: drv.fullName, image: drv.avatar } as bookcarsTypes.Option,
@@ -576,55 +584,110 @@ const UpdateBooking = () => {
                     <CustomErrorMessage name="from" />
                   </FormControl>
 
-                  <FormControl fullWidth margin="dense">
-                    <DateTimePicker
-                      label={commonStrings.TO}
-                      value={values.to}
-                      minDate={minDate}
-                      showClear
-                      required
-                      onChange={(date) => {
-                        if (date) {
-                          const _maxDate = new Date(date)
-                          _maxDate.setDate(_maxDate.getDate() - 1)
-                          setFieldValue('to', date)
-                          setMaxDate(_maxDate)
-                          setToError(false)
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <FormControl style={{ width: '150px' }} margin="dense">
+                      <TextField
+                        label={commonStrings.NUMBER_OF_DAYS}
+                        type="number"
+                        variant="standard"
+                        value={days}
+                        slotProps={{
+                          input: {
+                            inputProps: { min: 1 },
+                          },
+                        }}
+                        onChange={(e) => {
+                          const newDays = parseInt(e.target.value, 10)
+                          if (newDays && newDays > 0 && values.from) {
+                            setDays(newDays)
+                            const newToDate = new Date(values.from)
+                            newToDate.setDate(newToDate.getDate() + newDays)
+                            setFieldValue('to', newToDate)
+                            const _maxDate = new Date(newToDate)
+                            _maxDate.setDate(_maxDate.getDate() - 1)
+                            setMaxDate(_maxDate)
 
-                          // Update price when date changes
-                          if (booking && car) {
-                            const _booking = bookcarsHelper.clone(booking)
-                            _booking.to = date
-                            helper.price(
-                              _booking,
-                              car,
-                              (_price) => {
-                                setPrice(_price)
-                                _booking.price = _price
-                                setBooking(_booking)
-                                setFieldValue('price', _price)
-                              },
-                              (err) => {
-                                helper.error(err)
-                              },
-                            )
+                            // Update price when date changes
+                            if (booking && car) {
+                              const _booking = bookcarsHelper.clone(booking)
+                              _booking.to = newToDate
+                              helper.price(
+                                _booking,
+                                car,
+                                (_price) => {
+                                  setPrice(_price)
+                                  _booking.price = _price
+                                  setBooking(_booking)
+                                  setFieldValue('price', _price)
+                                },
+                                (err) => {
+                                  helper.error(err)
+                                },
+                              )
+                            }
                           }
-                        } else {
-                          setFieldValue('to', undefined)
-                          setMaxDate(undefined)
-                        }
-                      }}
-                      onError={(err: DateTimeValidationError) => {
-                        if (err) {
-                          setToError(true)
-                        } else {
-                          setToError(false)
-                        }
-                      }}
-                      language={UserService.getLanguage()}
-                    />
-                    <CustomErrorMessage name="to" />
-                  </FormControl>
+                        }}
+                      />
+                    </FormControl>
+
+                    <FormControl fullWidth margin="dense">
+                      <DateTimePicker
+                        label={commonStrings.TO}
+                        value={values.to}
+                        minDate={minDate}
+                        showClear
+                        required
+                        onChange={(date) => {
+                          if (date) {
+                            const _maxDate = new Date(date)
+                            _maxDate.setDate(_maxDate.getDate() - 1)
+                            setFieldValue('to', date)
+                            setMaxDate(_maxDate)
+                            setToError(false)
+
+                            // Calculate and update days
+                            if (values.from) {
+                              const diffTime = Math.abs(date.getTime() - values.from.getTime())
+                              const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+                              setDays(diffDays)
+                            }
+
+                            // Update price when date changes
+                            if (booking && car) {
+                              const _booking = bookcarsHelper.clone(booking)
+                              _booking.to = date
+                              helper.price(
+                                _booking,
+                                car,
+                                (_price) => {
+                                  setPrice(_price)
+                                  _booking.price = _price
+                                  setBooking(_booking)
+                                  setFieldValue('price', _price)
+                                },
+                                (err) => {
+                                  helper.error(err)
+                                },
+                              )
+                            }
+                          } else {
+                            setFieldValue('to', undefined)
+                            setMaxDate(undefined)
+                            setDays(1)
+                          }
+                        }}
+                        onError={(err: DateTimeValidationError) => {
+                          if (err) {
+                            setToError(true)
+                          } else {
+                            setToError(false)
+                          }
+                        }}
+                        language={UserService.getLanguage()}
+                      />
+                      <CustomErrorMessage name="to" />
+                    </FormControl>
+                  </div>
                   <FormControl fullWidth margin="dense">
                     <Field
                       as={TextField}
@@ -733,7 +796,7 @@ const UpdateBooking = () => {
 
                   <FormControl fullWidth margin="dense" className="checkbox-fc">
                     <FormControlLabel
-                      control={<Field as={Switch} name="additionalDriver" color="primary" />}
+                      control={<Field as={Switch} name="additionalDriver" color="primary" checked={values.additionalDriver} />}
                       label={csStrings.ADDITIONAL_DRIVER}
                       className="checkbox-fcl"
                       disabled={!helper.carOptionAvailable(car, 'additionalDriver')}

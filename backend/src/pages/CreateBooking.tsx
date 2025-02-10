@@ -59,6 +59,7 @@ const CreateBooking = () => {
   const [maxDate, setMaxDate] = useState<Date>()
   const [fromError, setFromError] = useState(false)
   const [toError, setToError] = useState(false)
+  const [days, setDays] = useState<number>(1)
   const language = useMemo(() => UserService.getLanguage(), [])
   const validationSchema = Yup.object().shape({
     supplier: Yup.string().when('$isSupplier', {
@@ -381,9 +382,17 @@ const CreateBooking = () => {
                         setFieldValue('from', date)
                         setMinDate(_minDate)
                         setFromError(false)
+
+                        // Update days when from date changes
+                        if (values.to) {
+                          const diffTime = Math.abs(values.to.getTime() - date.getTime())
+                          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+                          setDays(diffDays)
+                        }
                       } else {
                         setFieldValue('from', undefined)
                         setMinDate(new Date())
+                        setDays(1)
                       }
                     }}
                     onError={(err: DateTimeValidationError) => {
@@ -398,40 +407,72 @@ const CreateBooking = () => {
                   <CustomErrorMessage name="from" />
                 </FormControl>
 
-                <FormControl fullWidth margin="dense">
-                  <DateTimePicker
-                    label={commonStrings.TO}
-                    value={values.to}
-                    minDate={minDate}
-                    showClear
-                    required
-                    onChange={(date) => {
-                      if (date) {
-                        const _maxDate = new Date(date)
-                        _maxDate.setDate(_maxDate.getDate() - 1)
-                        setFieldValue('to', date)
-                        setMaxDate(_maxDate)
-                        setToError(false)
-                      } else {
-                        setFieldValue('to', undefined)
-                        setMaxDate((() => {
-                          const tomorrow = new Date()
-                          tomorrow.setDate(tomorrow.getDate() + 1)
-                          return tomorrow
-                        })())
-                      }
-                    }}
-                    onError={(err: DateTimeValidationError) => {
-                      if (err) {
-                        setToError(true)
-                      } else {
-                        setToError(false)
-                      }
-                    }}
-                    language={UserService.getLanguage()}
-                  />
-                  <CustomErrorMessage name="to" />
-                </FormControl>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <FormControl style={{ width: '150px' }} margin="dense">
+                    <TextField
+                      label={commonStrings.NUMBER_OF_DAYS}
+                      type="number"
+                      variant="standard"
+                      value={days}
+                      inputProps={{ min: 1 }}
+                      onChange={(e) => {
+                        const newDays = parseInt(e.target.value, 10)
+                        if (!Number.isNaN(newDays) && newDays >= 1 && values.from) {
+                          setDays(newDays)
+                          const newToDate = new Date(values.from)
+                          newToDate.setDate(newToDate.getDate() + newDays)
+                          setFieldValue('to', newToDate)
+                          const _maxDate = new Date(newToDate)
+                          _maxDate.setDate(_maxDate.getDate() - 1)
+                          setMaxDate(_maxDate)
+                        }
+                      }}
+                    />
+                  </FormControl>
+
+                  <FormControl fullWidth margin="dense">
+                    <DateTimePicker
+                      label={commonStrings.TO}
+                      value={values.to}
+                      minDate={minDate}
+                      showClear
+                      required
+                      onChange={(date) => {
+                        if (date) {
+                          const _maxDate = new Date(date)
+                          _maxDate.setDate(_maxDate.getDate() - 1)
+                          setFieldValue('to', date)
+                          setMaxDate(_maxDate)
+                          setToError(false)
+
+                          // Calculate and update days
+                          if (values.from) {
+                            const diffTime = Math.abs(date.getTime() - values.from.getTime())
+                            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+                            setDays(diffDays)
+                          }
+                        } else {
+                          setFieldValue('to', undefined)
+                          setMaxDate((() => {
+                            const tomorrow = new Date()
+                            tomorrow.setDate(tomorrow.getDate() + 1)
+                            return tomorrow
+                          })())
+                          setDays(1)
+                        }
+                      }}
+                      onError={(err: DateTimeValidationError) => {
+                        if (err) {
+                          setToError(true)
+                        } else {
+                          setToError(false)
+                        }
+                      }}
+                      language={UserService.getLanguage()}
+                    />
+                    <CustomErrorMessage name="to" />
+                  </FormControl>
+                </div>
 
                 <FormControl fullWidth margin="dense">
                   <StatusList
