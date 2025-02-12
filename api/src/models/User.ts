@@ -21,6 +21,8 @@ const userSchema = new Schema<env.User>(
         return this.type === bookcarsTypes.UserType.Supplier ? validator.isEmail(this.email) : true
       }, 'is not valid'],
       trim: true,
+      sparse: true,
+      unique: true,
     },
     phone: {
       type: String,

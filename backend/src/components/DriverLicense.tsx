@@ -157,12 +157,12 @@ const DriverLicense = ({
         })
 
         // Check if all images are uploaded and process documents
-        if (!user && Object.values(updatedImages).every((img) => img !== null)) {
-          const result = await UserService.processDocuments(Object.values(updatedImages) as string[])
-          if (onUpload) {
-            onUpload(result.extractedInfo)
-          }
-        }
+        // if (!user && Object.values(updatedImages).every((img) => img !== null)) {
+        //   const result = await UserService.processDocuments(Object.values(updatedImages) as string[])
+        //   if (onUpload) {
+        //     onUpload(result.extractedInfo)
+        //   }
+        // }
       }
       setLoading(false)
     } catch (err) {
