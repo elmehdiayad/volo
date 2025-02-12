@@ -381,17 +381,17 @@ const CreateUser = () => {
                   {isDriver && (
                     <DriverLicense
                       className="driver-license-field"
-                      onUpload={(extractedInfo?: bookcarsTypes.LicenseExtractedData) => {
-                        if (extractedInfo) {
-                          if (extractedInfo.fullName) setFieldValue('fullName', extractedInfo.fullName)
-                          if (extractedInfo.nationalId) setFieldValue('nationalId', extractedInfo.nationalId)
-                          if (extractedInfo.licenseId) setFieldValue('licenseId', extractedInfo.licenseId)
-                          if (extractedInfo.dateOfBirth) setFieldValue('birthDate', new Date(extractedInfo.dateOfBirth))
-                          if (extractedInfo.nationalIdExpiryDate) setFieldValue('nationalIdExpiryDate', new Date(extractedInfo.nationalIdExpiryDate))
-                          if (extractedInfo.licenseDeliveryDate) setFieldValue('licenseDeliveryDate', new Date(extractedInfo.licenseDeliveryDate))
-                          if (extractedInfo.location) setFieldValue('location', extractedInfo.location)
-                        }
-                      }}
+                      // onUpload={(extractedInfo?: bookcarsTypes.LicenseExtractedData) => {
+                      //   if (extractedInfo) {
+                      //     if (extractedInfo.fullName) setFieldValue('fullName', extractedInfo.fullName)
+                      //     if (extractedInfo.nationalId) setFieldValue('nationalId', extractedInfo.nationalId)
+                      //     if (extractedInfo.licenseId) setFieldValue('licenseId', extractedInfo.licenseId)
+                      //     if (extractedInfo.dateOfBirth) setFieldValue('birthDate', new Date(extractedInfo.dateOfBirth))
+                      //     if (extractedInfo.nationalIdExpiryDate) setFieldValue('nationalIdExpiryDate', new Date(extractedInfo.nationalIdExpiryDate))
+                      //     if (extractedInfo.licenseDeliveryDate) setFieldValue('licenseDeliveryDate', new Date(extractedInfo.licenseDeliveryDate))
+                      //     if (extractedInfo.location) setFieldValue('location', extractedInfo.location)
+                      //   }
+                      // }}
                       onDocumentsChange={setDocuments}
                       setLoading={setLoading}
                       loading={loading}

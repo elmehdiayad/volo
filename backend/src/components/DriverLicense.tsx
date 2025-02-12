@@ -16,7 +16,6 @@ interface DriverLicenseProps {
   user?: bookcarsTypes.User
   variant?: 'standard' | 'outlined'
   className?: string
-  onUpload?: (extractedInfo?: bookcarsTypes.LicenseExtractedData) => void
   onDelete?: () => void
   onDocumentsChange?: (documents: { [key: string]: string }) => void
   setLoading: (loading: boolean) => void
@@ -27,7 +26,6 @@ const DriverLicense = ({
   user,
   variant = 'standard',
   className,
-  onUpload,
   onDelete,
   onDocumentsChange,
   setLoading,

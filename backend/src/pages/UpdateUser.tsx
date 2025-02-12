@@ -365,16 +365,16 @@ const UpdateUser = () => {
                     <DriverLicense
                       className="driver-license-field"
                       user={user}
-                      onUpload={(extractedInfo?: bookcarsTypes.LicenseExtractedData) => {
-                        if (extractedInfo) {
-                          if (extractedInfo.fullName) setFieldValue('fullName', extractedInfo.fullName)
-                          if (extractedInfo.nationalId) setFieldValue('nationalId', extractedInfo.nationalId)
-                          if (extractedInfo.licenseId) setFieldValue('licenseId', extractedInfo.licenseId)
-                          if (extractedInfo.dateOfBirth) setFieldValue('birthDate', new Date(extractedInfo.dateOfBirth).toISOString().split('T')[0])
-                          if (extractedInfo.nationalIdExpiryDate) setFieldValue('nationalIdExpiryDate', new Date(extractedInfo.nationalIdExpiryDate).toISOString().split('T')[0])
-                          if (extractedInfo.licenseDeliveryDate) setFieldValue('licenseDeliveryDate', new Date(extractedInfo.licenseDeliveryDate).toISOString().split('T')[0])
-                        }
-                      }}
+                      // onUpload={(extractedInfo?: bookcarsTypes.LicenseExtractedData) => {
+                      //   if (extractedInfo) {
+                      //     if (extractedInfo.fullName) setFieldValue('fullName', extractedInfo.fullName)
+                      //     if (extractedInfo.nationalId) setFieldValue('nationalId', extractedInfo.nationalId)
+                      //     if (extractedInfo.licenseId) setFieldValue('licenseId', extractedInfo.licenseId)
+                      //     if (extractedInfo.dateOfBirth) setFieldValue('birthDate', new Date(extractedInfo.dateOfBirth).toISOString().split('T')[0])
+                      //     if (extractedInfo.nationalIdExpiryDate) setFieldValue('nationalIdExpiryDate', new Date(extractedInfo.nationalIdExpiryDate).toISOString().split('T')[0])
+                      //     if (extractedInfo.licenseDeliveryDate) setFieldValue('licenseDeliveryDate', new Date(extractedInfo.licenseDeliveryDate).toISOString().split('T')[0])
+                      //   }
+                      // }}
                       onDocumentsChange={setDocuments}
                       setLoading={setLoading}
                     />
