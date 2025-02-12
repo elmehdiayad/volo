@@ -20,7 +20,6 @@ const userSchema = new Schema<env.User>(
       validate: [function isEmail(this: env.User) {
         return this.type === bookcarsTypes.UserType.Supplier ? validator.isEmail(this.email) : true
       }, 'is not valid'],
-      index: true,
       trim: true,
     },
     phone: {
