@@ -4,6 +4,7 @@ import { nanoid } from 'nanoid'
 import escapeStringRegexp from 'escape-string-regexp'
 import mongoose from 'mongoose'
 import { Request, Response } from 'express'
+import sharp from 'sharp'
 import * as bookcarsTypes from ':bookcars-types'
 import * as helper from '../common/helper'
 import * as env from '../config/env.config'
@@ -617,7 +618,11 @@ export const createImage = async (req: Request, res: Response) => {
     const filename = `${helper.getFilenameWithoutExtension(req.file.originalname)}_${nanoid()}_${Date.now()}${path.extname(req.file.originalname)}`
     const filepath = path.join(env.CDN_TEMP_LOCATIONS, filename)
 
-    await fs.writeFile(filepath, req.file.buffer)
+    const optimizedImage = await sharp(req.file.buffer)
+      .resize({ width: 800, height: 800, fit: 'inside' })
+      .toFormat('jpeg', { quality: 80 })
+      .toBuffer()
+    await fs.writeFile(filepath, optimizedImage)
     return res.json(filename)
   } catch (err) {
     logger.error(`[location.createImage] ${i18n.t('DB_ERROR')}`, err)
@@ -658,8 +663,11 @@ export const updateImage = async (req: Request, res: Response) => {
 
       const filename = `${location._id}_${Date.now()}${path.extname(file.originalname)}`
       const filepath = path.join(env.CDN_LOCATIONS, filename)
-
-      await fs.writeFile(filepath, file.buffer)
+      const optimizedImage = await sharp(file.buffer)
+        .resize({ width: 800, height: 800, fit: 'inside' })
+        .toFormat('jpeg', { quality: 80 })
+        .toBuffer()
+      await fs.writeFile(filepath, optimizedImage)
       location.image = filename
       await location.save()
       return res.json(filename)

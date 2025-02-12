@@ -1199,8 +1199,11 @@ export const createAvatar = async (req: Request, res: Response) => {
 
     const filename = `${helper.getFilenameWithoutExtension(req.file.originalname)}_${nanoid()}_${Date.now()}${path.extname(req.file.originalname)}`
     const filepath = path.join(env.CDN_TEMP_USERS, filename)
-
-    await fs.writeFile(filepath, req.file.buffer)
+    const optimizedImage = await sharp(req.file.buffer)
+      .resize({ width: 800, height: 800, fit: 'inside' })
+      .toFormat('jpeg', { quality: 80 })
+      .toBuffer()
+    await fs.writeFile(filepath, optimizedImage)
     return res.json(filename)
   } catch (err) {
     logger.error(`[user.createAvatar] ${i18n.t('DB_ERROR')}`, err)
@@ -1241,7 +1244,12 @@ export const updateAvatar = async (req: Request, res: Response) => {
       const filename = `${user._id}_logo${path.extname(req.file.originalname)}`
       const filepath = path.join(env.CDN_USERS, filename)
 
-      await fs.writeFile(filepath, req.file.buffer)
+      const optimizedImage = await sharp(req.file.buffer)
+        .resize({ width: 800, height: 800, fit: 'inside' })
+        .toFormat('jpeg', { quality: 80 })
+        .toBuffer()
+
+      await fs.writeFile(filepath, optimizedImage)
       user.avatar = filename
       await user.save()
       return res.json(filename)
@@ -1697,8 +1705,11 @@ export const createLicense = async (req: Request, res: Response) => {
 
     const filename = `${nanoid()}${path.extname(req.file.originalname)}`
     const filepath = path.join(env.CDN_TEMP_LICENSES, filename)
-
-    await fs.writeFile(filepath, req.file.buffer)
+    const optimizedImage = await sharp(req.file.buffer)
+      .resize({ width: 800, height: 800, fit: 'inside' })
+      .toFormat('jpeg', { quality: 80 })
+      .toBuffer()
+    await fs.writeFile(filepath, optimizedImage)
 
     // Return both the filename and extracted information
     return res.json(filename)
@@ -1744,8 +1755,11 @@ export const updateLicense = async (req: Request, res: Response) => {
 
       const filename = `${user.id}${path.extname(file.originalname)}`
       const filepath = path.join(env.CDN_LICENSES, filename)
-
-      await fs.writeFile(filepath, file.buffer)
+      const optimizedImage = await sharp(file.buffer)
+        .resize({ width: 800, height: 800, fit: 'inside' })
+        .toFormat('jpeg', { quality: 80 })
+        .toBuffer()
+      await fs.writeFile(filepath, optimizedImage)
 
       user.license = filename
       await user.save()
@@ -1835,8 +1849,11 @@ export const createDocument = async (req: Request, res: Response) => {
 
     const filename = `${nanoid()}${path.extname(req.file.originalname)}`
     const filepath = path.join(env.CDN_TEMP_LICENSES, filename)
-
-    await fs.writeFile(filepath, req.file.buffer)
+    const optimizedImage = await sharp(req.file.buffer)
+      .resize({ width: 256, height: 160, fit: 'inside' })
+      .toFormat('jpeg', { quality: 80 })
+      .toBuffer()
+    await fs.writeFile(filepath, optimizedImage)
     return res.json({ filename })
   } catch (err) {
     logger.error(`[user.createDocument] ${i18n.t('DB_ERROR')}`, err)
@@ -1876,8 +1893,11 @@ export const updateDocument = async (req: Request, res: Response) => {
 
     const filename = `${user._id}_${type}${path.extname(req.file.originalname)}`
     const filepath = path.join(env.CDN_LICENSES, filename)
-
-    await fs.writeFile(filepath, req.file.buffer)
+    const optimizedImage = await sharp(req.file.buffer)
+      .resize({ width: 256, height: 160, fit: 'inside' })
+      .toFormat('jpeg', { quality: 80 })
+      .toBuffer()
+    await fs.writeFile(filepath, optimizedImage)
     return res.json({ filename })
   } catch (err) {
     logger.error(`[user.updateDocument] ${i18n.t('DB_ERROR')}`, err)

@@ -4,6 +4,7 @@ import { nanoid } from 'nanoid'
 import escapeStringRegexp from 'escape-string-regexp'
 import mongoose from 'mongoose'
 import { Request, Response } from 'express'
+import sharp from 'sharp'
 import * as bookcarsTypes from ':bookcars-types'
 import Booking from '../models/Booking'
 import Car from '../models/Car'
@@ -35,7 +36,7 @@ export const create = async (req: Request, res: Response) => {
     const image = path.join(env.CDN_TEMP_CARS, body.image)
 
     if (await helper.exists(image)) {
-      const filename = `${car._id}_${Date.now()}${path.extname(body.image)}`
+      const filename = `${car._id}${path.extname(body.image)}`
       const newPath = path.join(env.CDN_CARS, filename)
 
       await fs.rename(image, newPath)
@@ -236,8 +237,14 @@ export const createImage = async (req: Request, res: Response) => {
 
     const filename = `${helper.getFilenameWithoutExtension(req.file.originalname)}_${nanoid()}_${Date.now()}${path.extname(req.file.originalname)}`
     const filepath = path.join(env.CDN_TEMP_CARS, filename)
+    // #TODO: Check if the file is an image
+    // optimize image before saving
+    const optimizedImage = await sharp(req.file.buffer)
+      .resize({ width: 800, height: 800, fit: 'inside' })
+      .toFormat('jpeg', { quality: 80 })
+      .toBuffer()
 
-    await fs.writeFile(filepath, req.file.buffer)
+    await fs.writeFile(filepath, optimizedImage)
     return res.json(filename)
   } catch (err) {
     logger.error(`[car.createImage] ${i18n.t('DB_ERROR')}`, err)
@@ -276,10 +283,15 @@ export const updateImage = async (req: Request, res: Response) => {
         }
       }
 
-      const filename = `${car._id}_${Date.now()}${path.extname(file.originalname)}`
+      const filename = `${car._id}${path.extname(file.originalname)}`
       const filepath = path.join(env.CDN_CARS, filename)
 
-      await fs.writeFile(filepath, file.buffer)
+      const optimizedImage = await sharp(req.file.buffer)
+        .resize({ width: 800, height: 800, fit: 'inside' })
+        .toFormat('jpeg', { quality: 80 })
+        .toBuffer()
+
+      await fs.writeFile(filepath, optimizedImage)
       car.image = filename
       await car.save()
       return res.json(filename)
