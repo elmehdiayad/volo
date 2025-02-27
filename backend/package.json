@@ -44,6 +44,7 @@
     "react-image-crop": "^11.0.7",
     "react-router-dom": "^7.1.1",
     "react-simple-wysiwyg": "^3.2.0",
+    "react-swipeable": "^7.0.2",
     "react-toastify": "^11.0.2",
     "recharts": "^2.15.1",
     "typescript": "^5.2.2",

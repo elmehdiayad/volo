@@ -8,7 +8,6 @@ import {
   DialogContent,
   DialogActions,
   Tooltip,
-  Link,
 } from '@mui/material'
 import { Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -25,6 +24,7 @@ import Avatar from '@/components/Avatar'
 import BookingList from '@/components/BookingList'
 import NoMatch from './NoMatch'
 import * as SupplierService from '@/services/SupplierService'
+import DocumentViewer from '@/components/DocumentViewer'
 
 import '@/assets/css/user.css'
 
@@ -40,6 +40,39 @@ const User = () => {
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
   const [suppliers, setSuppliers] = useState<string[]>([])
   const [offset, setOffset] = useState(0)
+  const [viewerOpen, setViewerOpen] = useState(false)
+  const [activeDocumentIndex, setActiveDocumentIndex] = useState(0)
+  const [documents, setDocuments] = useState<{ url: string, title: string }[]>([])
+
+  const getDocuments = (_user: bookcarsTypes.User) => {
+    if (!_user?.documents) return []
+    const docs = []
+    if (_user.documents.licenseRecto) {
+      docs.push({
+        url: bookcarsHelper.joinURL(env.CDN_LICENSES, _user.documents.licenseRecto),
+        title: commonStrings.LICENSE_RECTO
+      })
+    }
+    if (_user.documents.licenseVerso) {
+      docs.push({
+        url: bookcarsHelper.joinURL(env.CDN_LICENSES, _user.documents.licenseVerso),
+        title: commonStrings.LICENSE_VERSO
+      })
+    }
+    if (_user.documents.idRecto) {
+      docs.push({
+        url: bookcarsHelper.joinURL(env.CDN_LICENSES, _user.documents.idRecto),
+        title: commonStrings.ID_RECTO
+      })
+    }
+    if (_user.documents.idVerso) {
+      docs.push({
+        url: bookcarsHelper.joinURL(env.CDN_LICENSES, _user.documents.idVerso),
+        title: commonStrings.ID_VERSO
+      })
+    }
+    return docs
+  }
 
   useEffect(() => {
     if (visible) {
@@ -49,6 +82,12 @@ const User = () => {
       }
     }
   }, [visible])
+
+  useEffect(() => {
+    if (user?.documents) {
+      setDocuments(getDocuments(user))
+    }
+  }, [user])
 
   const onBeforeUpload = () => {
     setLoading(true)
@@ -102,6 +141,7 @@ const User = () => {
               setUser(_user)
               setVisible(true)
               setLoading(false)
+              setDocuments(getDocuments(_user))
             }
 
             const admin = helper.admin(_loggedUser)
@@ -147,6 +187,13 @@ const User = () => {
     }
   }
 
+  const handleOpenDocument = (index: number) => {
+    if (documents.length > index) {
+      setActiveDocumentIndex(index)
+      setViewerOpen(true)
+    }
+  }
+
   return (
     <Layout onLoad={onLoad} strict>
       {loggedUser && user && visible && (
@@ -186,30 +233,38 @@ const User = () => {
                 <div className="document-list">
                   {user.documents.licenseRecto && (
                     <div className="document">
-                      <Link href={bookcarsHelper.joinURL(env.CDN_LICENSES, user.documents.licenseRecto)} target="_blank">
+                      <Button
+                        onClick={() => handleOpenDocument(0)}
+                      >
                         <span>{commonStrings.LICENSE_RECTO}</span>
-                      </Link>
+                      </Button>
                     </div>
                   )}
                   {user.documents.licenseVerso && (
                     <div className="document">
-                      <Link href={bookcarsHelper.joinURL(env.CDN_LICENSES, user.documents.licenseVerso)} target="_blank">
+                      <Button
+                        onClick={() => handleOpenDocument(1)}
+                      >
                         <span>{commonStrings.LICENSE_VERSO}</span>
-                      </Link>
+                      </Button>
                     </div>
                   )}
                   {user.documents.idRecto && (
                     <div className="document">
-                      <Link href={bookcarsHelper.joinURL(env.CDN_LICENSES, user.documents.idRecto)} target="_blank">
+                      <Button
+                        onClick={() => handleOpenDocument(2)}
+                      >
                         <span>{commonStrings.ID_RECTO}</span>
-                      </Link>
+                      </Button>
                     </div>
                   )}
                   {user.documents.idVerso && (
                     <div className="document">
-                      <Link href={bookcarsHelper.joinURL(env.CDN_LICENSES, user.documents.idVerso)} target="_blank">
+                      <Button
+                        onClick={() => handleOpenDocument(3)}
+                      >
                         <span>{commonStrings.ID_VERSO}</span>
-                      </Link>
+                      </Button>
                     </div>
                   )}
                 </div>
@@ -264,6 +319,12 @@ const User = () => {
       </Dialog>
       {loading && <Backdrop text={commonStrings.LOADING} />}
       {noMatch && <NoMatch hideHeader />}
+      <DocumentViewer
+        open={viewerOpen}
+        documents={documents}
+        activeIndex={activeDocumentIndex}
+        onClose={() => setViewerOpen(false)}
+      />
     </Layout>
   )
 }
