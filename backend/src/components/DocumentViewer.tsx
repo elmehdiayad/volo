@@ -15,7 +15,6 @@ import {
 } from '@mui/icons-material'
 import { useSwipeable } from 'react-swipeable'
 import { strings as commonStrings } from '@/lang/common'
-import * as helper from '@/common/helper'
 
 interface Document {
   url: string
@@ -52,10 +51,6 @@ const DocumentViewer = ({
     setActiveIndex((prev) => (prev < documents.length - 1 ? prev + 1 : 0))
   }
 
-  const handleDownload = (url: string) => {
-    helper.downloadURI(url)
-  }
-
   const handlers = useSwipeable({
     onSwipedLeft: handleNext,
     onSwipedRight: handlePrevious,
@@ -68,6 +63,16 @@ const DocumentViewer = ({
   }
 
   const currentDocument = documents[activeIndex]
+
+  const handleDownload = (url: string) => {
+    // Create a custom download link to force download instead of opening in new tab
+    const link = document.createElement('a')
+    link.setAttribute('download', currentDocument.title)
+    link.setAttribute('href', url)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
 
   return (
     <Dialog
@@ -153,8 +158,10 @@ const DocumentViewer = ({
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
+            justifyContent: 'center',
             bgcolor: 'black',
-            position: 'relative'
+            position: 'relative',
+            overflow: 'hidden'
           }}
         >
           <img
@@ -163,14 +170,17 @@ const DocumentViewer = ({
             style={{
               maxWidth: '100%',
               maxHeight: '100%',
-              objectFit: 'contain'
+              objectFit: 'contain',
+              width: '100%',
+              height: '100%',
+              display: 'block'
             }}
           />
           <Typography
             variant="subtitle1"
             sx={{
               position: 'absolute',
-              bottom: 16,
+              bottom: 0,
               color: 'white',
               textAlign: 'center',
               width: '100%',
