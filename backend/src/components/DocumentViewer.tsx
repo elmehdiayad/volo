@@ -15,6 +15,7 @@ import {
 } from '@mui/icons-material'
 import { useSwipeable } from 'react-swipeable'
 import { strings as commonStrings } from '@/lang/common'
+import * as helper from '@/common/helper'
 
 interface Document {
   url: string
@@ -73,29 +74,7 @@ const DocumentViewer = ({
   const currentDocument = documents[activeIndex]
 
   const handleDownload = (url: string) => {
-    // Create a fetch request to get the file as a blob
-    fetch(url)
-      .then((response) => response.blob())
-      .then((blob) => {
-        // Create a blob URL for the file
-        const blobUrl = URL.createObjectURL(blob)
-        // Create a download link
-        const link = document.createElement('a')
-        link.href = blobUrl
-        link.download = currentDocument.title || 'document'
-        link.style.display = 'none'
-        // Add to DOM, trigger click, and clean up
-        document.body.appendChild(link)
-        link.click()
-        // Clean up
-        setTimeout(() => {
-          document.body.removeChild(link)
-          URL.revokeObjectURL(blobUrl)
-        }, 100)
-      })
-      .catch((error) => {
-        console.error('Download failed:', error)
-      })
+    helper.downloadURI(url)
   }
 
   return (
