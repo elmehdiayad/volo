@@ -1,16 +1,6 @@
-/* Create Car */
-
-div.create-car {
-  display: flex;
-  flex-direction: column;
-  flex: 1 0 auto;
-  align-items: center;
-  transform: translate3d(0, 0, 0);
-  margin: 45px 0;
-}
-
 .car-form-wrapper {
   margin: 32px 0;
+  padding: 10px 30px;
 }
 
 .car-form-title {
@@ -28,21 +18,8 @@ div.create-car {
   font-size: 0.9em;
   line-height: 1em;
 }
-
-/* Device width is less than or equal to 960px */
-
-@media only screen and (width <=960px) {
-  .car-form {
-    width: 360px;
-    padding: 30px;
-  }
-}
-
-/* Device width is greater than or equal to 960px */
-
-@media only screen and (width >=960px) {
-  .car-form {
-    width: 550px;
-    padding: 30px;
-  }
+.car-form {
+  padding: 0 20px;
+  max-width: 550px;
+  margin: 0 auto;
 }
