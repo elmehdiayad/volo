@@ -158,7 +158,7 @@ export const getInvoiceData = async (req: Request, res: Response) => {
       totalHT += price
 
       const item = {
-        designation: `${booking.car?.name} Immatriculation ${booking.car?.plateNumber} De ${formatDate(new Date(booking.from), clientTimezone)} au ${formatDate(new Date(booking.to), clientTimezone)}`,
+        designation: `${booking.car?.brand} ${booking.car?.carModel} Immatriculation ${booking.car?.plateNumber} De ${formatDate(new Date(booking.from), clientTimezone)} au ${formatDate(new Date(booking.to), clientTimezone)}`,
         days,
         pricePerDay: pricePerDay.toFixed(2),
         total: price.toFixed(2),

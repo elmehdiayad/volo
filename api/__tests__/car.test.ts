@@ -80,7 +80,8 @@ describe('POST /api/create-car', () => {
       await fs.copyFile(IMAGE1_PATH, tempImage)
     }
     const payload: bookcarsTypes.CreateCarPayload = {
-      name: 'BMW X1',
+      brand: 'BMW',
+      carModel: 'X1',
       plateNumber: '12345A0',
       year: 2024,
       supplier: SUPPLIER1_ID,
@@ -120,7 +121,8 @@ describe('POST /api/create-car', () => {
       .send(payload)
     expect(res.statusCode).toBe(200)
     const car = res.body
-    expect(car.name).toBe(payload.name)
+    expect(car.brand).toBe(payload.brand)
+    expect(car.carModel).toBe(payload.carModel)
     expect(car.supplier).toBe(payload.supplier)
     expect(car.minimumAge).toBe(payload.minimumAge)
     expect(car.locations).toStrictEqual(payload.locations)
@@ -179,7 +181,8 @@ describe('PUT /api/update-car', () => {
     // test success
     const payload: bookcarsTypes.UpdateCarPayload = {
       _id: CAR_ID,
-      name: 'BMW X5',
+      brand: 'BMW',
+      carModel: 'X5',
       year: 2024,
       plateNumber: '12345A0',
       supplier: SUPPLIER2_ID,
@@ -218,7 +221,8 @@ describe('PUT /api/update-car', () => {
       .send(payload)
     expect(res.statusCode).toBe(200)
     const car = res.body
-    expect(car.name).toBe(payload.name)
+    expect(car.brand).toBe(payload.brand)
+    expect(car.carModel).toBe(payload.carModel)
     expect(car.supplier).toBe(payload.supplier)
     expect(car.minimumAge).toBe(payload.minimumAge)
     expect(car.locations).toStrictEqual(payload.locations)

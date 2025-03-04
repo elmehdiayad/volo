@@ -141,7 +141,8 @@ export const generateContract = async (req: Request, res: Response) => {
         licenseDeliveryDate: booking._additionalDriver.licenseDeliveryDate ? new Date(booking._additionalDriver.licenseDeliveryDate).toLocaleDateString('fr-FR') : '',
       } : undefined,
       vehicle: {
-        brand: booking.car?.name || '',
+        brand: booking.car?.brand || '',
+        carModel: booking.car?.carModel || '',
         plate: booking.car?.plateNumber || '',
         type: booking.car?.type || '',
         mileage: booking.car?.mileage?.toString() || '0',

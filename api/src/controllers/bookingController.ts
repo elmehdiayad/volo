@@ -158,7 +158,7 @@ export const confirm = async (user: env.User, supplier: env.User, booking: env.B
         + '<br><br>' : ''}
         ${i18n.t('BOOKING_CONFIRMED_PART3')}${car.supplier.fullName}${i18n.t('BOOKING_CONFIRMED_PART4')}${pickupLocationName}${i18n.t('BOOKING_CONFIRMED_PART5')}`
       + `${from} ${i18n.t('BOOKING_CONFIRMED_PART6')}`
-      + `${car.name}${i18n.t('BOOKING_CONFIRMED_PART7')}`
+      + `${car.brand} ${car.carModel}${i18n.t('BOOKING_CONFIRMED_PART7')}`
       + `<br><br>${i18n.t('BOOKING_CONFIRMED_PART8')}<br><br>`
       + `${i18n.t('BOOKING_CONFIRMED_PART9')}${car.supplier.fullName}${i18n.t('BOOKING_CONFIRMED_PART10')}${dropOffLocationName}${i18n.t('BOOKING_CONFIRMED_PART11')}`
       + `${to} ${i18n.t('BOOKING_CONFIRMED_PART12')}`
