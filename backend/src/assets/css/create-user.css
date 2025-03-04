@@ -1,40 +1,37 @@
-/* Create User */
-div.create-user {
-  display: flex;
-  flex-direction: column;
-  flex: 1 0 auto;
-  align-items: center;
-  transform: translate3d(0, 0, 0);
+.user-form {
+  padding: 0 20px;
+  max-width: 550px;
+  margin: 0 auto;
 }
 
 .user-form-wrapper {
   margin: 32px 0;
+  padding: 10px 30px;
 }
 
 .user-form-title {
   text-align: center;
   text-transform: capitalize;
   color: #121212;
+  margin-bottom: 25px;
 }
 
-div.create-user .driver-license-field {
+.driver-license-field {
   margin-top: 15px;
 }
 
-/* Device width is less than or equal to 960px */
-
-@media only screen and (width <=960px) {
-  .user-form {
-    width: 360px;
-    padding: 30px;
-  }
+.info {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 10px 0;
+  color: rgba(0, 0, 0, 0.6);
 }
 
-/* Device width is greater than or equal to 960px */
+.buttons {
+  margin-top: 25px;
+}
 
-@media only screen and (width >=960px) {
-  .user-form {
-    width: 550px;
-    padding: 30px;
-  }
+.btn-margin-bottom {
+  margin-right: 10px !important;
 }

@@ -1,38 +1,39 @@
 /* Create Location */
 
-div.create-location {
-  display: flex;
-  flex-direction: column;
-  flex: 1 0 auto;
-  align-items: center;
-  transform: translate3d(0, 0, 0);
-  margin: 45px 0;
+.location-form {
+  padding: 0 20px;
+  max-width: 550px;
+  margin: 0 auto;
 }
 
 .location-form-wrapper {
   margin: 32px 0;
+  padding: 10px 30px;
 }
 
 .location-form-title {
   text-align: center;
   text-transform: capitalize;
   color: #121212;
+  margin-bottom: 25px;
 }
 
-/* Device width is less than or equal to 960px */
-
-@media only screen and (width <=960px) {
-  .location-form {
-    width: 360px;
-    padding: 30px;
-  }
+.avatar-ctn {
+  margin-bottom: 15px;
 }
 
-/* Device width is greater than or equal to 960px */
+.info {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 10px 0;
+  color: rgba(0, 0, 0, 0.6);
+}
 
-@media only screen and (width >=960px) {
-  .location-form {
-    width: 550px;
-    padding: 30px;
-  }
+.buttons {
+  margin-top: 25px;
+}
+
+.btn-margin-bottom {
+  margin-right: 10px !important;
 }
