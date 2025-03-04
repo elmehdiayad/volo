@@ -4,7 +4,13 @@ import * as env from '../config/env.config'
 
 const carSchema = new Schema<env.Car>(
   {
-    name: {
+    brand: {
+      type: String,
+      required: [true, "can't be blank"],
+      index: true,
+      trim: true,
+    },
+    carModel: {
       type: String,
       required: [true, "can't be blank"],
       index: true,

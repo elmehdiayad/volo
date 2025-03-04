@@ -523,7 +523,9 @@ export interface Booking extends Document {
  * @extends {Document}
  */
 export interface Car extends Document {
-  name: string
+  _id: Types.ObjectId
+  brand: string
+  carModel: string
   plateNumber: string
   supplier: Types.ObjectId
   minimumAge: number
@@ -560,6 +562,8 @@ export interface Car extends Document {
   co2?: number
 }
 
+export type CarDocument = Car & Document
+
 /**
  * CarInfo.
  *
@@ -569,7 +573,8 @@ export interface Car extends Document {
  */
 export interface CarInfo {
   _id?: Types.ObjectId
-  name: string
+  brand: string
+  carModel: string
   year: number
   plateNumber: string
   supplier: UserInfo

@@ -173,7 +173,8 @@ export interface UpdateSupplierPayload {
 }
 
 export interface CreateCarPayload {
-  name: string
+  brand: string
+  carModel: string
   plateNumber: string
   year: number
   supplier: string
@@ -440,8 +441,7 @@ export interface CountryInfo extends Country {
 
 export interface Car {
   _id?: string
-  name: string
-  company: string
+  brand: string
   model: string
   mileage: number
   plateNumber: string

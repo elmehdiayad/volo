@@ -32,6 +32,8 @@ const strings = new LocalizedStrings({
     RATING: 'Notation',
     CO2: 'CO2 (g/km)',
     YEAR: 'Année',
+    BRAND: 'Marque',
+    MODEL: 'Modèle',
   },
   en: {
     NEW_CAR_HEADING: 'New car',
@@ -62,6 +64,8 @@ const strings = new LocalizedStrings({
     RATING: 'Rating',
     CO2: 'CO2 (g/km)',
     YEAR: 'Year',
+    BRAND: 'Brand',
+    MODEL: 'Model',
   },
   es: {
     NEW_CAR_HEADING: 'Nuevo coche',
@@ -90,6 +94,8 @@ const strings = new LocalizedStrings({
     MULTIMEDIA: 'Multimedia',
     RATING: 'Calificación',
     CO2: 'CO2 (g/km)',
+    BRAND: 'Marca',
+    MODEL: 'Modelo',
   },
 })
 

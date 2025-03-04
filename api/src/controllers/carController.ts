@@ -76,7 +76,8 @@ export const update = async (req: Request, res: Response) => {
     if (car) {
       const {
         supplier,
-        name,
+        brand,
+        carModel,
         plateNumber,
         year,
         minimumAge,
@@ -114,7 +115,8 @@ export const update = async (req: Request, res: Response) => {
       car.minimumAge = minimumAge
       car.year = year
       car.locations = locations.map((l) => new mongoose.Types.ObjectId(l))
-      car.name = name
+      car.brand = brand
+      car.carModel = carModel
       car.plateNumber = plateNumber
       car.available = available
       car.type = type as bookcarsTypes.CarType

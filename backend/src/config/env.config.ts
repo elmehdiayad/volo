@@ -66,6 +66,7 @@ const env = {
   DEPOSIT_FILTER_VALUE_2: Number.parseInt(String(import.meta.env.VITE_BC_DEPOSIT_FILTER_VALUE_2), 10),
   DEPOSIT_FILTER_VALUE_3: Number.parseInt(String(import.meta.env.VITE_BC_DEPOSIT_FILTER_VALUE_3), 10),
   GOOGLE_MAPS_API_KEY: String(import.meta.env.VITE_BC_GOOGLE_MAPS_API_KEY),
+  CAR_API_KEY: String(import.meta.env.VITE_BC_CAR_API_KEY),
 }
 
 export default env

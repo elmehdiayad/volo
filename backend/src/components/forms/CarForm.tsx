@@ -7,6 +7,7 @@ import {
   Switch,
   TextField,
   FormHelperText,
+  Autocomplete
 } from '@mui/material'
 import { Info as InfoIcon } from '@mui/icons-material'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
@@ -29,6 +30,7 @@ import DoorsList from '@/components/DoorsList'
 import FuelPolicyList from '@/components/FuelPolicyList'
 import CarRangeList from '@/components/CarRangeList'
 import MultimediaList from '@/components/MultimediaList'
+import { cars } from '@/data/cars'
 
 import '@/assets/css/create-car.css'
 
@@ -41,7 +43,8 @@ interface CarFormProps {
 }
 
 const validationSchema = Yup.object().shape({
-  name: Yup.string().required(commonStrings.REQUIRED_FIELD),
+  brand: Yup.string().required(commonStrings.REQUIRED_FIELD),
+  carModel: Yup.string().required(commonStrings.REQUIRED_FIELD),
   plateNumber: Yup.string().required(commonStrings.REQUIRED_FIELD),
   year: Yup.number().required(commonStrings.REQUIRED_FIELD),
   supplier: Yup.mixed().when('$isSupplier', {
@@ -126,9 +129,15 @@ const CarForm = ({ car, isUpdate, isSupplier, onSubmit, onCancel }: CarFormProps
   const [imageSizeError, setImageSizeError] = useState(false)
   const [image, setImage] = useState(car?.image || '')
   const [formError, setFormError] = useState(false)
+  const [selectedBrand, setSelectedBrand] = useState(car?.brand || '')
+  const [selectedModel, setSelectedModel] = useState(car?.carModel || '')
+
+  const brands = cars.map((item) => item.brand)
+  const models = selectedBrand ? (cars.find((item) => item.brand === selectedBrand)?.models || []) : []
 
   const initialValues = {
-    name: car?.name || '',
+    brand: car?.brand || '',
+    carModel: car?.carModel || '',
     plateNumber: car?.plateNumber || '',
     year: car?.year?.toString() || '',
     supplier: car?.supplier ? {
@@ -203,7 +212,8 @@ const CarForm = ({ car, isUpdate, isSupplier, onSubmit, onCancel }: CarFormProps
       }
 
       const baseData = {
-        name: values.name,
+        brand: values.brand,
+        carModel: values.carModel,
         plateNumber: values.plateNumber,
         year: Number.parseInt(values.year, 10),
         minimumAge: Number.parseInt(values.minimumAge, 10),
@@ -303,27 +313,46 @@ const CarForm = ({ car, isUpdate, isSupplier, onSubmit, onCancel }: CarFormProps
               )}
 
               <FormControl fullWidth margin="dense">
-                <Field
-                  as={TextField}
-                  label={strings.NAME}
-                  required
-                  name="name"
-                  autoComplete="off"
-                  variant="standard"
+                <Autocomplete
+                  options={brands}
+                  value={selectedBrand}
+                  onChange={(_, newValue) => {
+                    setSelectedBrand(newValue || '')
+                    setFieldValue('brand', newValue || '')
+                    setSelectedModel('')
+                    setFieldValue('carModel', '')
+                  }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label={strings.BRAND}
+                      required
+                      variant="standard"
+                    />
+                  )}
                 />
-                <CustomErrorMessage name="name" />
+                <CustomErrorMessage name="brand" />
               </FormControl>
 
               <FormControl fullWidth margin="dense">
-                <Field
-                  as={TextField}
-                  label={strings.PLATE_NUMBER}
-                  required
-                  name="plateNumber"
-                  autoComplete="off"
-                  variant="standard"
+                <Autocomplete
+                  options={models}
+                  value={selectedModel}
+                  onChange={(_, newValue) => {
+                    setSelectedModel(newValue || '')
+                    setFieldValue('carModel', newValue || '')
+                  }}
+                  disabled={!selectedBrand}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label={strings.MODEL}
+                      required
+                      variant="standard"
+                    />
+                  )}
                 />
-                <CustomErrorMessage name="plateNumber" />
+                <CustomErrorMessage name="carModel" />
               </FormControl>
 
               <FormControl fullWidth margin="dense">
@@ -337,6 +366,18 @@ const CarForm = ({ car, isUpdate, isSupplier, onSubmit, onCancel }: CarFormProps
                   slotProps={{ input: { inputMode: 'numeric', pattern: '^\\d{4}$' } }}
                 />
                 <CustomErrorMessage name="year" />
+              </FormControl>
+
+              <FormControl fullWidth margin="dense">
+                <Field
+                  as={TextField}
+                  label={strings.PLATE_NUMBER}
+                  required
+                  name="plateNumber"
+                  autoComplete="off"
+                  variant="standard"
+                />
+                <CustomErrorMessage name="plateNumber" />
               </FormControl>
 
               <FormControl fullWidth margin="dense">

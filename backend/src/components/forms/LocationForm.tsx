@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import {
   Input,
   InputLabel,
@@ -7,6 +7,7 @@ import {
   Button,
   Paper,
 } from '@mui/material'
+import { Loader } from '@googlemaps/js-api-loader'
 import * as bookcarsTypes from ':bookcars-types'
 import * as bookcarsHelper from ':bookcars-helper'
 import { strings as commonStrings } from '@/lang/common'
@@ -165,11 +166,10 @@ const LocationForm = ({
     })
   }
 
-  const initPlacesAutocomplete = () => {
+  const initPlacesAutocomplete = useCallback(() => {
     if (!autocompleteInputRef.current) return
 
     setIsGoogleMapsLoaded(true)
-    // Create initial autocomplete instance
     createAutocomplete(searchMode)
 
     // Create toggle button
@@ -195,34 +195,40 @@ const LocationForm = ({
       setSearchMode(newMode)
     }
 
-    // Store reference to the button
     toggleButtonRef.current = toggleButton
 
-    // Add toggle button to input container
     const inputContainer = autocompleteInputRef.current.parentElement
     if (inputContainer) {
       inputContainer.style.position = 'relative'
       inputContainer.appendChild(toggleButton)
     }
-  }
+  }, [searchMode])
 
   // Effect to handle Google Maps script loading
   useEffect(() => {
-    const script = document.createElement('script')
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${env.GOOGLE_MAPS_API_KEY}&libraries=places`
-    script.async = true
-    script.defer = true
-    script.onload = initPlacesAutocomplete
-    document.head.appendChild(script)
+    const loader = new Loader({
+      apiKey: env.GOOGLE_MAPS_API_KEY,
+      version: 'weekly',
+      libraries: ['places'],
+      region: 'MA'
+    })
+
+    loader.importLibrary('places')
+      .then(() => {
+        initPlacesAutocomplete()
+      })
+      .catch((error: Error) => {
+        console.error('Error loading Google Maps:', error)
+        helper.error('Failed to load Google Maps. Please try again.')
+      })
 
     return () => {
-      document.head.removeChild(script)
       if (toggleButtonRef.current) {
         toggleButtonRef.current.remove()
       }
       setIsGoogleMapsLoaded(false)
     }
-  }, [])
+  }, [initPlacesAutocomplete])
 
   // Effect to handle search mode changes
   useEffect(() => {
