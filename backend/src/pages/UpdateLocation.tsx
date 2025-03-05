@@ -52,7 +52,7 @@ const UpdateLocation = () => {
         try {
           const _location = await LocationService.getLocation(id)
 
-          if (_location && _location.values) {
+          if (_location) {
             setLocation(_location)
             setVisible(true)
             setLoading(false)

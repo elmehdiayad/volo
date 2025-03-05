@@ -6,22 +6,11 @@ import app from '../src/app'
 import * as databaseHelper from '../src/common/databaseHelper'
 import * as testHelper from './testHelper'
 import * as env from '../src/config/env.config'
-import LocationValue from '../src/models/LocationValue'
 import Country from '../src/models/Country'
 import Location from '../src/models/Location'
 
 let COUNTRY_ID: string
-
-let COUNTRY_NAMES: bookcarsTypes.CountryName[] = [
-  {
-    language: 'en',
-    name: nanoid(),
-  },
-  {
-    language: 'fr',
-    name: nanoid(),
-  },
-]
+let COUNTRY_NAME = nanoid()
 
 //
 // Connecting and initializing the database before running the test suite
@@ -53,9 +42,7 @@ describe('POST /api/validate-country', () => {
     // test success (country found)
     const language = testHelper.LANGUAGE
     const name = nanoid()
-    const countryValue = new LocationValue({ language, value: name })
-    await countryValue.save()
-    const country = new Country({ values: [countryValue.id] })
+    const country = new Country({ name })
     await country.save()
     const payload: bookcarsTypes.ValidateCountryPayload = {
       language,
@@ -74,7 +61,6 @@ describe('POST /api/validate-country', () => {
       .set(env.X_ACCESS_TOKEN, token)
       .send(payload)
     expect(res.statusCode).toBe(200)
-    await countryValue.deleteOne()
     await country.deleteOne()
 
     // test failure (no payload)
@@ -95,9 +81,9 @@ describe('POST /api/create-country', () => {
     let res = await request(app)
       .post('/api/create-country')
       .set(env.X_ACCESS_TOKEN, token)
-      .send(COUNTRY_NAMES)
+      .send({ name: COUNTRY_NAME })
     expect(res.statusCode).toBe(200)
-    expect(res.body?.values?.length).toBe(2)
+    expect(res.body?.name).toBe(COUNTRY_NAME)
     COUNTRY_ID = res.body?._id
 
     // test failure (no payload)
@@ -115,32 +101,19 @@ describe('PUT /api/update-country/:id', () => {
     const token = await testHelper.signinAsAdmin()
 
     // test success
-    COUNTRY_NAMES = [
-      {
-        language: 'en',
-        name: nanoid(),
-      },
-      {
-        language: 'fr',
-        name: nanoid(),
-      },
-      {
-        language: 'es',
-        name: nanoid(),
-      },
-    ]
+    COUNTRY_NAME = nanoid()
     let res = await request(app)
       .put(`/api/update-country/${COUNTRY_ID}`)
       .set(env.X_ACCESS_TOKEN, token)
-      .send(COUNTRY_NAMES)
+      .send({ name: COUNTRY_NAME })
     expect(res.statusCode).toBe(200)
-    expect(res.body.values?.length).toBe(3)
+    expect(res.body?.name).toBe(COUNTRY_NAME)
 
     // test success (country not found)
     res = await request(app)
       .put(`/api/update-country/${testHelper.GetRandromObjectIdAsString()}`)
       .set(env.X_ACCESS_TOKEN, token)
-      .send(COUNTRY_NAMES)
+      .send({ name: COUNTRY_NAME })
     expect(res.statusCode).toBe(204)
 
     // test failure (no payload)
@@ -163,9 +136,9 @@ describe('GET /api/country/:id/:language', () => {
       .get(`/api/country/${COUNTRY_ID}/${language}`)
       .set(env.X_ACCESS_TOKEN, token)
     expect(res.statusCode).toBe(200)
-    expect(res.body?.name).toBe(COUNTRY_NAMES.filter((v) => v.language === language)[0].name)
+    expect(res.body?.name).toBe(COUNTRY_NAME)
 
-    // test success (contry not found)
+    // test success (country not found)
     res = await request(app)
       .get(`/api/country/${testHelper.GetRandromObjectIdAsString()}/${language}`)
       .set(env.X_ACCESS_TOKEN, token)
@@ -188,7 +161,7 @@ describe('GET /api/countries/:page/:size/:language', () => {
 
     // test success
     let res = await request(app)
-      .get(`/api/countries/${testHelper.PAGE}/${testHelper.SIZE}/${language}?s=${COUNTRY_NAMES[0].name}`)
+      .get(`/api/countries/${testHelper.PAGE}/${testHelper.SIZE}/${language}?s=${COUNTRY_NAME}`)
       .set(env.X_ACCESS_TOKEN, token)
     expect(res.statusCode).toBe(200)
     expect(res.body.length).toBe(1)
@@ -214,9 +187,7 @@ describe('GET /api/check-country/:id', () => {
       .set(env.X_ACCESS_TOKEN, token)
     expect(res.statusCode).toBe(200)
 
-    // test success (country notrelated to a location)
-    const location = await Location.findById(locationId)
-    await LocationValue.deleteMany({ _id: { $in: location?.values } })
+    // test success (country not related to a location)
     await Location.deleteOne({ _id: locationId })
     res = await request(app)
       .get(`/api/check-country/${COUNTRY_ID}`)
@@ -237,12 +208,7 @@ describe('GET /api/countries-with-locations/:language/:imageRequired/:minLocatio
   it('should get a countries with location', async () => {
     const language = 'en'
 
-    const locationValueEn = new LocationValue({ language, value: 'Location 1 en' })
-    await locationValueEn.save()
-    const locationValueFr = new LocationValue({ language: 'fr', value: 'Location 1 fr' })
-    await locationValueFr.save()
-
-    const location = new Location({ country: COUNTRY_ID, values: [locationValueEn.id, locationValueFr.id] })
+    const location = new Location({ country: COUNTRY_ID, name: 'Location 1' })
     await location.save()
 
     // test success (image not required)
@@ -257,8 +223,6 @@ describe('GET /api/countries-with-locations/:language/:imageRequired/:minLocatio
     expect(res.statusCode).toBe(200)
     expect(res.body.find((country: bookcarsTypes.Country) => country._id === COUNTRY_ID)).toBeUndefined()
 
-    await locationValueEn.deleteOne()
-    await locationValueFr.deleteOne()
     await location.deleteOne()
 
     // test success (no related locations)
@@ -284,7 +248,7 @@ describe('GET /api/country-id/:name/:language', () => {
 
     // test success
     let res = await request(app)
-      .get(`/api/country-id/${COUNTRY_NAMES.find((n) => n.language === language)?.name}/${language}`)
+      .get(`/api/country-id/${COUNTRY_NAME}/${language}`)
       .set(env.X_ACCESS_TOKEN, token)
     expect(res.statusCode).toBe(200)
     expect(res.body).toBe(COUNTRY_ID)

@@ -26,8 +26,8 @@ const UpdateCountry = () => {
   const { id } = useParams<{ id: string }>()
   const [visible, setVisible] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [names, setNames] = useState<bookcarsTypes.CountryName[]>([])
-  const [nameErrors, setNameErrors] = useState<boolean[]>([])
+  const [name, setName] = useState<string>('')
+  const [nameError, setNameError] = useState<boolean>(false)
   const [noMatch, setNoMatch] = useState(false)
   const [error, setError] = useState(false)
   const [country, setCountry] = useState<bookcarsTypes.Country>()
@@ -39,21 +39,7 @@ const UpdateCountry = () => {
   }
 
   const checkName = () => {
-    let _nameChanged = false
-
-    if (!country || !country.values) {
-      helper.error()
-      return _nameChanged
-    }
-
-    for (let i = 0; i < names.length; i += 1) {
-      const name = names[i]
-      if (name.name !== country.values[i].value) {
-        _nameChanged = true
-        break
-      }
-    }
-
+    const _nameChanged = name !== country?.name
     setNameChanged(_nameChanged)
     return _nameChanged
   }
@@ -62,7 +48,7 @@ const UpdateCountry = () => {
     e.preventDefault()
 
     try {
-      if (!country || !country.values) {
+      if (!country) {
         helper.error()
         return
       }
@@ -73,36 +59,15 @@ const UpdateCountry = () => {
         return
       }
 
-      let isValid = true
-
-      const _nameErrors = bookcarsHelper.clone(nameErrors) as boolean[]
-      for (let i = 0; i < nameErrors.length; i += 1) {
-        _nameErrors[i] = false
-      }
-
-      for (let i = 0; i < names.length; i += 1) {
-        const name = names[i]
-        if (name.name !== country.values[i].value) {
-          const _isValid = (await CountryService.validate(name)) === 200
-          isValid = isValid && _isValid
-          if (!_isValid) {
-            _nameErrors[i] = true
-          }
-        }
-      }
-
-      setNameErrors(_nameErrors)
+      const isValid = (await CountryService.validate({ language: env._LANGUAGES[0].code, name })) === 200
+      setNameError(!isValid)
 
       if (isValid) {
-        const status = await CountryService.update(country._id, names)
+        const status = await CountryService.update(country._id, { name })
 
         if (status === 200) {
           const _country = bookcarsHelper.clone(country) as bookcarsTypes.Country
-          for (let i = 0; i < names.length; i += 1) {
-            const name = names[i]
-            _country.values![i].value = name.name
-          }
-
+          _country.name = name
           setCountry(_country)
           helper.info(strings.COUNTRY_UPDATED)
         } else {
@@ -119,48 +84,37 @@ const UpdateCountry = () => {
       setLoading(true)
 
       if (id && id !== '') {
-          try {
-            const _country = await CountryService.getCountry(id)
+        try {
+          const _country = await CountryService.getCountry(id)
 
-            if (_country && _country.values) {
-              env._LANGUAGES.forEach((lang) => {
-                if (_country.values && !_country.values.some((value) => value.language === lang.code)) {
-                  _country.values.push({ language: lang.code, value: '' })
-                }
-              })
-
-              const _names: bookcarsTypes.CountryName[] = _country.values.map((value) => ({
-                language: value.language || '',
-                name: value.value || '',
-              }))
-
-              setCountry(_country)
-              setNames(_names)
-              setVisible(true)
-              setLoading(false)
-            } else {
-              setLoading(false)
-              setNoMatch(true)
-            }
-          } catch (err) {
-            helper.error(err)
+          if (_country) {
+            setCountry(_country)
+            setName(_country.name || '')
+            setVisible(true)
             setLoading(false)
-            setError(true)
-            setVisible(false)
+          } else {
+            setLoading(false)
+            setNoMatch(true)
           }
-        } else {
+        } catch (err) {
+          helper.error(err)
           setLoading(false)
-          setNoMatch(true)
+          setError(true)
+          setVisible(false)
         }
       } else {
         setLoading(false)
         setNoMatch(true)
       }
+    } else {
+      setLoading(false)
+      setNoMatch(true)
+    }
   }
 
   return (
     <Layout onLoad={onLoad} strict>
-      {!error && !noMatch && country && country.values && (
+      {!error && !noMatch && country && (
         <div className="update-country">
           <Paper className="country-form country-form-wrapper" elevation={10} style={visible ? {} : { display: 'none' }}>
             <h1 className="country-form-title">
@@ -169,28 +123,24 @@ const UpdateCountry = () => {
               {' '}
             </h1>
             <form onSubmit={handleSubmit}>
-              {country.values.map((value, index) => (
-                <FormControl key={value.language} fullWidth margin="dense">
-                  <InputLabel className="required">{`${commonStrings.NAME} (${env._LANGUAGES.filter((l) => l.code === value.language)[0].label})`}</InputLabel>
-                  <Input
-                    type="text"
-                    value={(names[index] && names[index].name) || ''}
-                    error={nameErrors[index]}
-                    required
-                    onChange={(e) => {
-                      const _names = bookcarsHelper.clone(names) as bookcarsTypes.CountryName[]
-                      _names[index].name = e.target.value
-                      const _nameErrors = bookcarsHelper.cloneArray(nameErrors) as boolean[]
-                      _nameErrors[index] = false
-                      checkName()
-                      setNames(_names)
-                      setNameErrors(_nameErrors)
-                    }}
-                    autoComplete="off"
-                  />
-                  <FormHelperText error={nameErrors[index]}>{(nameErrors[index] && clStrings.INVALID_COUNTRY) || ''}</FormHelperText>
-                </FormControl>
-              ))}
+              <FormControl fullWidth margin="dense">
+                <InputLabel className="required">{commonStrings.NAME}</InputLabel>
+                <Input
+                  type="text"
+                  value={name}
+                  error={nameError}
+                  required
+                  onChange={(e) => {
+                    setName(e.target.value)
+                    setNameError(false)
+                    checkName()
+                  }}
+                  autoComplete="off"
+                />
+                <FormHelperText error={nameError}>
+                  {(nameError && clStrings.INVALID_COUNTRY) || ''}
+                </FormHelperText>
+              </FormControl>
 
               <div className="buttons">
                 <Button type="submit" variant="contained" className="btn-primary btn-margin-bottom" size="small" disabled={!nameChanged}>

@@ -152,13 +152,206 @@ export interface CountryName {
   name: string
 }
 
-export interface UpsertLocationPayload {
-  country: string
+export interface LocationValue {
+  _id?: string
+  language: string
+  value?: string
+}
+
+export interface ParkingSpot {
+  _id?: string
+  longitude: number | string
+  latitude: number | string
+  name: string
+  values?: LocationValue[]
+}
+
+export interface Location {
+  _id: string
+  country?: Country
   longitude?: number
   latitude?: number
-  names: LocationName[]
-  image?: string | null
+  name: string
+  image?: string
   parkingSpots?: ParkingSpot[]
+  values?: LocationValue[]
+}
+
+export interface Country {
+  _id: string
+  name: string
+  values?: LocationValue[]
+}
+
+export interface CountryInfo extends Country {
+  locations?: Location[]
+}
+
+export interface Car {
+  _id?: string
+  brand: string
+  model: string
+  mileage: number
+  plateNumber: string
+  supplier: User
+  minimumAge: number
+  locations: Location[]
+
+  dailyPrice: number
+  discountedDailyPrice: number | null
+  biWeeklyPrice: number | null
+  discountedBiWeeklyPrice: number | null
+  weeklyPrice: number | null
+  discountedWeeklyPrice: number | null
+  monthlyPrice: number | null
+  discountedMonthlyPrice: number | null
+
+  deposit: number
+  available: boolean
+  type: CarType
+  gearbox: GearboxType
+  aircon: boolean
+  image?: string
+  seats: number
+  doors: number
+  fuelPolicy: FuelPolicy
+  cancellation: number
+  amendments: number
+  theftProtection: number
+  collisionDamageWaiver: number
+  fullInsurance: number
+  additionalDriver: number
+  range: string
+  multimedia: CarMultimedia[] | undefined
+  rating?: number
+  trips: number
+  co2?: number
+  [propKey: string]: any
+}
+
+export interface Data<T> {
+  rows: T[]
+  rowCount: number
+}
+
+export interface GetBookingCarsPayload {
+  supplier: string
+  pickupLocation: string
+}
+
+export interface Notification {
+  _id: string
+  user: string
+  message: string
+  booking?: string
+  isRead?: boolean
+  checked?: boolean
+  createdAt?: Date
+}
+
+export interface NotificationCounter {
+  _id: string
+  user: string
+  count: number
+}
+
+export interface ResultData<T> {
+  pageInfo: { totalRecords: number }
+  resultData: T[]
+}
+
+export type Result<T> = [ResultData<T>] | [] | undefined | null
+
+export interface GetUsersBody {
+  user: string
+  types: UserType[]
+}
+
+export interface GetSuppliersBody {
+  user: string
+}
+
+export interface CreatePaymentPayload {
+  amount: number
+  /**
+   * Three-letter ISO currency code, in lowercase.
+   * Must be a supported currency: https://docs.stripe.com/currencies
+   *
+   * @type {string}
+   */
+  currency: string
+  /**
+   * The IETF language tag of the locale Checkout is displayed in. If blank or auto, the browser's locale is used.
+   *
+   * @type {string}
+   */
+  locale: string
+  receiptEmail: string
+  customerName: string
+  name: string
+  description?: string
+}
+
+export interface PaymentResult {
+  sessionId?: string
+  paymentIntentId?: string
+  customerId: string
+  clientSecret: string | null
+}
+
+export interface SendEmailPayload {
+  from: string
+  to: string
+  subject: string
+  message: string
+  isContactForm: boolean
+}
+
+export interface Response<T> {
+  status: number
+  data: T
+}
+
+// 
+// React types
+//
+export type DataEvent<T> = (data?: Data<T>) => void
+
+export interface StatusFilterItem {
+  label: string
+  value: BookingStatus
+  checked?: boolean
+}
+
+export interface CarFilter {
+  pickupLocation: Location
+  dropOffLocation: Location
+  from: Date
+  to: Date
+}
+
+export type CarFilterSubmitEvent = (filter: CarFilter) => void
+
+export interface CarOptions {
+  cancellation?: boolean
+  amendments?: boolean
+  theftProtection?: boolean
+  collisionDamageWaiver?: boolean
+  fullInsurance?: boolean
+  additionalDriver?: boolean
+}
+
+export interface LicenseExtractedData {
+  documentType: string | null
+  fullName: string | null
+  dateOfBirth: string | null
+  placeOfBirth: string | null
+  nationalId: string | null
+  licenseId: string | null
+  licenseDeliveryDate: string | null
+  licenseExpiryDate: string | null
+  nationalIdExpiryDate: string | null
+  location: string | null
 }
 
 export interface UpdateSupplierPayload {
@@ -404,206 +597,11 @@ export interface Option {
   image?: string
 }
 
-export interface LocationValue {
-  _id?: string
-  language: string
-  value?: string
-}
-
-export interface ParkingSpot {
-  _id?: string
-  longitude: number | string
-  latitude: number | string
-  name?: string
-  values?: LocationValue[]
-}
-
-export interface Location {
-  _id: string
-  country?: Country
+export interface UpsertLocationPayload {
+  country: string
   longitude?: number
   latitude?: number
-  name?: string
-  values?: LocationValue[]
-  image?: string
-  parkingSpots?: ParkingSpot[]
-}
-
-export interface Country {
-  _id: string
-  name?: string
-  values?: LocationValue[]
-}
-
-export interface CountryInfo extends Country {
-  locations?: Location[]
-}
-
-export interface Car {
-  _id?: string
-  brand: string
-  model: string
-  mileage: number
-  plateNumber: string
-  supplier: User
-  minimumAge: number
-  locations: Location[]
-
-  dailyPrice: number
-  discountedDailyPrice: number | null
-  biWeeklyPrice: number | null
-  discountedBiWeeklyPrice: number | null
-  weeklyPrice: number | null
-  discountedWeeklyPrice: number | null
-  monthlyPrice: number | null
-  discountedMonthlyPrice: number | null
-
-  deposit: number
-  available: boolean
-  type: CarType
-  gearbox: GearboxType
-  aircon: boolean
-  image?: string
-  seats: number
-  doors: number
-  fuelPolicy: FuelPolicy
-  cancellation: number
-  amendments: number
-  theftProtection: number
-  collisionDamageWaiver: number
-  fullInsurance: number
-  additionalDriver: number
-  range: string
-  multimedia: CarMultimedia[] | undefined
-  rating?: number
-  trips: number
-  co2?: number
-  [propKey: string]: any
-}
-
-export interface Data<T> {
-  rows: T[]
-  rowCount: number
-}
-
-export interface GetBookingCarsPayload {
-  supplier: string
-  pickupLocation: string
-}
-
-export interface Notification {
-  _id: string
-  user: string
-  message: string
-  booking?: string
-  isRead?: boolean
-  checked?: boolean
-  createdAt?: Date
-}
-
-export interface NotificationCounter {
-  _id: string
-  user: string
-  count: number
-}
-
-export interface ResultData<T> {
-  pageInfo: { totalRecords: number }
-  resultData: T[]
-}
-
-export type Result<T> = [ResultData<T>] | [] | undefined | null
-
-export interface GetUsersBody {
-  user: string
-  types: UserType[]
-}
-
-
-export interface GetSuppliersBody {
-  user: string
-}
-
-export interface CreatePaymentPayload {
-  amount: number
-  /**
-   * Three-letter ISO currency code, in lowercase.
-   * Must be a supported currency: https://docs.stripe.com/currencies
-   *
-   * @type {string}
-   */
-  currency: string
-  /**
-   * The IETF language tag of the locale Checkout is displayed in. If blank or auto, the browser's locale is used.
-   *
-   * @type {string}
-   */
-  locale: string
-  receiptEmail: string
-  customerName: string
   name: string
-  description?: string
-}
-
-export interface PaymentResult {
-  sessionId?: string
-  paymentIntentId?: string
-  customerId: string
-  clientSecret: string | null
-}
-
-export interface SendEmailPayload {
-  from: string
-  to: string
-  subject: string
-  message: string
-  isContactForm: boolean
-}
-
-export interface Response<T> {
-  status: number
-  data: T
-}
-
-// 
-// React types
-//
-export type DataEvent<T> = (data?: Data<T>) => void
-
-export interface StatusFilterItem {
-  label: string
-  value: BookingStatus
-  checked?: boolean
-}
-
-export interface CarFilter {
-  pickupLocation: Location
-  dropOffLocation: Location
-  from: Date
-  to: Date
-}
-
-export type CarFilterSubmitEvent = (filter: CarFilter) => void
-
-export interface CarOptions {
-  cancellation?: boolean
-  amendments?: boolean
-  theftProtection?: boolean
-  collisionDamageWaiver?: boolean
-  fullInsurance?: boolean
-  additionalDriver?: boolean
-}
-
-
-export interface LicenseExtractedData {
-  documentType: string | null
-  fullName: string | null
-  dateOfBirth: string | null
-  placeOfBirth: string | null
-  nationalId: string | null
-  licenseId: string | null
-  licenseDeliveryDate: string | null
-  licenseExpiryDate: string | null
-  nationalIdExpiryDate: string | null
-  location: string | null
+  image?: string | null
+  parkingSpots?: ParkingSpot[]
 }

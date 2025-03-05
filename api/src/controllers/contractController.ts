@@ -52,20 +52,8 @@ export const generateContract = async (req: Request, res: Response) => {
         },
       })
       .populate<{ driver: env.User }>('driver')
-      .populate<{ pickupLocation: env.LocationInfo }>({
-        path: 'pickupLocation',
-        populate: {
-          path: 'values',
-          model: 'LocationValue',
-        },
-      })
-      .populate<{ dropOffLocation: env.LocationInfo }>({
-        path: 'dropOffLocation',
-        populate: {
-          path: 'values',
-          model: 'LocationValue',
-        },
-      })
+      .populate<{ pickupLocation: env.LocationInfo }>('pickupLocation')
+      .populate<{ dropOffLocation: env.LocationInfo }>('dropOffLocation')
       .populate<{ _additionalDriver: env.AdditionalDriver }>('_additionalDriver')
       .lean()
 

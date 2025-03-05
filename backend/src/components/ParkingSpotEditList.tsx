@@ -4,7 +4,6 @@ import * as bookcarsTypes from ':bookcars-types'
 import * as bookcarsHelper from ':bookcars-helper'
 import { strings as commonStrings } from '@/lang/common'
 import { strings } from '@/lang/parking-spot-edit-list'
-import env from '@/config/env.config'
 import PositionInput from './PositionInput'
 
 import '@/assets/css/parking-spot-edit-list.css'
@@ -43,33 +42,24 @@ const ParkingSpotEditList = (
           values.map((parkingSpot, index) => (
             <div key={parkingSpot._id || index} className="row">
 
-              {parkingSpot.values && env._LANGUAGES.map((language, langIndex) => (
-                <FormControl key={language.code} fullWidth margin="dense">
-                  <InputLabel className="required">{`${commonStrings.NAME} (${language.label})`}</InputLabel>
-                  <Input
-                    type="text"
-                    value={(parkingSpot.values![langIndex] && parkingSpot.values![langIndex].value) || ''}
-                    required
-                    onChange={(e) => {
-                      const __values = bookcarsHelper.clone(values) as bookcarsTypes.ParkingSpot[]
-                      const __parkingSpot = __values[index]
-                      if (__parkingSpot._id) {
-                        __parkingSpot.values![langIndex].value = e.target.value
-                      } else {
-                        __parkingSpot.values![langIndex] = {
-                          language: language.code,
-                          value: e.target.value,
-                        }
-                      }
-                      if (onUpdate) {
-                        onUpdate(__parkingSpot, index)
-                      }
-                      setValues(__values)
-                    }}
-                    autoComplete="off"
-                  />
-                </FormControl>
-              ))}
+              <FormControl fullWidth margin="dense">
+                <InputLabel className="required">{commonStrings.NAME}</InputLabel>
+                <Input
+                  type="text"
+                  value={parkingSpot.name || ''}
+                  required
+                  onChange={(e) => {
+                    const __values = bookcarsHelper.clone(values) as bookcarsTypes.ParkingSpot[]
+                    const __parkingSpot = __values[index]
+                    __parkingSpot.name = e.target.value
+                    if (onUpdate) {
+                      onUpdate(__parkingSpot, index)
+                    }
+                    setValues(__values)
+                  }}
+                  autoComplete="off"
+                />
+              </FormControl>
 
               <FormControl fullWidth margin="dense">
                 <InputLabel className="required">{commonStrings.LATITUDE}</InputLabel>
@@ -134,9 +124,9 @@ const ParkingSpotEditList = (
           color="inherit"
           onClick={() => {
             const parkingSpot: bookcarsTypes.ParkingSpot = {
+              name: '',
               latitude: '',
               longitude: '',
-              values: [],
             }
 
             if (onAdd) {

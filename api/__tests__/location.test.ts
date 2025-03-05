@@ -11,7 +11,6 @@ import * as databaseHelper from '../src/common/databaseHelper'
 import * as testHelper from './testHelper'
 import * as env from '../src/config/env.config'
 import * as helper from '../src/common/helper'
-import LocationValue from '../src/models/LocationValue'
 import Location from '../src/models/Location'
 import Country from '../src/models/Country'
 import Car from '../src/models/Car'
@@ -27,20 +26,8 @@ const IMAGE2 = 'location2.jpg'
 const IMAGE2_PATH = path.join(__dirname, `./img/${IMAGE2}`)
 
 let LOCATION_ID: string
+let LOCATION_NAME = nanoid()
 
-let LOCATION_NAMES: bookcarsTypes.LocationName[] = [
-  {
-    language: 'en',
-    name: nanoid(),
-  },
-  {
-    language: 'fr',
-    name: nanoid(),
-  },
-]
-
-let countryValue1Id = ''
-let countryValue2Id = ''
 let countryId = ''
 
 //
@@ -53,13 +40,7 @@ beforeAll(async () => {
   expect(res).toBeTruthy()
   await testHelper.initialize()
 
-  const countryValue1 = new LocationValue({ language: 'en', value: 'Country 1' })
-  await countryValue1.save()
-  countryValue1Id = countryValue1.id
-  const countryValue2 = new LocationValue({ language: 'fr', value: 'Pays 1' })
-  await countryValue2.save()
-  countryValue2Id = countryValue2.id
-  const country = new Country({ values: [countryValue1.id, countryValue2.id] })
+  const country = new Country({ name: 'Country 1' })
   await country.save()
   countryId = country.id
 })
@@ -68,7 +49,6 @@ beforeAll(async () => {
 // Closing and cleaning the database connection after running the test suite
 //
 afterAll(async () => {
-  await LocationValue.deleteMany({ _id: { $in: [countryValue1Id, countryValue2Id] } })
   await Country.deleteOne({ _id: countryId })
 
   await testHelper.close()
@@ -86,9 +66,7 @@ describe('POST /api/validate-location', () => {
     // test success (location found)
     const language = testHelper.LANGUAGE
     const name = nanoid()
-    const locationValue = new LocationValue({ language, value: name })
-    await locationValue.save()
-    const location = new Location({ country: countryId, values: [locationValue.id] })
+    const location = new Location({ country: countryId, name })
     await location.save()
     const payload: bookcarsTypes.ValidateLocationPayload = {
       language,
@@ -107,7 +85,6 @@ describe('POST /api/validate-location', () => {
       .set(env.X_ACCESS_TOKEN, token)
       .send(payload)
     expect(res.statusCode).toBe(200)
-    await locationValue.deleteOne()
     await location.deleteOne()
 
     // test failure (no payload)
@@ -127,7 +104,7 @@ describe('POST /api/create-location', () => {
     // test failure (image not found)
     const payload: bookcarsTypes.UpsertLocationPayload = {
       country: countryId,
-      names: LOCATION_NAMES,
+      name: LOCATION_NAME,
       latitude: 28.0268755,
       longitude: 1.6528399999999976,
       image: 'unknown.jpg',
@@ -148,24 +125,23 @@ describe('POST /api/create-location', () => {
     expect(res.body._id).toBeTruthy()
     const location = await Location.findByIdAndDelete(res.body._id)
     expect(location).toBeTruthy()
-    expect((await LocationValue.find({ _id: { $in: location!.values } })).length).toBe(2)
-    await LocationValue.deleteMany({ _id: { $in: location!.values } })
 
     // test success (image and parkingspots)
     payload.parkingSpots = [
       {
         latitude: 28.1268755,
         longitude: 1.752839999999997,
-        values: [{ language: 'en', value: 'Parking spot 1' }, { language: 'fr', value: 'Parking 1' }, { language: 'es', value: 'Parking 1' }],
+        name: 'Parking spot 1',
       },
       {
         latitude: 28.2268755,
         longitude: 1.8528399999999976,
-        values: [{ language: 'en', value: 'Parking spot 2' }, { language: 'fr', value: 'Parking 2' }, { language: 'es', value: 'Parking 1' }],
+        name: 'Parking spot 2',
       },
       {
         latitude: 27.2268755,
         longitude: 12.852839999999997,
+        name: 'Parking spot 3',
       },
     ]
     const tempImage = path.join(env.CDN_TEMP_LOCATIONS, IMAGE0)
@@ -179,7 +155,7 @@ describe('POST /api/create-location', () => {
       .send(payload)
     expect(res.statusCode).toBe(200)
     expect(res.body?.country).toBe(payload.country)
-    expect(res.body?.values?.length).toBe(2)
+    expect(res.body?.name).toBe(payload.name)
     expect(res.body?.latitude).toBe(payload.latitude)
     expect(res.body?.longitude).toBe(payload.longitude)
     expect(res.body?.parkingSpots?.length).toBe(3)
@@ -200,40 +176,19 @@ describe('PUT /api/update-location/:id', () => {
     const token = await testHelper.signinAsAdmin()
 
     // test success
-    LOCATION_NAMES = [
-      {
-        language: 'en',
-        name: 'test-en',
-      },
-      {
-        language: 'fr',
-        name: nanoid(),
-      },
-      {
-        language: 'es',
-        name: nanoid(),
-      },
-    ]
+    LOCATION_NAME = 'test-en'
     const location = await Location
       .findById(LOCATION_ID)
-      .populate<{ parkingSpots: env.ParkingSpot[] }>({
-        path: 'parkingSpots',
-        populate: {
-          path: 'values',
-          model: 'LocationValue',
-        },
-      })
+      .populate<{ parkingSpots: env.ParkingSpot[] }>('parkingSpots')
       .lean()
     expect(location?.parkingSpots.length).toBe(3)
 
     const parkingSpot2 = (location!.parkingSpots[1]) as unknown as FlattenMaps<bookcarsTypes.ParkingSpot>
-    expect(parkingSpot2.values!.length).toBe(3)
-    parkingSpot2.values![0].value = 'Parking spot 2 updated'
-    parkingSpot2.values![3] = { language: 'pt', value: 'Parking spot 2 pt' }
+    parkingSpot2.name = 'Parking spot 2 updated'
 
     const payload: bookcarsTypes.UpsertLocationPayload = {
       country: countryId,
-      names: LOCATION_NAMES,
+      name: LOCATION_NAME,
       latitude: 29.0268755,
       longitude: 2.6528399999999976,
       parkingSpots: [
@@ -241,12 +196,12 @@ describe('PUT /api/update-location/:id', () => {
         {
           latitude: 28.1268755,
           longitude: 1.752839999999997,
-          values: [{ language: 'en', value: 'Parking spot 3' }, { language: 'fr', value: 'Parking 3' }, { language: 'es', value: 'Parking 3' }],
+          name: 'Parking spot 3',
         },
         {
           latitude: 28.2268755,
           longitude: 1.8528399999999976,
-          values: [{ language: 'en', value: 'Parking spot 4' }, { language: 'fr', value: 'Parking 4' }, { language: 'es', value: 'Parking 3' }],
+          name: 'Parking spot 4',
         },
       ],
     }
@@ -257,7 +212,7 @@ describe('PUT /api/update-location/:id', () => {
       .send(payload)
     expect(res.statusCode).toBe(200)
     expect(res.body?.country).toBe(payload.country)
-    expect(res.body.values?.length).toBe(3)
+    expect(res.body?.name).toBe(payload.name)
     expect(res.body?.latitude).toBe(payload.latitude)
     expect(res.body?.longitude).toBe(payload.longitude)
     expect(res.body?.parkingSpots.length).toBe(3)
@@ -270,7 +225,7 @@ describe('PUT /api/update-location/:id', () => {
       .send(payload)
     expect(res.statusCode).toBe(200)
     expect(res.body?.country).toBe(payload.country)
-    expect(res.body.values?.length).toBe(3)
+    expect(res.body?.name).toBe(payload.name)
     expect(res.body?.latitude).toBe(payload.latitude)
     expect(res.body?.longitude).toBe(payload.longitude)
     expect(res.body?.parkingSpots.length).toBe(0)
@@ -283,7 +238,7 @@ describe('PUT /api/update-location/:id', () => {
       {
         latitude: 28.1268755,
         longitude: 1.752839999999997,
-        values: [{ language: 'en', value: 'Parking spot 1' }, { language: 'fr', value: 'Parking 1' }, { language: 'es', value: 'Parking 1' }],
+        name: 'Parking spot 1',
       },
     ]
     res = await request(app)
@@ -292,7 +247,7 @@ describe('PUT /api/update-location/:id', () => {
       .send(payload)
     expect(res.statusCode).toBe(200)
     expect(res.body?.country).toBe(payload.country)
-    expect(res.body.values?.length).toBe(3)
+    expect(res.body?.name).toBe(payload.name)
     expect(res.body?.latitude).toBe(payload.latitude)
     expect(res.body?.longitude).toBe(payload.longitude)
     expect(res.body?.parkingSpots.length).toBe(1)
@@ -524,7 +479,7 @@ describe('GET /api/location/:id/:language', () => {
     let res = await request(app)
       .get(`/api/location/${LOCATION_ID}/${language}`)
     expect(res.statusCode).toBe(200)
-    expect(res.body?.name).toBe(LOCATION_NAMES.filter((v) => v.language === language)[0].name)
+    expect(res.body?.name).toBe(LOCATION_NAME)
 
     // test success (new location)
     const locationId = await testHelper.createLocation('loc1-en', 'loc1-fr')
@@ -534,7 +489,6 @@ describe('GET /api/location/:id/:language', () => {
     expect(res.body?.name).toBe('loc1-en')
     const location = await Location.findByIdAndDelete(locationId)
     expect(location).toBeTruthy()
-    await LocationValue.deleteMany({ _id: { $in: location!.values } })
 
     // test success (location not found)
     res = await request(app)
@@ -554,7 +508,7 @@ describe('GET /api/locations/:page/:size/:language', () => {
 
     // test success
     let res = await request(app)
-      .get(`/api/locations/${testHelper.PAGE}/${testHelper.SIZE}/${language}?s=${LOCATION_NAMES[0].name}`)
+      .get(`/api/locations/${testHelper.PAGE}/${testHelper.SIZE}/${language}?s=${LOCATION_NAME}`)
     expect(res.statusCode).toBe(200)
     expect(res.body.length).toBe(1)
 

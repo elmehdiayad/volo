@@ -628,19 +628,6 @@ export interface BookingInfo {
 }
 
 /**
- * LocationValue Document.
- *
- * @export
- * @interface LocationValue
- * @typedef {LocationValue}
- * @extends {Document}
- */
-export interface LocationValue extends Document {
-  language: string
-  value: string
-}
-
-/**
  * Country Document.
  *
  * @export
@@ -663,7 +650,6 @@ export interface Country extends Document {
 export interface CountryInfo {
   _id?: Types.ObjectId
   name?: string
-  values: LocationValue[]
 }
 
 /**
@@ -678,8 +664,7 @@ export interface Location extends Document {
   country: Types.ObjectId
   longitude?: number
   latitude?: number
-  values: Types.ObjectId[]
-  name?: string
+  name: string
   image?: string | null
   parkingSpots?: Types.ObjectId[] | null
 }
@@ -695,9 +680,8 @@ export interface LocationInfo {
   _id?: Types.ObjectId
   longitude: number
   latitude: number
-  name?: string
+  name: string
   image?: string | null
-  values: LocationValue[]
 }
 
 /**
@@ -711,8 +695,7 @@ export interface LocationInfo {
 export interface ParkingSpot extends Document {
   longitude: number
   latitude: number
-  values: (Types.ObjectId | LocationValue)[]
-  name?: string
+  name: string
 }
 
 /**

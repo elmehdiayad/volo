@@ -15,11 +15,11 @@ const locationSchema = new Schema<env.Location>(
     longitude: {
       type: Number,
     },
-    values: {
-      type: [Schema.Types.ObjectId],
-      ref: 'LocationValue',
+    name: {
+      type: String,
       required: [true, "can't be blank"],
-      validate: (value: any): boolean => Array.isArray(value),
+      trim: true,
+      index: true,
     },
     image: {
       type: String,

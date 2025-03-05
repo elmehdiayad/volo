@@ -39,14 +39,15 @@ export const create = (data: bookcarsTypes.CountryName[]): Promise<number> =>
  * @param {bookcarsTypes.CountryName[]} data
  * @returns {Promise<number>}
  */
-export const update = (id: string, data: bookcarsTypes.CountryName[]): Promise<number> =>
-  axiosInstance
-    .put(
-      `/api/update-country/${id}`,
-      data,
-      { withCredentials: true }
-    )
-    .then((res) => res.status)
+export const update = async (id: string, data: { name: string }): Promise<number> => {
+  try {
+    const response = await axiosInstance.put(`/api/update-country/${id}`, data, { withCredentials: true })
+    return response.status
+  } catch (err) {
+    console.error('Error updating country:', err)
+    return 400
+  }
+}
 
 /**
  * Delete a Country.

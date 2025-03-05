@@ -4,7 +4,6 @@ import * as logger from './logger'
 import Booking, { BOOKING_EXPIRE_AT_INDEX_NAME } from '../models/Booking'
 import Car from '../models/Car'
 import Location from '../models/Location'
-import LocationValue from '../models/LocationValue'
 import Notification from '../models/Notification'
 import NotificationCounter from '../models/NotificationCounter'
 import PushToken from '../models/PushToken'
@@ -72,41 +71,11 @@ export const initializeLocations = async () => {
   try {
     logger.info('Initializing locations...')
     const locations = await Location.find({})
-      .populate<{ values: env.LocationValue[] }>({
-        path: 'values',
-        model: 'LocationValue',
-      })
 
-    // Add missing LocationValues in env.LANGUAGES
+    // Check for locations without names
     for (const location of locations) {
-      const enLocationValue = location.values.find((val) => val.language === 'en')
-
-      if (enLocationValue) {
-        for (const lang of env.LANGUAGES) {
-          if (!location.values.some((val) => val.language === lang)) {
-            const langLocationValue = new LocationValue({ language: lang, value: enLocationValue.value })
-            await langLocationValue.save()
-            const loc = await Location.findById(location.id)
-            if (loc) {
-              loc.values.push(new mongoose.Types.ObjectId(String(langLocationValue.id)))
-              await loc.save()
-            }
-          }
-        }
-      } else {
-        logger.info('English value not found for location:', location.id)
-      }
-    }
-
-    // Delete LocationValue nin env.LANGUAGES
-    const values = await LocationValue.find({ language: { $nin: env.LANGUAGES } })
-    const valuesIds = values.map((v) => v.id)
-    for (const val of values) {
-      const _locations = await Location.find({ values: val.id })
-      for (const _location of _locations) {
-        _location.values.splice(_location.values.findIndex((v) => v.equals(val.id)), 1)
-        await _location.save()
-        await LocationValue.deleteMany({ $and: [{ _id: { $in: _location.values } }, { _id: { $in: valuesIds } }] })
+      if (!location.name) {
+        logger.info('Name not found for location:', location.id)
       }
     }
 
@@ -130,41 +99,11 @@ export const initializeCountries = async () => {
   try {
     logger.info('Initializing countries...')
     const countries = await Country.find({})
-      .populate<{ values: env.LocationValue[] }>({
-        path: 'values',
-        model: 'LocationValue',
-      })
 
-    // Add missing LocationValues in env.LANGUAGES
+    // Check for countries without names
     for (const country of countries) {
-      const enLocationValue = country.values.find((val) => val.language === 'en')
-
-      if (enLocationValue) {
-        for (const lang of env.LANGUAGES) {
-          if (!country.values.some((val) => val.language === lang)) {
-            const langLocationValue = new LocationValue({ language: lang, value: enLocationValue.value })
-            await langLocationValue.save()
-            const cnt = await Country.findById(country.id)
-            if (cnt) {
-              cnt.values.push(new mongoose.Types.ObjectId(String(langLocationValue.id)))
-              await cnt.save()
-            }
-          }
-        }
-      } else {
-        logger.info('English value not found for country:', country.id)
-      }
-    }
-
-    // Delete LocationValue nin env.LANGUAGES
-    const values = await LocationValue.find({ language: { $nin: env.LANGUAGES } })
-    const valuesIds = values.map((v) => v.id)
-    for (const val of values) {
-      const _countries = await Country.find({ values: val.id })
-      for (const _country of _countries) {
-        _country.values.splice(_country.values.findIndex((v) => v.equals(val.id)), 1)
-        await _country.save()
-        await LocationValue.deleteMany({ $and: [{ _id: { $in: _country.values } }, { _id: { $in: valuesIds } }] })
+      if (!country.name) {
+        logger.info('Name not found for country:', country.id)
       }
     }
 
@@ -188,44 +127,13 @@ export const initializeParkingSpots = async () => {
   try {
     logger.info('Initializing parkingSpots...')
     const parkingSpots = await ParkingSpot.find({})
-      .populate<{ values: env.LocationValue[] }>({
-        path: 'values',
-        model: 'LocationValue',
-      })
 
-    // Add missing LocationValues in env.LANGUAGES
+    // Check for parking spots without names
     for (const parkingSpot of parkingSpots) {
-      const enLocationValue = parkingSpot.values.find((val) => val.language === 'en')
-
-      if (enLocationValue) {
-        for (const lang of env.LANGUAGES) {
-          if (!parkingSpot.values.some((val) => val.language === lang)) {
-            const langLocationValue = new LocationValue({ language: lang, value: enLocationValue.value })
-            await langLocationValue.save()
-            const ps = await ParkingSpot.findById(parkingSpot.id)
-            if (ps) {
-              ps.values.push(new mongoose.Types.ObjectId(String(langLocationValue.id)))
-              await ps.save()
-            }
-          }
-        }
-      } else {
-        logger.info('English value not found for parkingSpot:', parkingSpot.id)
+      if (!parkingSpot.name) {
+        logger.info('Name not found for parkingSpot:', parkingSpot.id)
       }
     }
-
-    // Delete LocationValue nin env.LANGUAGES
-    const values = await LocationValue.find({ language: { $nin: env.LANGUAGES } })
-    const valuesIds = values.map((v) => v.id)
-    for (const val of values) {
-      const _parkingSpots = await ParkingSpot.find({ values: val.id })
-      for (const _parkingSpot of _parkingSpots) {
-        _parkingSpot.values.splice(_parkingSpot.values.findIndex((v) => v.equals(val.id)), 1)
-        await _parkingSpot.save()
-        await LocationValue.deleteMany({ $and: [{ _id: { $in: _parkingSpot.values } }, { _id: { $in: valuesIds } }] })
-      }
-    }
-    await LocationValue.deleteMany({ language: { $nin: env.LANGUAGES } })
 
     logger.info('ParkingSpots initialized')
     return true
@@ -285,7 +193,6 @@ export const initialize = async (): Promise<boolean> => {
     if (mongoose.connection.readyState) {
       await createCollection<env.Booking>(Booking)
       await createCollection<env.Car>(Car)
-      await createCollection<env.LocationValue>(LocationValue)
       await createCollection<env.Country>(Country)
       await createCollection<env.ParkingSpot>(ParkingSpot)
       await createCollection<env.Location>(Location)

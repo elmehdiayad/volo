@@ -42,13 +42,8 @@ const LocationForm = ({
   onCancel,
   setLoading
 }: LocationFormProps) => {
-  const [names, setNames] = useState<bookcarsTypes.LocationName[]>(
-    location?.values?.map((value) => ({
-      language: value.language || '',
-      name: value.value || ''
-    })) || []
-  )
-  const [nameErrors, setNameErrors] = useState<boolean[]>([])
+  const [name, setName] = useState<string>(location?.name || '')
+  const [nameError, setNameError] = useState<boolean>(false)
   const [country, setCountry] = useState<bookcarsTypes.Country | null>(location?.country || null)
   const [image, setImage] = useState<string>(location?.image || '')
   const [longitude, setLongitude] = useState(location?.longitude?.toString() || '')
@@ -118,45 +113,10 @@ const LocationForm = ({
         const placeName = place.name
         const placeDetails = ''
 
-        // // Add additional details based on place type
-        // if (place.types) {
-        //   if (place.types.includes('airport')) {
-        //     const airportCode = place.address_components?.find(
-        //       (component: any) => component.types.includes('postal_code')
-        //     )?.short_name
-        //     if (airportCode) {
-        //       placeName = `${place.name} (${airportCode})`
-        //     }
-        //     if (place.formatted_phone_number) {
-        //       placeDetails += ` - Tel: ${place.formatted_phone_number}`
-        //     }
-        //   } else if (place.types.includes('transit_station')) {
-        //     if (place.formatted_address) {
-        //       placeDetails += ` - ${place.formatted_address}`
-        //     }
-        //   } else if (place.types.includes('establishment')) {
-        //     if (place.formatted_address) {
-        //       placeDetails += ` - ${place.formatted_address}`
-        //     }
-        //     if (place.formatted_phone_number) {
-        //       placeDetails += ` - Tel: ${place.formatted_phone_number}`
-        //     }
-        //   }
-        // }
-
-        // Add business status if available
-        // if (place.business_status === 'OPERATIONAL') {
-        //   placeDetails += ' - Open'
-        // }
-
         const fullName = placeDetails ? `${placeName} ${placeDetails}` : placeName
 
-        // Update names with the place name in all configured languages
-        const _names = env._LANGUAGES.map((language) => ({
-          language: language.code,
-          name: fullName
-        }))
-        setNames(_names)
+        // Update name with the place name
+        setName(fullName)
       }
     })
 
@@ -253,10 +213,10 @@ const LocationForm = ({
     setImage(_image as string)
   }
 
-  const validateName = async (name: string, language: string) => {
-    if (name && (!isUpdate || (location?.values && name !== location.values.find((v) => v.language === language)?.value))) {
+  const validateName = async (locationName: string) => {
+    if (locationName && (!isUpdate || locationName !== location?.name)) {
       try {
-        return (await LocationService.validate({ language, name })) === 200
+        return (await LocationService.validate({ language: env._LANGUAGES[0].code, name: locationName })) === 200
       } catch (err) {
         helper.error(err)
         return true
@@ -274,24 +234,15 @@ const LocationForm = ({
         return
       }
 
-      let isValid = true
-      const _nameErrors = Array(names.length).fill(false)
-
-      for (let i = 0; i < names.length; i += 1) {
-        const name = names[i]
-        const _isValid = await validateName(name.name, name.language)
-        isValid = isValid && _isValid
-        _nameErrors[i] = !_isValid
-      }
-
-      setNameErrors(_nameErrors)
+      const isValid = await validateName(name)
+      setNameError(!isValid)
 
       if (isValid) {
         const payload: bookcarsTypes.UpsertLocationPayload = {
           country: country._id,
           latitude: latitude ? Number(latitude) : undefined,
           longitude: longitude ? Number(longitude) : undefined,
-          names,
+          name,
           image,
           parkingSpots
         }
@@ -330,7 +281,7 @@ const LocationForm = ({
               onChange={(countries: bookcarsTypes.Option[]) => {
                 if (countries.length > 0) {
                   const opt = countries[0]
-                  const _country = { _id: opt._id, name: opt.name }
+                  const _country = { _id: opt._id, name: opt.name || '' }
                   setCountry(_country)
                 } else {
                   setCountry(null)
@@ -349,33 +300,23 @@ const LocationForm = ({
             />
           </FormControl>
 
-          {env._LANGUAGES.map((language, index) => (
-            <FormControl key={language.code} fullWidth margin="dense">
-              <InputLabel className="required">{`${commonStrings.NAME} (${language.label})`}</InputLabel>
-              <Input
-                type="text"
-                value={(names[index] && names[index].name) || ''}
-                error={nameErrors[index]}
-                required
-                onChange={(e) => {
-                  const _names = bookcarsHelper.clone(names) as bookcarsTypes.LocationName[]
-                  _names[index] = {
-                    language: language.code,
-                    name: e.target.value,
-                  }
-                  setNames(_names)
-
-                  const _nameErrors = bookcarsHelper.clone(nameErrors) as boolean[]
-                  _nameErrors[index] = false
-                  setNameErrors(_nameErrors)
-                }}
-                autoComplete="off"
-              />
-              <FormHelperText error={nameErrors[index]}>
-                {(nameErrors[index] && createLocationStrings.INVALID_LOCATION) || ''}
-              </FormHelperText>
-            </FormControl>
-          ))}
+          <FormControl fullWidth margin="dense">
+            <InputLabel className="required">{commonStrings.NAME}</InputLabel>
+            <Input
+              type="text"
+              value={name}
+              error={nameError}
+              required
+              onChange={(e) => {
+                setName(e.target.value)
+                setNameError(false)
+              }}
+              autoComplete="off"
+            />
+            <FormHelperText error={nameError}>
+              {(nameError && createLocationStrings.INVALID_LOCATION) || ''}
+            </FormHelperText>
+          </FormControl>
 
           <FormControl fullWidth margin="dense">
             <InputLabel>{commonStrings.LATITUDE}</InputLabel>

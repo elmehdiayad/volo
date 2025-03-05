@@ -379,18 +379,12 @@ export const deleteTempImage = async (req: Request, res: Response) => {
  * @returns {unknown}
  */
 export const getCar = async (req: Request, res: Response) => {
-  const { id, language } = req.params
+  const { id } = req.params
 
   try {
     const car = await Car.findById(id)
       .populate<{ supplier: env.UserInfo }>('supplier')
-      .populate<{ locations: env.LocationInfo[] }>({
-        path: 'locations',
-        populate: {
-          path: 'values',
-          model: 'LocationValue',
-        },
-      })
+      .populate<{ locations: env.LocationInfo[] }>('locations')
       .lean()
 
     if (car) {
@@ -409,17 +403,13 @@ export const getCar = async (req: Request, res: Response) => {
         licenseRequired,
       }
 
-      for (const location of car.locations) {
-        location.name = location.values.filter((value) => value.language === language)[0].value
-      }
-
       return res.json(car)
     }
     logger.error('[car.getCar] Car not found:', id)
     return res.sendStatus(204)
   } catch (err) {
-    logger.error(`[car.getCar] ${i18n.t('DB_ERROR')} ${id}`, err)
-    return res.status(400).send(i18n.t('ERROR') + err)
+    logger.error(`[car.getCar] ${i18n.t('DB_ERROR')} ${id}`, err as Error)
+    return res.status(400).send(i18n.t('ERROR') + (err as Error).message)
   }
 }
 

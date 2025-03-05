@@ -125,19 +125,19 @@ export const confirm = async (user: env.User, supplier: env.User, booking: env.B
     logger.info(`Car ${booking.car} not found`)
     return false
   }
-  const pickupLocation = await Location.findById(booking.pickupLocation).populate<{ values: env.LocationValue[] }>('values')
+  const pickupLocation = await Location.findById(booking.pickupLocation)
   if (!pickupLocation) {
     logger.info(`Pick-up location ${booking.pickupLocation} not found`)
     return false
   }
 
-  const pickupLocationName = pickupLocation.values.filter((value) => value.language === language)[0].value
-  const dropOffLocation = await Location.findById(booking.dropOffLocation).populate<{ values: env.LocationValue[] }>('values')
+  const pickupLocationName = pickupLocation.name
+  const dropOffLocation = await Location.findById(booking.dropOffLocation)
   if (!dropOffLocation) {
-    logger.info(`Drop-off location ${booking.pickupLocation} not found`)
+    logger.info(`Drop-off location ${booking.dropOffLocation} not found`)
     return false
   }
-  const dropOffLocationName = dropOffLocation.values.filter((value) => value.language === language)[0].value
+  const dropOffLocationName = dropOffLocation.name
 
   let contractFile: string | null = null
   if (supplier.contracts && supplier.contracts.length > 0) {
@@ -715,24 +715,12 @@ export const getBooking = async (req: Request, res: Response) => {
       .populate<{ driver: env.User }>('driver')
       .populate<{ pickupLocation: env.LocationInfo }>({
         path: 'pickupLocation',
-        populate: {
-          path: 'values',
-          model: 'LocationValue',
-        },
       })
-      .populate<{ dropOffLocation: env.LocationInfo }>({
-        path: 'dropOffLocation',
-        populate: {
-          path: 'values',
-          model: 'LocationValue',
-        },
-      })
+      .populate<{ dropOffLocation: env.LocationInfo }>('dropOffLocation')
       .populate<{ _additionalDriver: env.AdditionalDriver }>('_additionalDriver')
       .lean()
 
     if (booking) {
-      const { language } = req.params
-
       booking.supplier = {
         _id: booking.supplier._id,
         fullName: booking.supplier.fullName,
@@ -746,9 +734,6 @@ export const getBooking = async (req: Request, res: Response) => {
         avatar: booking.car.supplier.avatar,
         payLater: booking.car.supplier.payLater,
       }
-
-      booking.pickupLocation.name = booking.pickupLocation.values.filter((value) => value.language === language)[0].value
-      booking.dropOffLocation.name = booking.dropOffLocation.values.filter((value) => value.language === language)[0].value
 
       return res.json(booking)
     }
@@ -854,8 +839,6 @@ export const getBookings = async (req: Request, res: Response) => {
       }
     }
 
-    const { language } = req.params
-
     const data = await Booking.aggregate([
       {
         $lookup: {
@@ -905,21 +888,9 @@ export const getBookings = async (req: Request, res: Response) => {
               $match: { $expr: { $eq: ['$_id', '$$pickupLocationId'] } },
             },
             {
-              $lookup: {
-                from: 'LocationValue',
-                let: { values: '$values' },
-                pipeline: [
-                  {
-                    $match: {
-                      $and: [{ $expr: { $in: ['$_id', '$$values'] } }, { $expr: { $eq: ['$language', language] } }],
-                    },
-                  },
-                ],
-                as: 'value',
+              $addFields: {
+                name: '$name',
               },
-            },
-            {
-              $addFields: { name: '$value.value' },
             },
           ],
           as: 'pickupLocation',
@@ -937,21 +908,9 @@ export const getBookings = async (req: Request, res: Response) => {
               $match: { $expr: { $eq: ['$_id', '$$dropOffLocationId'] } },
             },
             {
-              $lookup: {
-                from: 'LocationValue',
-                let: { values: '$values' },
-                pipeline: [
-                  {
-                    $match: {
-                      $and: [{ $expr: { $in: ['$_id', '$$values'] } }, { $expr: { $eq: ['$language', language] } }],
-                    },
-                  },
-                ],
-                as: 'value',
+              $addFields: {
+                name: '$name',
               },
-            },
-            {
-              $addFields: { name: '$value.value' },
             },
           ],
           as: 'dropOffLocation',

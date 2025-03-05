@@ -6,12 +6,11 @@ import * as helper from '../common/helper'
 import * as env from '../config/env.config'
 import i18n from '../lang/i18n'
 import Country from '../models/Country'
-import LocationValue from '../models/LocationValue'
 import Location from '../models/Location'
 import * as logger from '../common/logger'
 
 /**
- * Validate a Country name with language code.
+ * Validate a Country name.
  *
  * @export
  * @async
@@ -20,42 +19,23 @@ import * as logger from '../common/logger'
  * @returns {unknown}
  */
 export const validate = async (req: Request, res: Response) => {
-  const { body }: { body: bookcarsTypes.ValidateCountryPayload } = req
-  const { language, name } = body
+  const { body }: { body: { name: string } } = req
+  const { name } = body
 
   try {
     const keyword = escapeStringRegexp(name)
     const options = 'i'
 
-    const countries = await Country.aggregate(
-      [
-        {
-          $lookup: {
-            from: 'LocationValue',
-            let: { values: '$values' },
-            pipeline: [
-              {
-                $match: {
-                  $and: [
-                    { $expr: { $in: ['$_id', '$$values'] } },
-                    { $expr: { $eq: ['$language', language] } },
-                    { $expr: { $regexMatch: { input: '$value', regex: new RegExp(`^${keyword}$`), options } } },
-                  ],
-                },
-              },
-            ],
-            as: 'value',
-          },
-        },
-        { $unwind: { path: '$value', preserveNullAndEmptyArrays: false } },
-      ],
-      { collation: { locale: env.DEFAULT_LANGUAGE, strength: 2 } },
-    )
+    const country = await Country.findOne({ name: { $regex: new RegExp(`^${keyword}$`), $options: options } })
 
-    return countries.length > 0 ? res.sendStatus(204) : res.sendStatus(200)
+    if (country) {
+      return res.status(200).json({ exists: true })
+    }
+
+    return res.status(200).json({ exists: false })
   } catch (err) {
-    logger.error(`[country.validate]  ${i18n.t('DB_ERROR')} ${name}`, err)
-    return res.status(400).send(i18n.t('DB_ERROR') + err)
+    logger.error(`[country.validate]  ${i18n.t('DB_ERROR')} ${name}`, err as Error)
+    return res.status(400).send(i18n.t('DB_ERROR') + (err as Error).message)
   }
 }
 
@@ -69,26 +49,15 @@ export const validate = async (req: Request, res: Response) => {
  * @returns {unknown}
  */
 export const create = async (req: Request, res: Response) => {
-  const { body }: { body: bookcarsTypes.CountryName[] } = req
-  const names = body
+  const { body }: { body: { name: string } } = req
 
   try {
-    const values: string[] = []
-    for (const name of names) {
-      const countryValue = new LocationValue({
-        language: name.language,
-        value: name.name,
-      })
-      await countryValue.save()
-      values.push(countryValue.id)
-    }
-
-    const country = new Country({ values })
+    const country = new Country({ name: body.name })
     await country.save()
     return res.send(country)
   } catch (err) {
-    logger.error(`[country.create] ${i18n.t('DB_ERROR')} ${JSON.stringify(req.body)}`, err)
-    return res.status(400).send(i18n.t('DB_ERROR') + err)
+    logger.error(`[country.create] ${i18n.t('DB_ERROR')} ${JSON.stringify(req.body)}`, err as Error)
+    return res.status(400).send(i18n.t('DB_ERROR') + (err as Error).message)
   }
 }
 
@@ -103,36 +72,22 @@ export const create = async (req: Request, res: Response) => {
  */
 export const update = async (req: Request, res: Response) => {
   const { id } = req.params
+  const { body }: { body: { name: string } } = req
 
   try {
-    const country = await Country.findById(id).populate<{ values: env.LocationValue[] }>('values')
+    const country = await Country.findById(id)
 
     if (country) {
-      const names: bookcarsTypes.CountryName[] = req.body
-
-      for (const name of names) {
-        const countryValue = country.values.filter((value) => value.language === name.language)[0]
-        if (countryValue) {
-          countryValue.value = name.name
-          await countryValue.save()
-        } else {
-          const lv = new LocationValue({
-            language: name.language,
-            value: name.name,
-          })
-          await lv.save()
-          country.values.push(lv)
-          await country.save()
-        }
-      }
+      country.name = body.name
+      await country.save()
       return res.json(country)
     }
 
     logger.error('[country.update] Country not found:', id)
     return res.sendStatus(204)
   } catch (err) {
-    logger.error(`[country.update] ${i18n.t('DB_ERROR')} ${JSON.stringify(req.body)}`, err)
-    return res.status(400).send(i18n.t('DB_ERROR') + err)
+    logger.error(`[country.update] ${i18n.t('DB_ERROR')} ${JSON.stringify(req.body)}`, err as Error)
+    return res.status(400).send(i18n.t('DB_ERROR') + (err as Error).message)
   }
 }
 
@@ -156,11 +111,10 @@ export const deleteCountry = async (req: Request, res: Response) => {
       return res.status(204).send(msg)
     }
     await Country.deleteOne({ _id: id })
-    await LocationValue.deleteMany({ _id: { $in: country.values } })
     return res.sendStatus(200)
   } catch (err) {
-    logger.error(`[country.delete] ${i18n.t('DB_ERROR')} ${id}`, err)
-    return res.status(400).send(i18n.t('DB_ERROR') + err)
+    logger.error(`[country.delete] ${i18n.t('DB_ERROR')} ${id}`, err as Error)
+    return res.status(400).send(i18n.t('DB_ERROR') + (err as Error).message)
   }
 }
 
@@ -177,18 +131,16 @@ export const getCountry = async (req: Request, res: Response) => {
   const { id } = req.params
 
   try {
-    const country = await Country.findById(id).populate<{ values: env.LocationValue[] }>('values').lean()
+    const country = await Country.findById(id).lean()
 
     if (country) {
-      const name = (country.values as env.LocationValue[]).filter((value) => value.language === req.params.language)[0].value
-      const c = { ...country, name }
-      return res.json(c)
+      return res.json(country)
     }
     logger.error('[country.getCountry] Country not found:', id)
     return res.sendStatus(204)
   } catch (err) {
-    logger.error(`[country.getCountry] ${i18n.t('DB_ERROR')} ${id}`, err)
-    return res.status(400).send(i18n.t('DB_ERROR') + err)
+    logger.error(`[country.getCountry] ${i18n.t('DB_ERROR')} ${id}`, err as Error)
+    return res.status(400).send(i18n.t('DB_ERROR') + (err as Error).message)
   }
 }
 
@@ -205,32 +157,16 @@ export const getCountries = async (req: Request, res: Response) => {
   try {
     const page = Number.parseInt(req.params.page, 10)
     const size = Number.parseInt(req.params.size, 10)
-    const { language } = req.params
     const keyword = escapeStringRegexp(String(req.query.s || ''))
     const options = 'i'
 
     const countries = await Country.aggregate(
       [
         {
-          $lookup: {
-            from: 'LocationValue',
-            let: { values: '$values' },
-            pipeline: [
-              {
-                $match: {
-                  $and: [
-                    { $expr: { $in: ['$_id', '$$values'] } },
-                    { $expr: { $eq: ['$language', language] } },
-                    { $expr: { $regexMatch: { input: '$value', regex: keyword, options } } },
-                  ],
-                },
-              },
-            ],
-            as: 'value',
+          $match: {
+            name: { $regex: keyword, $options: options },
           },
         },
-        { $unwind: { path: '$value', preserveNullAndEmptyArrays: false } },
-        { $addFields: { name: '$value.value' } },
         {
           $facet: {
             resultData: [{ $sort: { name: 1, _id: 1 } }, { $skip: (page - 1) * size }, { $limit: size }],
@@ -247,8 +183,8 @@ export const getCountries = async (req: Request, res: Response) => {
 
     return res.json(countries)
   } catch (err) {
-    logger.error(`[country.getCountries] ${i18n.t('DB_ERROR')} ${req.query.s}`, err)
-    return res.status(400).send(i18n.t('DB_ERROR') + err)
+    logger.error(`[country.getCountries] ${i18n.t('DB_ERROR')} ${req.query.s}`, err as Error)
+    return res.status(400).send(i18n.t('DB_ERROR') + (err as Error).message)
   }
 }
 
@@ -263,7 +199,7 @@ export const getCountries = async (req: Request, res: Response) => {
  */
 export const getCountriesWithLocations = async (req: Request, res: Response) => {
   try {
-    const { language, imageRequired: _imageRequired, minLocations: _minLocations } = req.params
+    const { imageRequired: _imageRequired, minLocations: _minLocations } = req.params
     const keyword = escapeStringRegexp(String(req.query.s || ''))
     const options = 'i'
 
@@ -278,26 +214,10 @@ export const getCountriesWithLocations = async (req: Request, res: Response) => 
     const countries = await Country.aggregate(
       [
         {
-          $lookup: {
-            from: 'LocationValue',
-            let: { values: '$values' },
-            pipeline: [
-              {
-                $match: {
-                  $and: [
-                    { $expr: { $in: ['$_id', '$$values'] } },
-                    { $expr: { $eq: ['$language', language] } },
-                    { $expr: { $regexMatch: { input: '$value', regex: keyword, options } } },
-                  ],
-                },
-              },
-            ],
-            as: 'value',
+          $match: {
+            name: { $regex: keyword, $options: options },
           },
         },
-        { $unwind: { path: '$value', preserveNullAndEmptyArrays: false } },
-        { $addFields: { name: '$value.value' } },
-
         {
           $lookup: {
             from: 'Location',
@@ -311,40 +231,18 @@ export const getCountriesWithLocations = async (req: Request, res: Response) => 
               {
                 $match: $locationMatch,
               },
-              {
-                $lookup: {
-                  from: 'LocationValue',
-                  let: { values: '$values' },
-                  pipeline: [
-                    {
-                      $match: {
-                        $and: [
-                          { $expr: { $in: ['$_id', '$$values'] } },
-                          { $expr: { $eq: ['$language', language] } },
-                        ],
-                      },
-                    },
-                  ],
-                  as: 'value',
-                },
-              },
-              { $unwind: { path: '$value', preserveNullAndEmptyArrays: false } },
-              { $addFields: { name: '$value.value' } },
             ],
             as: 'locations',
           },
         },
-
         {
           $addFields: {
             locationsSize: { $size: '$locations' },
           },
         },
-
         {
           $match: { locationsSize: { $gte: minLocations } },
         },
-
         {
           $sort: { name: 1 },
         },
@@ -354,8 +252,8 @@ export const getCountriesWithLocations = async (req: Request, res: Response) => 
 
     return res.json(countries)
   } catch (err) {
-    logger.error(`[country.getCountries] ${i18n.t('DB_ERROR')} ${req.query.s}`, err)
-    return res.status(400).send(i18n.t('DB_ERROR') + err)
+    logger.error(`[country.getCountries] ${i18n.t('DB_ERROR')} ${req.query.s}`, err as Error)
+    return res.status(400).send(i18n.t('DB_ERROR') + (err as Error).message)
   }
 }
 
@@ -385,13 +283,13 @@ export const checkCountry = async (req: Request, res: Response) => {
 
     return res.sendStatus(204)
   } catch (err) {
-    logger.error(`[country.checkCountry] ${i18n.t('DB_ERROR')} ${id}`, err)
-    return res.status(400).send(i18n.t('DB_ERROR') + err)
+    logger.error(`[country.checkCountry] ${i18n.t('DB_ERROR')} ${id}`, err as Error)
+    return res.status(400).send(i18n.t('DB_ERROR') + (err as Error).message)
   }
 }
 
 /**
- * Get country Id from country name (en).
+ * Get country Id from country name.
  *
  * @async
  * @param {Request} req
@@ -399,20 +297,19 @@ export const checkCountry = async (req: Request, res: Response) => {
  * @returns {unknown}
  */
 export const getCountryId = async (req: Request, res: Response) => {
-  const { name, language } = req.params
+  const { name } = req.params
 
   try {
-    if (language.length !== 2) {
-      throw new Error('Language not valid')
-    }
-    const lv = await LocationValue.findOne({ language, value: { $regex: new RegExp(`^${escapeStringRegexp(helper.trim(name, ' '))}$`, 'i') } })
-    if (lv) {
-      const country = await Country.findOne({ values: lv.id })
-      return res.status(200).json(country?.id)
+    const country = await Country.findOne({
+      name: { $regex: new RegExp(`^${escapeStringRegexp(helper.trim(name, ' '))}$`, 'i') },
+    })
+
+    if (country) {
+      return res.status(200).json(country.id)
     }
     return res.sendStatus(204)
   } catch (err) {
-    logger.error(`[country.getCountryId] ${i18n.t('DB_ERROR')} ${name}`, err)
-    return res.status(400).send(i18n.t('DB_ERROR') + err)
+    logger.error(`[country.getCountryId] ${i18n.t('DB_ERROR')} ${name}`, err as Error)
+    return res.status(400).send(i18n.t('DB_ERROR') + (err as Error).message)
   }
 }

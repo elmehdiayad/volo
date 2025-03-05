@@ -8,7 +8,7 @@ import * as helper from '@/common/helper'
 import MultipleSelect from './MultipleSelect'
 
 interface LocationSelectListProps {
-  value?: bookcarsTypes.Location | bookcarsTypes.Location[]
+  value?: bookcarsTypes.Option | bookcarsTypes.Option[]
   multiple?: boolean
   label?: string
   required?: boolean
@@ -38,10 +38,10 @@ const LocationSelectList = ({
   const [fetch, setFetch] = useState(true)
   const [page, setPage] = useState(1)
   const [keyword, setKeyword] = useState('')
-  const [selectedOptions, setSelectedOptions] = useState<bookcarsTypes.Location[]>([])
+  const [selectedOptions, setSelectedOptions] = useState<bookcarsTypes.Option[]>([])
 
   useEffect(() => {
-    const _value = multiple ? value as bookcarsTypes.Location[] : [value as bookcarsTypes.Location]
+    const _value = multiple ? value as bookcarsTypes.Option[] : [value as bookcarsTypes.Option]
     if (value && !bookcarsHelper.arrayEqual(selectedOptions, _value)) {
       setSelectedOptions(_value)
     }
@@ -105,7 +105,6 @@ const LocationSelectList = ({
       }}
       onFocus={() => {
         if (!init && listInit) {
-          // if (!init) {
           const p = 1
           setRows([])
           setPage(p)
@@ -117,7 +116,6 @@ const LocationSelectList = ({
       onInputChange={(event, val) => {
         const _value = (event && event.target && 'value' in event.target && event.target.value as string) || val || ''
 
-        // if (event.target.type === 'text' && value !== keyword) {
         if (_value !== keyword) {
           setRows([])
           setPage(1)

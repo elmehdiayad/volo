@@ -9,7 +9,6 @@ import * as bookcarsTypes from ':bookcars-types'
 import app from '../src/app'
 import * as env from '../src/config/env.config'
 import User from '../src/models/User'
-import LocationValue from '../src/models/LocationValue'
 import Location from '../src/models/Location'
 import Notification from '../src/models/Notification'
 import NotificationCounter from '../src/models/NotificationCounter'
@@ -163,9 +162,6 @@ export const deleteLocation = async (id: string) => {
   const location = await Location.findById(id)
   expect(location).toBeDefined()
 
-  const valuesRes = await LocationValue.deleteMany({ _id: { $in: location?.values } })
-  expect(valuesRes.deletedCount).toBeGreaterThan(1)
-
   const res = await Location.deleteOne({ _id: id })
   expect(res.deletedCount).toBe(1)
 }
@@ -177,22 +173,10 @@ export const GetRandromObjectId = () => new mongoose.Types.ObjectId()
 export const GetRandromObjectIdAsString = () => GetRandromObjectId().toString()
 
 export const createLocation = async (nameEN: string, nameFR: string, country?: string) => {
-  const locationValueBodyEN = {
-    language: 'en',
-    value: nameEN,
-  }
-  const locationValueEN = new LocationValue(locationValueBodyEN)
-  await locationValueEN.save()
-
-  const locationValueBodyFR = {
-    language: 'fr',
-    value: nameFR,
-  }
-  const locationValueFR = new LocationValue(locationValueBodyFR)
-  await locationValueFR.save()
-
-  const values = [locationValueEN._id, locationValueFR._id]
-  const location = new Location({ country: country || GetRandromObjectIdAsString(), values })
+  const location = new Location({
+    country: country || GetRandromObjectIdAsString(),
+    name: nameEN, // Using English name as default
+  })
   await location.save()
   expect(location.id).toBeDefined()
   return location.id as string

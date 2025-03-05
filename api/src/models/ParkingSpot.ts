@@ -11,11 +11,9 @@ const parkingSpotSchema = new Schema<env.ParkingSpot>(
       type: Number,
       required: [true, "can't be blank"],
     },
-    values: {
-      type: [Schema.Types.ObjectId],
-      ref: 'LocationValue',
+    name: {
+      type: String,
       required: [true, "can't be blank"],
-      validate: (value: any): boolean => Array.isArray(value),
     },
   },
   {

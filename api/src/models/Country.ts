@@ -3,11 +3,9 @@ import * as env from '../config/env.config'
 
 const countrySchema = new Schema<env.Country>(
   {
-    values: {
-      type: [Schema.Types.ObjectId],
-      ref: 'LocationValue',
+    name: {
+      type: String,
       required: [true, "can't be blank"],
-      validate: (value: any): boolean => Array.isArray(value),
     },
   },
   {
