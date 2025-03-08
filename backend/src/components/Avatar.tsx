@@ -694,7 +694,7 @@ const Avatar = ({
           </Button>
         </DialogActions>
       </Dialog>
-      {!readonly && <input id="upload" type="file" hidden onChange={handleChange} />}
+      {!readonly && <input id="upload" type="file" hidden onChange={handleChange} accept="image/*" />}
     </div>
   ) : null
 }
