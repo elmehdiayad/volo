@@ -45,6 +45,7 @@ import * as langHelper from '@/common/langHelper'
 import * as helper from '@/common/helper'
 // import { useGlobalContext, GlobalContextType } from '@/context/GlobalContext'
 import Logo from '@/components/Logo'
+
 import '@/assets/css/header.css'
 
 interface HeaderProps {
