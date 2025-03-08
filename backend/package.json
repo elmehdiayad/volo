@@ -6,7 +6,8 @@
   "scripts": {
     "install:dependencies": "cd ../packages/currency-converter && npm i && cd ../bookcars-helper && npm i && cd ../../backend",
     "ts:build": "npm run install:dependencies && tsc --build --verbose",
-    "build": "npm run ts:build && cross-env NODE_OPTIONS=--max-old-space-size=1024 vite build",
+    "build": "npm run ts:build && cross-env NODE_OPTIONS=--max-old-space-size=1024 NODE_ENV=development vite build --mode development",
+    "build:prod": "npm run ts:build && cross-env NODE_OPTIONS=--max-old-space-size=1024 NODE_ENV=production vite build --mode production",
     "dev": "npm run ts:build && vite",
     "preview": "vite preview",
     "fix": "eslint --fix .",
@@ -15,10 +16,14 @@
     "stylelint": "stylelint \"src/**/*.css\"",
     "stylelint:fix": "stylelint \"src/**/*.css\" --fix",
     "mobile:sync": "npm run build && npx cap sync",
+    "mobile:sync:prod": "npm run build:prod && npx cap sync",
     "mobile:ios": "npm run mobile:sync && npx cap open ios",
-    "mobile:android": "npm run mobile:sync && npx cap open android"
+    "mobile:ios:prod": "npm run mobile:sync:prod && npx cap open ios",
+    "mobile:android": "npm run mobile:sync && npx cap open android",
+    "mobile:android:prod": "npm run mobile:sync:prod && npx cap open android"
   },
   "dependencies": {
+    "@capacitor-community/safe-area": "^7.0.0-alpha.1",
     "@capacitor/android": "^7.0.1",
     "@capacitor/app": "^7.0.0",
     "@capacitor/cli": "^7.0.1",

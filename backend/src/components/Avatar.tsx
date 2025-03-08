@@ -473,12 +473,16 @@ const Avatar = ({
   }
 
   useEffect(() => {
-    const language = UserService.getLanguage()
-    commonStrings.setLanguage(language)
+    const getLanguage = async () => {
+      const language = await UserService.getLanguage()
+      commonStrings.setLanguage(language)
+    }
+    getLanguage()
 
-    const currentUser = UserService.getCurrentUser()
-    if (currentUser) {
-      if (record) {
+    const getCurrentUser = async () => {
+      const currentUser = await UserService.getCurrentUser()
+      if (currentUser) {
+        if (record) {
         setAvatarRecord(record)
         if (type === bookcarsTypes.RecordType.Car) {
           setAvatar((record as bookcarsTypes.Car).image)
@@ -493,8 +497,10 @@ const Avatar = ({
       }
     } else {
       setError(true)
-      helper.error()
+        helper.error()
+      }
     }
+    getCurrentUser()
   }, [record, type, mode])
 
   const supplierImageStyle = { width: env.SUPPLIER_IMAGE_WIDTH }

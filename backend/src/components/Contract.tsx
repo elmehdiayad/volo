@@ -27,6 +27,15 @@ const Contract = ({
 }: ContractProps) => {
   const [loading, setLoading] = React.useState(false)
   const [signed, setSigned] = React.useState(false)
+  const [language, setLanguage] = React.useState('')
+
+  React.useEffect(() => {
+    const getInitialLanguage = async () => {
+      const lang = await UserService.getLanguage()
+      setLanguage(lang)
+    }
+    getInitialLanguage()
+  }, [])
 
   if (!booking) return null
 
@@ -53,7 +62,6 @@ const Contract = ({
   const car = booking.car as bookcarsTypes.Car
   const pickupLocation = booking.pickupLocation as bookcarsTypes.Location
   const dropOffLocation = booking.dropOffLocation as bookcarsTypes.Location
-  const language = UserService.getLanguage()
   const days = bookcarsHelper.days(new Date(booking.from), new Date(booking.to))
 
   return (

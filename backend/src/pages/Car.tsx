@@ -116,7 +116,8 @@ const Car = () => {
   const onLoad = async (_user?: bookcarsTypes.User) => {
     setLoading(true)
     setUser(_user)
-    setLanguage(UserService.getLanguage())
+    const lang = await UserService.getLanguage()
+    setLanguage(lang)
 
     if (_user && _user.verified) {
       if (id && id !== '') {

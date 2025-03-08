@@ -13,20 +13,17 @@ axiosInstance.interceptors.request.use(async (config) => {
     if (Capacitor.isNativePlatform()) {
       const user = await Preferences.get({ key: 'bc-be-user' })
       if (!user?.value) {
-        console.log('No user data found in preferences')
         return config
       }
 
       try {
         const userData = JSON.parse(user.value)
         if (!userData?.accessToken) {
-          console.log('No access token found in user data')
           return config
         }
 
         // Set the token header in lowercase as expected by the backend
         config.headers['x-access-token'] = userData.accessToken
-        console.log('Token set in request headers:', config.headers['x-access-token'])
       } catch (parseError) {
         console.error('Error parsing user data:', parseError)
       }

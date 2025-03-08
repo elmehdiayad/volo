@@ -98,6 +98,7 @@ const UpdateBooking = () => {
   const [paidAmount, setPaidAmount] = useState<number>(0)
   const [restAmount, setRestAmount] = useState<number>(0)
   const [days, setDays] = useState<number>(1)
+  const [language, setLanguage] = useState<string>('')
 
   const [initialValues, setInitialValues] = useState<FormValues>({
     supplier: { _id: '', name: '', image: '' },
@@ -465,6 +466,14 @@ const UpdateBooking = () => {
     }
   }, [booking])
 
+  useEffect(() => {
+    const getInitialLanguage = async () => {
+      const lang = await UserService.getLanguage()
+      setLanguage(lang)
+    }
+    getInitialLanguage()
+  }, [])
+
   return (
     <Layout onLoad={onLoad} strict>
       {visible && booking && (
@@ -579,7 +588,7 @@ const UpdateBooking = () => {
                           setFromError(false)
                         }
                       }}
-                      language={UserService.getLanguage()}
+                      language={language}
                     />
                     <CustomErrorMessage name="from" />
                   </FormControl>
@@ -713,7 +722,7 @@ const UpdateBooking = () => {
                             setToError(false)
                           }
                         }}
-                        language={UserService.getLanguage()}
+                        language={language}
                       />
                       <CustomErrorMessage name="to" />
                     </FormControl>
@@ -880,7 +889,7 @@ const UpdateBooking = () => {
                           value={values.additionalDriverBirthDate}
                           onChange={(date) => date && setFieldValue('additionalDriverBirthDate', date)}
                           required
-                          language={UserService.getLanguage()}
+                          language={language}
                           maxDate={new Date()}
                         />
                         <CustomErrorMessage name="additionalDriverBirthDate" />
@@ -914,7 +923,7 @@ const UpdateBooking = () => {
                           value={values.additionalDriverLicenseDeliveryDate}
                           onChange={(date) => date && setFieldValue('additionalDriverLicenseDeliveryDate', date)}
                           required
-                          language={UserService.getLanguage()}
+                          language={language}
                           maxDate={new Date()}
                         />
                         <CustomErrorMessage name="additionalDriverLicenseDeliveryDate" />
@@ -937,7 +946,7 @@ const UpdateBooking = () => {
                           value={values.additionalDrivernationalIdExpiryDate}
                           onChange={(date) => date && setFieldValue('additionalDrivernationalIdExpiryDate', date)}
                           required
-                          language={UserService.getLanguage()}
+                          language={language}
                           minDate={new Date()}
                         />
                         <CustomErrorMessage name="additionalDrivernationalIdExpiryDate" />

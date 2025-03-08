@@ -1,4 +1,4 @@
-import React, { lazy, Suspense } from 'react'
+import React, { lazy, Suspense, useEffect, useState } from 'react'
 import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom'
 import { GlobalProvider } from '@/context/GlobalContext'
 import ScrollToTop from '@/components/ScrollToTop'
@@ -6,7 +6,22 @@ import LoadingSpinner from '@/components/LoadingSpinner'
 import * as UserService from '@/services/UserService'
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
-  const currentUser = UserService.getCurrentUser()
+  const [currentUser, setCurrentUser] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const checkUser = async () => {
+      const user = await UserService.getCurrentUser()
+      setCurrentUser(user)
+      setLoading(false)
+    }
+    checkUser()
+  }, [])
+
+  if (loading) {
+    return <LoadingSpinner />
+  }
+
   return currentUser ? <>{children}</> : <Navigate to="/sign-in" />
 }
 

@@ -126,7 +126,7 @@ const SignUp = () => {
         password,
         fullName,
         nationalId,
-        language: UserService.getLanguage(),
+        language: await UserService.getLanguage(),
       }
 
       const status = await UserService.signup(data)

@@ -4,7 +4,7 @@ import { strings as commonStrings } from '@/lang/common'
 import env from '@/config/env.config'
 import * as UserService from '@/services/UserService'
 
-const language = UserService.getLanguage()
+const language = await UserService.getLanguage()
 const isUS = language === 'en' && env.CURRENCY === '$'
 
 const strings = new LocalizedStrings({

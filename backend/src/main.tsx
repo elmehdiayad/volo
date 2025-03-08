@@ -29,8 +29,8 @@ let lang = UserService.getQueryLanguage()
 
 if (lang) {
   if (!env.LANGUAGES.includes(lang)) {
-    lang = localStorage.getItem('bc-be-language')
-
+    const langValue = await Preferences.get({ key: 'bc-be-language' })
+    lang = langValue.value ?? env.DEFAULT_LANGUAGE
     if (lang && !env.LANGUAGES.includes(lang)) {
       lang = env.DEFAULT_LANGUAGE
     }
@@ -66,7 +66,7 @@ if (lang) {
   }
 }
 
-language = UserService.getLanguage()
+language = await UserService.getLanguage()
 const isFr = language === 'fr'
 const isEs = language === 'es'
 

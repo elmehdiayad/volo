@@ -7,11 +7,11 @@ import * as UserService from '@/services/UserService'
  *
  * @returns {string}
  */
-export const getLanguage = () => {
+export const getLanguage = async () => {
   let language = UserService.getQueryLanguage() ?? ''
 
   if (language === '' || !env.LANGUAGES.includes(language)) {
-    language = UserService.getLanguage()
+    language = await UserService.getLanguage()
   }
 
   return language
@@ -23,7 +23,7 @@ export const getLanguage = () => {
  * @param {LocalizedStrings<any>} strings
  * @param {?string} [language]
  */
-export const setLanguage = (strings: LocalizedStrings<any>, language?: string) => {
-  const lang = language || getLanguage()
+export const setLanguage = async (strings: LocalizedStrings<any>, language?: string) => {
+  const lang = language || await getLanguage()
   strings.setLanguage(lang)
 }

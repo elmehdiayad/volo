@@ -4,6 +4,8 @@
   position: sticky !important;
   top: 0;
   z-index: 1000;
+  padding-top: var(--safe-area-inset-top);
+
 }
 
 .menu {

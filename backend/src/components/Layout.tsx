@@ -9,6 +9,8 @@ import Unauthorized from './Unauthorized'
 import * as helper from '@/common/helper'
 import { useInit } from '@/common/customHooks'
 
+import '@capacitor-community/safe-area'
+
 interface LayoutProps {
   user?: bookcarsTypes.User
   strict?: boolean
@@ -45,7 +47,6 @@ const Layout = ({
 
   useInit(async () => {
     const exit = async () => {
-      console.log('Exiting')
       if (strict) {
         await UserService.signout()
       } else {
@@ -80,16 +81,15 @@ const Layout = ({
         // Fetch fresh user data if cache expired or missing required fields
         _user = await UserService.getUser(currentUser._id) as CachedUser
         if (_user) {
-          console.log('Updating user', _user)
+          // Preserve the access token from the current user
+          _user.accessToken = currentUser.accessToken
           // Update the stored user with fresh data and timestamp
           _user._timestamp = now
-          // localStorage.setItem('bc-be-user', JSON.stringify(_user))
           await Preferences.set({ key: 'bc-be-user', value: JSON.stringify(_user) })
         }
       }
 
       if (!_user) {
-        console.log('No user found')
         await exit()
         return
       }

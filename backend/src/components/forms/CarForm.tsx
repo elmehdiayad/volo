@@ -199,7 +199,6 @@ const CarForm = ({ car, isUpdate, isSupplier, onSubmit, onCancel }: CarFormProps
       setFormError(false)
     }
   }
-  console.log(car)
   const extraToNumber = (extra: string) => (extra === '' ? -1 : Number(extra))
   const getPrice = (price: string) => (price && Number(price)) || null
 

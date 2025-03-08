@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import {
   FormControl,
   Button,
@@ -60,7 +60,7 @@ const CreateBooking = () => {
   const [fromError, setFromError] = useState(false)
   const [toError, setToError] = useState(false)
   const [days, setDays] = useState<number>(1)
-  const language = useMemo(() => UserService.getLanguage(), [])
+  const [language, setLanguage] = useState<string>('')
   const validationSchema = Yup.object().shape({
     supplier: Yup.string().when('$isSupplier', {
       is: false,
@@ -302,6 +302,14 @@ const CreateBooking = () => {
     }
   }
 
+  useEffect(() => {
+    const getInitialLanguage = async () => {
+      const lang = await UserService.getLanguage()
+      setLanguage(lang)
+    }
+    getInitialLanguage()
+  }, [])
+
   return (
     <Layout onLoad={onLoad} strict>
       <div className="create-booking">
@@ -402,7 +410,7 @@ const CreateBooking = () => {
                         setFromError(false)
                       }
                     }}
-                    language={UserService.getLanguage()}
+                    language={language}
                   />
                   <CustomErrorMessage name="from" />
                 </FormControl>
@@ -485,7 +493,7 @@ const CreateBooking = () => {
                           setToError(false)
                         }
                       }}
-                      language={UserService.getLanguage()}
+                      language={language}
                     />
                     <CustomErrorMessage name="to" />
                   </FormControl>

@@ -75,11 +75,9 @@ const SignIn = () => {
   useEffect(() => {
     const init = async () => {
       try {
-        console.log('Initializing')
         langHelper.setLanguage(strings)
 
-        const currentUser = UserService.getCurrentUser()
-        console.log('Current user', currentUser)
+        const currentUser = await UserService.getCurrentUser()
         if (currentUser) {
           const status = await UserService.validateAccessToken()
 
@@ -104,7 +102,7 @@ const SignIn = () => {
   }, [navigate])
 
   return (
-    <div>
+    <>
       <Header />
       {visible && (
         <div className="signin">
@@ -153,7 +151,7 @@ const SignIn = () => {
           </Paper>
         </div>
       )}
-    </div>
+    </>
   )
 }
 

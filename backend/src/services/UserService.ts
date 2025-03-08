@@ -118,7 +118,6 @@ export const signin = (data: bookcarsTypes.SignInPayload): Promise<{ status: num
       { withCredentials: true }
     )
     .then(async (res) => {
-      localStorage.setItem('bc-be-user', JSON.stringify(res.data))
       await Preferences.set({ key: 'bc-be-user', value: JSON.stringify(res.data) })
       return { status: res.status, data: res.data }
     })
@@ -140,7 +139,7 @@ export const signout = async (redirect = true) => {
   }
 
   sessionStorage.clear()
-  localStorage.removeItem('bc-be-user')
+  await Preferences.remove({ key: 'bc-be-user' })
   deleteAllCookies()
 
   await axiosInstance
@@ -204,13 +203,15 @@ export const resendLink = (data: bookcarsTypes.ResendLinkPayload): Promise<numbe
  *
  * @returns {string}
  */
-export const getLanguage = (): string => {
-  const user = JSON.parse(localStorage.getItem('bc-be-user') ?? 'null')
+export const getLanguage = async (): Promise<string> => {
+  const userData = await Preferences.get({ key: 'bc-be-user' })
+  const user = JSON.parse(userData.value ?? 'null')
 
   if (user && user.language) {
     return user.language as string
   }
-  const lang = localStorage.getItem('bc-be-language')
+  const langData = await Preferences.get({ key: 'bc-be-language' })
+  const lang = langData.value ?? env.DEFAULT_LANGUAGE
   if (lang && lang.length === 2) {
     return lang
   }
@@ -243,11 +244,12 @@ export const updateLanguage = (data: bookcarsTypes.UpdateLanguagePayload) =>
       data,
       { withCredentials: true }
     )
-    .then((res) => {
+    .then(async (res) => {
       if (res.status === 200) {
-        const user = JSON.parse(localStorage.getItem('bc-be-user') ?? 'null')
+        const userData = await Preferences.get({ key: 'bc-be-user' })
+        const user = JSON.parse(userData.value ?? 'null')
         user.language = data.language
-        localStorage.setItem('bc-be-user', JSON.stringify(user))
+        await Preferences.set({ key: 'bc-be-user', value: JSON.stringify(user) })
       }
       return res.status
     })
@@ -258,7 +260,7 @@ export const updateLanguage = (data: bookcarsTypes.UpdateLanguagePayload) =>
  * @param {string} lang
  */
 export const setLanguage = (lang: string) => {
-  localStorage.setItem('bc-be-language', lang)
+  Preferences.set({ key: 'bc-be-language', value: lang })
 }
 
 /**
@@ -266,8 +268,9 @@ export const setLanguage = (lang: string) => {
  *
  * @returns {bookcarsTypes.User|null}
  */
-export const getCurrentUser = (): bookcarsTypes.User | null => {
-  const user = JSON.parse(localStorage.getItem('bc-be-user') ?? 'null')
+export const getCurrentUser = async (): Promise<bookcarsTypes.User | null> => {
+  const userData = await Preferences.get({ key: 'bc-be-user' })
+  const user = JSON.parse(userData.value ?? 'null')
   return user
 }
 
@@ -359,12 +362,12 @@ export const updateEmailNotifications = (data: bookcarsTypes.UpdateEmailNotifica
       data,
       { withCredentials: true }
     )
-    .then((res) => {
+    .then(async (res) => {
       if (res.status === 200) {
-        const user = getCurrentUser()
+        const user = await getCurrentUser()
         if (user) {
           user.enableEmailNotifications = data.enableEmailNotifications
-          localStorage.setItem('bc-be-user', JSON.stringify(user))
+          await Preferences.set({ key: 'bc-be-user', value: JSON.stringify(user) })
         }
       }
       return res.status

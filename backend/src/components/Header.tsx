@@ -109,16 +109,6 @@ const Header = ({
   }
 
   const refreshPage = () => {
-    // const params = new URLSearchParams(window.location.search)
-
-    // if (params.has('l')) {
-    //   params.delete('l')
-    //   // window.location.href = window.location.href.split('?')[0] + ([...params].length > 0 ? `?${params}` : '')
-    //   window.location.replace(window.location.href.split('?')[0] + ([...params].length > 0 ? `?${params}` : ''))
-    // } else {
-    //   // window.location.reload()
-    //   window.location.replace(window.location.href)
-    // }
     navigate(0)
   }
 
@@ -127,8 +117,8 @@ const Header = ({
 
     const { code } = event.currentTarget.dataset
     if (code) {
-      setLang(helper.getLanguage(code))
-      const currentLang = UserService.getLanguage()
+      setLang(await helper.getLanguage(code))
+      const currentLang = await UserService.getLanguage()
       if (isSignedIn && user) {
         // Update user language
         const data: bookcarsTypes.UpdateLanguagePayload = {
@@ -185,9 +175,12 @@ const Header = ({
   // }
 
   useEffect(() => {
-    const language = langHelper.getLanguage()
-    setLang(helper.getLanguage(language))
-    langHelper.setLanguage(strings, language)
+    const getLanguage = async () => {
+      const language = await langHelper.getLanguage()
+      setLang(helper.getLanguage(language))
+      langHelper.setLanguage(strings, language)
+    }
+    getLanguage()
   }, [])
 
   useEffect(() => {
@@ -281,7 +274,16 @@ const Header = ({
 
   return (
     <div style={hidden ? { display: 'none' } : classes.grow} className="header">
-      <AppBar position="fixed" sx={{ bgcolor: '#121212' }}>
+      <AppBar
+        position="fixed"
+        sx={{
+          bgcolor: '#121212',
+          boxShadow: 'none',
+          top: 'env(safe-area-inset-top)',
+          left: 0,
+          right: 0
+        }}
+      >
         <Toolbar className="toolbar">
           {isLoaded && !loading && isSignedIn && (
             <IconButton edge="start" sx={classes.menuButton} color="inherit" aria-label="open drawer" onClick={handleSideMenuOpen}>

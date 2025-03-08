@@ -228,6 +228,7 @@ const UserForm = ({ user, isUpdate, defaultType, admin, onSubmit, onCancel, setL
       const nationalIdExpiryDate = values.nationalIdExpiryDate ? new Date(values.nationalIdExpiryDate) : undefined
       const licenseDeliveryDate = values.licenseDeliveryDate ? new Date(values.licenseDeliveryDate) : undefined
       const birthDate = values.birthDate ? new Date(values.birthDate) : undefined
+      const language = await UserService.getLanguage()
 
       if (isSupplier) {
         const fullNameValid = await validateFullName(values.fullName)
@@ -256,44 +257,33 @@ const UserForm = ({ user, isUpdate, defaultType, admin, onSubmit, onCancel, setL
         return
       }
 
-      const language = UserService.getLanguage()
-
       const data: bookcarsTypes.CreateUserPayload | bookcarsTypes.UpdateUserPayload = {
+        fullName: values.fullName,
+        type,
         email: values.email,
         phone: values.phone,
         location: values.location,
         bio: values.bio,
-        fullName: values.fullName,
-        type,
-        avatar,
         birthDate,
-        language,
-        minimumRentalDays: values.minimumRentalDays ? Number(values.minimumRentalDays) : undefined,
+        avatar,
+        signature,
+        minimumRentalDays: values.minimumRentalDays ? Number.parseInt(values.minimumRentalDays, 10) : undefined,
         nationalId: values.nationalId,
         licenseId: values.licenseId,
         nationalIdExpiryDate,
         licenseDeliveryDate,
+        payLater: values.payLater,
+        licenseRequired: values.licenseRequired,
+        language,
         documents,
-        signature,
       }
 
-      if (isSupplier) {
-        data.payLater = values.payLater
-        data.licenseRequired = values.licenseRequired
-      }
-
-      if (isUpdate && user?._id) {
-        await onSubmit({
-          ...data,
-          _id: user._id,
-        } as bookcarsTypes.UpdateUserPayload)
-      } else {
-        await onSubmit(data as bookcarsTypes.CreateUserPayload)
-      }
+      await onSubmit(data)
+      setSubmitting(false)
     } catch (err) {
       helper.error(err)
+      setSubmitting(false)
     }
-    setSubmitting(false)
   }
 
   return (

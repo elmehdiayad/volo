@@ -1,11 +1,11 @@
-/* Signin */
 div.signin {
   display: flex;
   flex-direction: row;
-  flex: 1 0 auto;
   justify-content: center;
-  margin: 45px 0;
-  transform: translate3d(0, 0, 0);
+  align-items: flex-start;
+  padding-top: 60px;
+  height: calc(100vh - 60px);
+  overflow: hidden;
 }
 
 .signin-form-title {
