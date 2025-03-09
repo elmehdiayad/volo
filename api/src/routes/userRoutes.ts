@@ -42,11 +42,11 @@ routes.route(routeNames.createLicense).post([multer({ storage: multer.memoryStor
 routes.route(routeNames.updateLicense).post([authJwt.verifyToken, multer({ storage: multer.memoryStorage() }).single('file')], userController.updateLicense)
 routes.route(routeNames.deleteLicense).post(authJwt.verifyToken, userController.deleteLicense)
 routes.route(routeNames.deleteTempLicense).post(userController.deleteTempLicense)
-routes.post(routeNames.createDocument, multer().single('file'), userController.createDocument)
-routes.post(routeNames.updateDocument, multer().single('file'), userController.updateDocument)
-routes.post(routeNames.deleteDocument, userController.deleteDocument)
-routes.post(routeNames.deleteTempDocument, userController.deleteTempDocument)
-routes.post(routeNames.processDocuments, userController.processDocuments)
-routes.post(routeNames.createSignature, multer({ storage: multer.memoryStorage() }).single('image'), userController.createSignature)
+routes.route(routeNames.createDocument).post([authJwt.verifyToken, multer({ storage: multer.memoryStorage() }).single('file')], userController.createDocument)
+routes.route(routeNames.updateDocument).post([authJwt.verifyToken, multer({ storage: multer.memoryStorage() }).single('file')], userController.updateDocument)
+routes.route(routeNames.deleteDocument).post(authJwt.verifyToken, userController.deleteDocument)
+routes.route(routeNames.deleteTempDocument).post(authJwt.verifyToken, userController.deleteTempDocument)
+routes.route(routeNames.processDocuments).post(authJwt.verifyToken, userController.processDocuments)
+routes.route(routeNames.createSignature).post([authJwt.verifyToken, multer({ storage: multer.memoryStorage() }).single('image')], userController.createSignature)
 
 export default routes
