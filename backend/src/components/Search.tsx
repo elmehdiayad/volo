@@ -35,6 +35,14 @@ const Search = ({
     }
   }
 
+  const handleClearClick = () => {
+    setKeyword('')
+    if (onSubmit) {
+      onSubmit('')
+    }
+    inputRef.current?.focus()
+  }
+
   return (
     <div className={className}>
       <form autoComplete="off" onSubmit={handleSubmit}>
@@ -51,10 +59,7 @@ const Search = ({
               endAdornment: keyword ? (
                 <IconButton
                   size="small"
-                  onClick={() => {
-                    setKeyword('')
-                    inputRef.current?.focus()
-                  }}
+                  onClick={handleClearClick}
                 >
                   <ClearIcon style={{ width: 20, height: 20 }} />
                 </IconButton>

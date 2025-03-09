@@ -1,23 +1,41 @@
 div.users {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  left: 0;
+  display: flex;
+  flex: 1 0 auto;
+  transform: translate3d(0, 0, 0);
 }
 
-/* Device width is lower than or equal to 960px */
+div.users div.search {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 0 15px;
+}
 
-@media only screen and (width <= 960px) {
+div.users div.col-1 .filter,
+div.users div.col-1 div.info-box {
+  background-color: #fff;
+}
+
+/* Device width is less than or equal to 960px */
+
+@media only screen and (width <=960px) {
   div.users {
-    top: 56px;
+    flex-direction: column;
+    flex: 0 1 auto;
+  }
+
+  div.users .sc-search {
+    width: 100%;
+  }
+
+  div.users .new-user {
+    margin: 20px 5px 5px 0;
+    width: 100%;
   }
 
   div.users div.col-1 {
-    position: absolute;
-    top: 0;
-    right: 0;
-    left: 0;
-    padding: 10px;
+    width: 100%;
+    padding: 15px;
     display: flex;
     justify-content: center;
   }
@@ -27,51 +45,49 @@ div.users {
     max-width: 480px;
   }
 
-  div.users div.col-1 .user-type-filter {
-    display: none;
-  }
-
-  div.users div.col-1 .search,
-  div.users div.col-1 .new-user {
-    width: 100%;
-  }
-
   div.users div.col-2 {
-    position: absolute;
-    inset: 90px 0 0;
+    margin-top: 3px;
+    padding: 1px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
+  div.users .user-type-filter {
+    margin-top: 15px;
   }
 }
 
 /* Device width is greater than or equal to 960px */
 
-@media only screen and (width >= 960px) {
+@media only screen and (width >=960px) {
   div.users {
-    top: 64px;
+    flex-direction: row;
   }
 
   div.users div.col-1 {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
     width: 300px;
-    padding: 20px 0 0 12px;
-    background: #fefefe;
-  }
-
-  div.users div.col-1 .user-type-filter {
-    margin-left: 5px;
-    width: 265px;
-  }
-
-  div.users div.col-1 .new-user {
-    width: 265px;
-    margin-left: 5px;
-    margin-top: 15px;
+    margin-left: 20px;
   }
 
   div.users div.col-2 {
-    position: absolute;
-    inset: 0 0 0 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+  }
+
+  div.users div.search {
+    margin-top: 15px;
+    width: 100%;
+  }
+
+  div.users .new-user {
+    margin: 10px 5px 0 0;
+    width: 100%;
+  }
+
+  div.users .user-type-filter {
+    margin-top: 15px;
   }
 }

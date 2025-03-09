@@ -41,7 +41,7 @@ const Users = () => {
       {user && (
         <div className="users">
           <div className="col-1">
-            <div className="div.col-1-container">
+            <div className="col-1-container">
               <Search onSubmit={handleSearch} className="search" />
 
               {admin

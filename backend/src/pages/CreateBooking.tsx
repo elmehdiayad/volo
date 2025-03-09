@@ -37,7 +37,6 @@ import SupplierSelectList from '@/components/SupplierSelectList'
 import UserSelectList from '@/components/UserSelectList'
 import LocationSelectList from '@/components/LocationSelectList'
 import CarSelectList from '@/components/CarSelectList'
-import StatusList from '@/components/StatusList'
 import DateTimePicker from '@/components/DateTimePicker'
 import DatePicker from '@/components/DatePicker'
 
@@ -312,8 +311,8 @@ const CreateBooking = () => {
 
   return (
     <Layout onLoad={onLoad} strict>
-      <div className="create-booking">
-        <Paper className="booking-form booking-form-wrapper" elevation={10} style={visible ? {} : { display: 'none' }}>
+      <div className="booking-form">
+        <Paper className="booking-form-wrapper" elevation={10} style={visible ? {} : { display: 'none' }}>
           <h1 className="booking-form-title">
             {strings.NEW_BOOKING_HEADING}
           </h1>
@@ -499,14 +498,6 @@ const CreateBooking = () => {
                   </FormControl>
                 </div>
 
-                <FormControl fullWidth margin="dense">
-                  <StatusList
-                    label={blStrings.STATUS}
-                    onChange={(value: bookcarsTypes.BookingStatus) => setFieldValue('status', value)}
-                    required
-                  />
-                  <CustomErrorMessage name="status" />
-                </FormControl>
                 <FormControl fullWidth margin="dense">
                   <FormLabel required>{commonStrings.PAYMENT_METHOD}</FormLabel>
                   <Field name="paymentMethod">

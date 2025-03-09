@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { IconButton, Input, OutlinedInput, Box, Dialog, Button } from '@mui/material'
 import { Upload as UploadIcon, Delete as DeleteIcon, Visibility as ViewIcon } from '@mui/icons-material'
+import { Capacitor } from '@capacitor/core'
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera'
 import ReactCrop, { Crop } from 'react-image-crop'
 import 'react-image-crop/dist/ReactCrop.css'
 import * as bookcarsTypes from ':bookcars-types'
@@ -9,6 +11,7 @@ import { strings as commonStrings } from '@/lang/common'
 import * as UserService from '@/services/UserService'
 import * as helper from '@/common/helper'
 import env from '@/config/env.config'
+import DocumentViewer from '@/components/DocumentViewer'
 
 import '@/assets/css/driver-license.css'
 
@@ -48,6 +51,8 @@ const DriverLicense = ({
     y: 5
   })
   const [imageRef, setImageRef] = useState<HTMLImageElement | null>(null)
+  const [viewerOpen, setViewerOpen] = useState(false)
+  const [activeDocumentIndex, setActiveDocumentIndex] = useState(0)
 
   const getCroppedImg = (image: HTMLImageElement): Promise<Blob> => {
     const canvas = document.createElement('canvas')
@@ -85,7 +90,59 @@ const DriverLicense = ({
     })
   }
 
+  const handleClick = async (type: string) => {
+    if (Capacitor.isNativePlatform()) {
+      try {
+        // Request camera permissions
+        const permissionResult = await Camera.checkPermissions()
+        if (permissionResult.camera !== 'granted') {
+          const request = await Camera.requestPermissions()
+          if (request.camera !== 'granted') {
+            helper.error('Camera permission is required')
+            return
+          }
+        }
+
+        // Get photo from camera or library
+        const image = await Camera.getPhoto({
+          quality: 90,
+          allowEditing: false,
+          resultType: CameraResultType.DataUrl,
+          source: CameraSource.Prompt,
+          promptLabelHeader: 'Select Image Source',
+          promptLabelPhoto: 'Choose from Library',
+          promptLabelPicture: 'Take Photo',
+        })
+
+        if (image.dataUrl) {
+          setCurrentImage(image.dataUrl)
+          setCurrentType(type)
+          setCropDialogOpen(true)
+        }
+      } catch (err) {
+        // User cancelled image selection
+        if ((err as Error).message.includes('User cancelled photos app')) {
+          return
+        }
+        helper.error(err)
+      }
+      return
+    }
+
+    // Handle web platform - use traditional file input
+    const upload = document.getElementById(`upload-${type}`) as HTMLInputElement
+    upload.value = ''
+    setTimeout(() => {
+      upload.click()
+    }, 0)
+  }
+
   const handleChange = async (e: React.ChangeEvent<HTMLInputElement>, type: string) => {
+    // Only handle web platform file changes
+    if (Capacitor.isNativePlatform()) {
+      return // Skip on native platforms as we handle it in handleClick
+    }
+
     if (!e.target.files) {
       helper.error()
       return
@@ -180,20 +237,33 @@ const DriverLicense = ({
     }
   }
 
-  const handleClick = (type: string) => {
-    const upload = document.getElementById(`upload-${type}`) as HTMLInputElement
-    upload.value = ''
-    setTimeout(() => {
-      upload.click()
-    }, 0)
-  }
-
   const documentTypes = [
     { key: 'licenseRecto', label: commonStrings.LICENSE_RECTO },
     { key: 'licenseVerso', label: commonStrings.LICENSE_VERSO },
     { key: 'idRecto', label: commonStrings.ID_RECTO },
     { key: 'idVerso', label: commonStrings.ID_VERSO }
   ]
+
+  const getDocuments = () => {
+    const docs = []
+    for (const doc of documentTypes) {
+      if (images[doc.key]) {
+        docs.push({
+          url: `${bookcarsHelper.trimEnd(user ? env.CDN_LICENSES : env.CDN_TEMP_LICENSES, '/')}/${images[doc.key]}`,
+          title: doc.label
+        })
+      }
+    }
+    return docs
+  }
+
+  const handleViewDocument = (docKey: string) => {
+    const index = documentTypes.findIndex((dt) => dt.key === docKey)
+    if (index !== -1) {
+      setActiveDocumentIndex(index)
+      setViewerOpen(true)
+    }
+  }
 
   return (
     <>
@@ -226,13 +296,10 @@ const DriverLicense = ({
                   </IconButton>
 
                   {images[doc.key] && (
-                    <>
+                    <div className="action-buttons">
                       <IconButton
                         size="small"
-                        onClick={() => {
-                          const url = `${bookcarsHelper.trimEnd(user ? env.CDN_LICENSES : env.CDN_TEMP_LICENSES, '/')}/${images[doc.key]}`
-                          helper.downloadURI(url)
-                        }}
+                        onClick={() => handleViewDocument(doc.key)}
                       >
                         <ViewIcon className="icon" />
                       </IconButton>
@@ -266,7 +333,7 @@ const DriverLicense = ({
                       >
                         <DeleteIcon className="icon" />
                       </IconButton>
-                    </>
+                    </div>
                   )}
                 </div>
                 <input
@@ -323,6 +390,13 @@ const DriverLicense = ({
           </Box>
         </div>
       </Dialog>
+
+      <DocumentViewer
+        open={viewerOpen}
+        documents={getDocuments()}
+        activeIndex={activeDocumentIndex}
+        onClose={() => setViewerOpen(false)}
+      />
     </>
   )
 }

@@ -5,15 +5,20 @@ import {
   IconButton,
   Box,
   Typography,
-  Tooltip
+  Tooltip,
+  CircularProgress
 } from '@mui/material'
 import {
   Close as CloseIcon,
   NavigateBefore,
   NavigateNext,
-  Download as DownloadIcon
+  Download as DownloadIcon,
+  Share as ShareIcon
 } from '@mui/icons-material'
 import { useSwipeable } from 'react-swipeable'
+import { Capacitor } from '@capacitor/core'
+import { Share } from '@capacitor/share'
+import { Filesystem, Directory } from '@capacitor/filesystem'
 import { strings as commonStrings } from '@/lang/common'
 import * as helper from '@/common/helper'
 
@@ -37,27 +42,37 @@ const DocumentViewer = ({
 }: DocumentViewerProps) => {
   const [activeIndex, setActiveIndex] = useState(0)
   const [imageError, setImageError] = useState(false)
+  const [isSharing, setIsSharing] = useState(false)
+  const [isImageLoading, setIsImageLoading] = useState(true)
 
   useEffect(() => {
     if (documents.length > 0) {
       const validIndex = Math.max(0, Math.min(initialIndex, documents.length - 1))
       setActiveIndex(validIndex)
       setImageError(false)
+      setIsImageLoading(true)
     }
   }, [initialIndex, documents])
 
   const handlePrevious = () => {
     setActiveIndex((prev) => (prev > 0 ? prev - 1 : documents.length - 1))
     setImageError(false)
+    setIsImageLoading(true)
   }
 
   const handleNext = () => {
     setActiveIndex((prev) => (prev < documents.length - 1 ? prev + 1 : 0))
     setImageError(false)
+    setIsImageLoading(true)
   }
 
   const handleImageError = () => {
     setImageError(true)
+    setIsImageLoading(false)
+  }
+
+  const handleImageLoad = () => {
+    setIsImageLoading(false)
   }
 
   const handlers = useSwipeable({
@@ -73,8 +88,67 @@ const DocumentViewer = ({
 
   const currentDocument = documents[activeIndex]
 
-  const handleDownload = (url: string) => {
-    helper.downloadURI(url)
+  const handleDownload = async (url: string) => {
+    if (Capacitor.isNativePlatform()) {
+      setIsSharing(true)
+      try {
+        // First fetch the file
+        const response = await fetch(url)
+        const blob = await response.blob()
+
+        // Convert blob to base64
+        const reader = new FileReader()
+        reader.readAsDataURL(blob)
+        reader.onloadend = async () => {
+          const base64Data = reader.result?.toString().split(',')[1] || ''
+          const fileName = url.split('/').pop() || 'document'
+
+          try {
+            // Save file to cache
+            await Filesystem.writeFile({
+              path: fileName,
+              data: base64Data,
+              directory: Directory.Cache,
+              recursive: true
+            })
+
+            // Get the saved file path
+            const filePath = await Filesystem.getUri({
+              directory: Directory.Cache,
+              path: fileName
+            })
+
+            // Share the file
+            await Share.share({
+              title: commonStrings.DOWNLOAD,
+              text: fileName,
+              url: filePath.uri,
+              dialogTitle: commonStrings.DOWNLOAD
+            })
+
+            // Clean up the cached file
+            await Filesystem.deleteFile({
+              path: fileName,
+              directory: Directory.Cache
+            })
+          } catch (err) {
+            // Only show error if it's not a user cancellation
+            if (!(err instanceof Error && err.message.includes('cancel'))) {
+              console.error('Share error:', err)
+              helper.error(commonStrings.GENERIC_ERROR)
+            }
+          } finally {
+            setIsSharing(false)
+          }
+        }
+      } catch (err) {
+        console.error('Download error:', err)
+        helper.error(commonStrings.GENERIC_ERROR)
+        setIsSharing(false)
+      }
+    } else {
+      helper.downloadURI(url)
+    }
   }
 
   return (
@@ -123,9 +197,16 @@ const DocumentViewer = ({
             <IconButton
               onClick={() => handleDownload(currentDocument.url)}
               size="small"
+              disabled={isSharing}
               sx={{ color: 'white' }}
             >
-              <DownloadIcon fontSize="small" />
+              {isSharing ? (
+                <CircularProgress size={20} sx={{ color: 'white' }} />
+              ) : Capacitor.isNativePlatform() ? (
+                <ShareIcon fontSize="small" />
+              ) : (
+                <DownloadIcon fontSize="small" />
+              )}
             </IconButton>
           </Tooltip>
           <IconButton
@@ -222,16 +303,37 @@ const DocumentViewer = ({
               </Typography>
             </Box>
           ) : (
-            <img
-              src={currentDocument.url}
-              alt={currentDocument.title}
-              onError={handleImageError}
-              style={{
-                maxWidth: '100%',
-                maxHeight: '100%',
-                objectFit: 'contain'
-              }}
-            />
+            <>
+              {isImageLoading && (
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '100%',
+                    height: '100%',
+                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                    zIndex: 1
+                  }}
+                >
+                  <CircularProgress sx={{ color: 'white' }} />
+                </Box>
+              )}
+              <img
+                src={currentDocument.url}
+                alt={currentDocument.title}
+                onError={handleImageError}
+                onLoad={handleImageLoad}
+                style={{
+                  maxWidth: '100%',
+                  maxHeight: '100%',
+                  objectFit: 'contain',
+                  opacity: isImageLoading ? 0 : 1,
+                  transition: 'opacity 0.3s ease-in-out'
+                }}
+              />
+            </>
           )}
           <Typography
             variant="caption"

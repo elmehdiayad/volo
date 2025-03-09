@@ -4,6 +4,25 @@
   --toastify-icon-color-info: #fff !important;
 }
 
+.Toastify__toast-container {
+  width: 320px !important;
+  min-height: 64px !important;
+  max-height: 800px !important;
+}
+
+.Toastify__toast {
+  min-height: 64px !important;
+}
+
+@media only screen and (max-width: 480px) {
+  .Toastify__toast-container {
+    width: 90% !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    margin: 0 !important;
+  }
+}
+
 .buttons button {
   margin-right: 15px;
   margin-left: 0 !important;

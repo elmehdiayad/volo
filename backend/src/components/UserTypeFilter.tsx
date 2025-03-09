@@ -3,16 +3,19 @@ import * as bookcarsTypes from ':bookcars-types'
 import * as bookcarsHelper from ':bookcars-helper'
 import { strings as commonStrings } from '@/lang/common'
 import * as helper from '@/common/helper'
+import Accordion from '@/components/Accordion'
 
 import '@/assets/css/user-type-filter.css'
 
 interface UserTypeFilterProps {
   className?: string
+  collapse?: boolean
   onChange?: (types: bookcarsTypes.UserType[]) => void
 }
 
 const UserTypeFilter = ({
   className,
+  collapse,
   onChange
 }: UserTypeFilterProps) => {
   const userTypes = helper.getUserTypes()
@@ -86,7 +89,7 @@ const UserTypeFilter = ({
   }
 
   return (
-    <div className={`${className ? `${className} ` : ''}user-type-filter`}>
+    <Accordion title={commonStrings.TYPE} collapse={collapse} className={`${className ? `${className} ` : ''}user-type-filter`}>
       <ul className="user-type-list">
         {userTypes.map((userType, index) => (
           <li key={userType.value}>
@@ -120,7 +123,7 @@ const UserTypeFilter = ({
           {allChecked ? commonStrings.UNCHECK_ALL : commonStrings.CHECK_ALL}
         </span>
       </div>
-    </div>
+    </Accordion>
   )
 }
 

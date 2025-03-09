@@ -1,3 +1,13 @@
 .sc-search {
-  width: 235px;
+  width: 100%;
+}
+
+form {
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+form .MuiTextField-root {
+  flex: 1;
 }

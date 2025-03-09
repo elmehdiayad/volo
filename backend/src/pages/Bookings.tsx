@@ -14,14 +14,22 @@ import * as SupplierService from '@/services/SupplierService'
 
 import '@/assets/css/bookings.css'
 
+interface CombinedFilter {
+  suppliers?: string[]
+  statuses?: string[]
+  filter?: bookcarsTypes.Filter | null
+}
+
 const Bookings = () => {
   const [user, setUser] = useState<bookcarsTypes.User>()
   const [leftPanel, setLeftPanel] = useState(false)
   const [admin, setAdmin] = useState(false)
   const [allSuppliers, setAllSuppliers] = useState<bookcarsTypes.User[]>([])
-  const [suppliers, setSuppliers] = useState<string[]>()
-  const [statuses, setStatuses] = useState(helper.getBookingStatuses().map((status) => status.value))
-  const [filter, setFilter] = useState<bookcarsTypes.Filter | null>()
+  const [combinedFilter, setCombinedFilter] = useState<CombinedFilter>({
+    suppliers: [],
+    statuses: helper.getBookingStatuses().map((status) => status.value),
+    filter: null
+  })
   const [loadingSuppliers, setLoadingSuppliers] = useState(true)
   const [offset, setOffset] = useState(0)
 
@@ -35,15 +43,24 @@ const Bookings = () => {
   }, [user])
 
   const handleSupplierFilterChange = (_suppliers: string[]) => {
-    setSuppliers(_suppliers)
+    setCombinedFilter((prev) => ({
+      ...prev,
+      suppliers: _suppliers
+    }))
   }
 
   const handleStatusFilterChange = (_statuses: bookcarsTypes.BookingStatus[]) => {
-    setStatuses(_statuses)
+    setCombinedFilter((prev) => ({
+      ...prev,
+      statuses: _statuses
+    }))
   }
 
   const handleBookingFilterSubmit = (_filter: bookcarsTypes.Filter | null) => {
-    setFilter(_filter)
+    setCombinedFilter((prev) => ({
+      ...prev,
+      filter: _filter
+    }))
   }
 
   const onLoad = async (_user?: bookcarsTypes.User) => {
@@ -57,7 +74,10 @@ const Bookings = () => {
       const _allSuppliers = await SupplierService.getAllSuppliers()
       const _suppliers = _admin ? bookcarsHelper.flattenSuppliers(_allSuppliers) : [_user._id ?? '']
       setAllSuppliers(_allSuppliers)
-      setSuppliers(_suppliers)
+      setCombinedFilter((prev) => ({
+        ...prev,
+        suppliers: _suppliers
+      }))
       setLeftPanel(true)
       setLoadingSuppliers(false)
     }
@@ -73,14 +93,13 @@ const Bookings = () => {
                 <Button variant="contained" className="btn-primary cl-new-booking" size="small" href="/create-booking">
                   {strings.NEW_BOOKING}
                 </Button>
-                {admin
-                  && (
-                    <SupplierFilter
-                      suppliers={allSuppliers}
-                      onChange={handleSupplierFilterChange}
-                      className="cl-supplier-filter"
-                    />
-                  )}
+                {admin && (
+                  <SupplierFilter
+                    suppliers={allSuppliers}
+                    onChange={handleSupplierFilterChange}
+                    className="cl-supplier-filter"
+                  />
+                )}
                 <StatusFilter
                   onChange={handleStatusFilterChange}
                   className="cl-status-filter"
@@ -100,9 +119,9 @@ const Bookings = () => {
               offset={offset}
               language={user.language}
               loggedUser={user}
-              suppliers={suppliers}
-              statuses={statuses}
-              filter={filter}
+              suppliers={combinedFilter.suppliers}
+              statuses={combinedFilter.statuses}
+              filter={combinedFilter.filter}
               loading={loadingSuppliers}
               hideDates={env.isMobile}
               checkboxSelection={!env.isMobile}

@@ -5,6 +5,7 @@
 .signature-input {
   display: flex;
   align-items: center;
+  gap: 10px;
   width: 100%;
 }
 
@@ -16,13 +17,18 @@
 
 .signature-input .actions {
   display: flex;
+  align-items: center;
   gap: 5px;
-  margin-left: 10px;
+}
+
+.signature-input .action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
 .signature-input .icon {
-  width: 20px;
-  height: 20px;
+  font-size: 1.2rem;
 }
 
 .ReactCrop__image {

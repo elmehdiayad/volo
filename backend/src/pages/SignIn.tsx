@@ -103,16 +103,15 @@ const SignIn = () => {
 
   return (
     <>
-      <Header />
+      {!Capacitor.isNativePlatform() && <Header />}
       {visible && (
         <div className="signin">
           <Paper className="signin-form" elevation={10}>
             <form onSubmit={handleSubmit}>
-              test something
               <h1 className="signin-form-title">{strings.SIGN_IN_HEADING}</h1>
               <FormControl fullWidth margin="dense">
                 <InputLabel htmlFor="email">{commonStrings.EMAIL}</InputLabel>
-                <Input id="email" type="text" name="Email" onChange={handleEmailChange} autoComplete="email" required />
+                <Input id="email" type="email" name="Email" onChange={handleEmailChange} autoComplete="email" required />
               </FormControl>
               <FormControl fullWidth margin="dense">
                 <InputLabel htmlFor="password">{commonStrings.PASSWORD}</InputLabel>

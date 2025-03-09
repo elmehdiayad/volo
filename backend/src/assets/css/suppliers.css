@@ -4,13 +4,15 @@ div.suppliers {
   transform: translate3d(0, 0, 0);
 }
 
-div.suppliers .search {
+div.suppliers div.search {
   width: 100%;
   display: flex;
   justify-content: center;
+  padding: 0 15px;
 }
 
-div.suppliers .info-box {
+div.suppliers div.col-1 .filter,
+div.suppliers div.col-1 div.info-box {
   background-color: #fff;
 }
 
@@ -19,6 +21,16 @@ div.suppliers .info-box {
 @media only screen and (width <=960px) {
   div.suppliers {
     flex-direction: column;
+    flex: 0 1 auto;
+  }
+
+  div.suppliers .sc-search {
+    width: 100%;
+  }
+
+  div.suppliers .new-supplier {
+    margin: 20px 5px 5px 0;
+    width: 100%;
   }
 
   div.suppliers div.col-1 {
@@ -33,21 +45,12 @@ div.suppliers .info-box {
     max-width: 480px;
   }
 
-  div.suppliers .sc-search {
-    width: 80%;
-  }
-
-  div.suppliers .new-supplier {
-    margin: 20px 5px 5px 0;
-    width: 100%;
-  }
-
   div.suppliers div.col-2 {
     margin-top: 3px;
     padding: 1px;
+    width: 100%;
     display: flex;
     justify-content: center;
-    flex-direction: column;
   }
 }
 
@@ -70,8 +73,9 @@ div.suppliers .info-box {
     flex: 1;
   }
 
-  div.suppliers .search {
+  div.suppliers div.search {
     margin-top: 15px;
+    width: 100%;
   }
 
   div.suppliers .new-supplier {

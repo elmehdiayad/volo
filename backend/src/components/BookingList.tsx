@@ -643,18 +643,18 @@ const BookingList = ({
                       variant="contained"
                       className="btn-primary"
                       size="small"
-                      data-id={booking._id}
-                      onClick={handleInvoice}
+                      href={`/update-booking/${booking._id}`}
                     >
-                      {commonStrings.INVOICE}
+                      {commonStrings.VIEW}
                     </Button>
                     <Button
                       variant="contained"
                       className="btn-primary"
                       size="small"
-                      href={`update-booking/${booking._id}`}
+                      data-id={booking._id}
+                      onClick={handleInvoice}
                     >
-                      {commonStrings.UPDATE}
+                      {commonStrings.INVOICE}
                     </Button>
                     <Button
                       variant="contained"

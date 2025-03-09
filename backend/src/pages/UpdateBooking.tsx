@@ -1,4 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react'
+import { Capacitor } from '@capacitor/core'
+import { Share } from '@capacitor/share'
+import { Filesystem, Directory } from '@capacitor/filesystem'
 import {
   FormControl,
   FormControlLabel,
@@ -15,7 +18,9 @@ import {
   FormLabel
 } from '@mui/material'
 import {
-  Person as DriverIcon
+  Person as DriverIcon,
+  Download as DownloadIcon,
+  Share as ShareIcon
 } from '@mui/icons-material'
 import { DateTimeValidationError } from '@mui/x-date-pickers'
 import validator from 'validator'
@@ -31,11 +36,13 @@ import { strings as blStrings } from '@/lang/booking-list'
 import { strings as bfStrings } from '@/lang/booking-filter'
 import { strings as csStrings } from '@/lang/cars'
 import { strings } from '@/lang/booking'
+import { strings as contractStrings } from '@/lang/contract'
 import * as helper from '@/common/helper'
 import Layout from '@/components/Layout'
 import * as UserService from '@/services/UserService'
 import * as BookingService from '@/services/BookingService'
 import * as CarService from '@/services/CarService'
+import * as ContractService from '@/services/ContractService'
 import Backdrop from '@/components/SimpleBackdrop'
 import NoMatch from './NoMatch'
 import Error from './Error'
@@ -70,6 +77,7 @@ interface FormValues {
   additionalDriverNationalId: string
   additionalDrivernationalIdExpiryDate: Date
   paymentMethod: 'card' | 'cash' | 'check' | 'other'
+  signed: boolean
 }
 
 const CustomErrorMessage = ({ name }: { name: string }) => (
@@ -99,6 +107,7 @@ const UpdateBooking = () => {
   const [restAmount, setRestAmount] = useState<number>(0)
   const [days, setDays] = useState<number>(1)
   const [language, setLanguage] = useState<string>('')
+  const [signed, setSigned] = useState(false)
 
   const [initialValues, setInitialValues] = useState<FormValues>({
     supplier: { _id: '', name: '', image: '' },
@@ -121,6 +130,7 @@ const UpdateBooking = () => {
     additionalDriverNationalId: '',
     additionalDrivernationalIdExpiryDate: new Date(),
     paymentMethod: 'cash',
+    signed: false,
   })
 
   const validationSchema = Yup.object().shape({
@@ -429,6 +439,7 @@ const UpdateBooking = () => {
               additionalDriverNationalId: _additionalDriver?.nationalId || '',
               additionalDrivernationalIdExpiryDate: _additionalDriver?.nationalIdExpiryDate ? new Date(_additionalDriver.nationalIdExpiryDate) : new Date(),
               paymentMethod: _booking.paymentMethod || 'cash',
+              signed: false,
             }
 
             setInitialValues(_initialValues)
@@ -473,6 +484,120 @@ const UpdateBooking = () => {
     }
     getInitialLanguage()
   }, [])
+
+  const handleDownload = async (response: Blob) => {
+    if (!booking?._id) return
+
+    const fileName = `contract-${booking._id}.pdf`
+
+    if (Capacitor.isNativePlatform()) {
+      try {
+        const reader = new FileReader()
+        reader.readAsDataURL(response)
+        reader.onloadend = async () => {
+          const base64Data = reader.result?.toString().split(',')[1] || ''
+          await Filesystem.writeFile({
+            path: fileName,
+            data: base64Data,
+            directory: Directory.Documents,
+            recursive: true
+          })
+          helper.info(commonStrings.FILE_SAVED)
+        }
+      } catch (err) {
+        helper.error(err)
+      }
+    } else {
+      const url = window.URL.createObjectURL(response)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = fileName
+      a.click()
+      window.URL.revokeObjectURL(url)
+    }
+  }
+
+  const handleShare = async (response: Blob) => {
+    if (!booking?._id || !car) return
+
+    const fileName = `contract-${booking._id}.pdf`
+    const carName = (car as bookcarsTypes.Car).name || ''
+
+    if (Capacitor.isNativePlatform()) {
+      try {
+        // First save the file
+        const reader = new FileReader()
+        reader.readAsDataURL(response)
+        reader.onloadend = async () => {
+          const base64Data = reader.result?.toString().split(',')[1] || ''
+          await Filesystem.writeFile({
+            path: fileName,
+            data: base64Data,
+            directory: Directory.Cache,
+            recursive: true
+          })
+
+          // Get the saved file path
+          const filePath = await Filesystem.getUri({
+            directory: Directory.Cache,
+            path: fileName
+          })
+
+          // Share the file
+          await Share.share({
+            title: contractStrings.CONTRACT_DETAILS,
+            text: `${contractStrings.CONTRACT_DETAILS} - ${carName}`,
+            url: filePath.uri,
+            dialogTitle: contractStrings.CONTRACT_DETAILS
+          })
+
+          // Clean up the cached file
+          await Filesystem.deleteFile({
+            path: fileName,
+            directory: Directory.Cache
+          })
+        }
+      } catch (shareErr) {
+        console.error('Share error:', shareErr)
+        helper.error(commonStrings.GENERIC_ERROR)
+      }
+    } else if (navigator.share) {
+      try {
+        await navigator.share({
+          title: contractStrings.CONTRACT_DETAILS,
+          text: `${contractStrings.CONTRACT_DETAILS} - ${carName}`,
+          files: [new File([response], fileName, { type: 'application/pdf' })]
+        })
+      } catch (shareErr) {
+        if ((shareErr as Error).name !== 'AbortError') {
+          handleDownload(response)
+        }
+      }
+    } else {
+      handleDownload(response)
+    }
+  }
+
+  const handleGenerateContract = async () => {
+    if (booking && booking._id) {
+      try {
+        setLoading(true)
+        const response = await ContractService.generateContract(booking._id, signed)
+        setLoading(false)
+
+        if (response) {
+          if (Capacitor.isNativePlatform()) {
+            await handleShare(response)
+          } else {
+            handleDownload(response)
+          }
+        }
+      } catch (err) {
+        setLoading(false)
+        helper.error(err)
+      }
+    }
+  }
 
   return (
     <Layout onLoad={onLoad} strict>
@@ -954,6 +1079,14 @@ const UpdateBooking = () => {
                     </>
                   )}
 
+                  <FormControl fullWidth margin="dense" className="checkbox-fc">
+                    <FormControlLabel
+                      control={<Switch checked={signed} onChange={(e) => setSigned(e.target.checked)} color="primary" />}
+                      label={contractStrings.SIGNED}
+                      className="checkbox-fcl"
+                    />
+                  </FormControl>
+
                   <div className="buttons">
                     <Button
                       type="submit"
@@ -963,6 +1096,16 @@ const UpdateBooking = () => {
                       disabled={isSubmitting}
                     >
                       {commonStrings.SAVE}
+                    </Button>
+                    <Button
+                      variant="contained"
+                      className="btn-margin-bottom"
+                      color="primary"
+                      size="small"
+                      onClick={handleGenerateContract}
+                      startIcon={Capacitor.isNativePlatform() ? <ShareIcon /> : <DownloadIcon />}
+                    >
+                      {commonStrings.CONTRACT}
                     </Button>
                     <Button
                       variant="contained"

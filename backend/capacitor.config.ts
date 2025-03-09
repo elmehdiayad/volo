@@ -23,6 +23,13 @@ const config: CapacitorConfig = {
     },
     CapacitorCookies: {
       enabled: true
+    },
+    StatusBar: {
+      overlaysWebView: false,
+      style: 'DARK',
+    },
+    Camera: {
+      presentationStyle: 'fullscreen'
     }
   },
   loggingBehavior: 'debug' // Enable detailed logging

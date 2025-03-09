@@ -8,6 +8,7 @@ div.cars div.search {
   width: 100%;
   display: flex;
   justify-content: center;
+  padding: 0 15px;
 }
 
 div.cars div.col-1 .filter,
@@ -24,7 +25,7 @@ div.cars div.col-1 div.info-box {
   }
 
   div.cars .sc-search {
-    width: 80%;
+    width: 100%;
   }
 
   div.cars .new-car {
@@ -78,6 +79,7 @@ div.cars div.col-1 div.info-box {
 
   div.cars div.search {
     margin-top: 15px;
+    width: 100%;
   }
 
   div.cars .new-car {
