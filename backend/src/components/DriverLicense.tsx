@@ -106,12 +106,8 @@ const DriverLicense = ({
         // Get photo from camera or library
         const image = await Camera.getPhoto({
           quality: 90,
-          allowEditing: false,
           resultType: CameraResultType.DataUrl,
           source: CameraSource.Prompt,
-          promptLabelHeader: 'Select Image Source',
-          promptLabelPhoto: 'Choose from Library',
-          promptLabelPicture: 'Take Photo',
         })
 
         if (image.dataUrl) {

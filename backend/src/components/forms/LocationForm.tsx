@@ -5,7 +5,6 @@ import {
   FormControl,
   FormHelperText,
   Button,
-  Paper,
 } from '@mui/material'
 import { Loader } from '@googlemaps/js-api-loader'
 import * as bookcarsTypes from ':bookcars-types'
@@ -256,10 +255,10 @@ const LocationForm = ({
 
   return (
     <div className="location-form">
-      <Paper className="location-form-wrapper" elevation={10}>
-        <h1 className="location-form-title">
+      <div className="location-form-wrapper">
+        <h3 className="location-form-title">
           {isUpdate ? updateLocationStrings.UPDATE_LOCATION : createLocationStrings.NEW_LOCATION_HEADING}
-        </h1>
+        </h3>
         <form onSubmit={handleSubmit}>
           <Avatar
             type={bookcarsTypes.RecordType.Location}
@@ -379,7 +378,7 @@ const LocationForm = ({
             </Button>
           </div>
         </form>
-      </Paper>
+      </div>
     </div>
   )
 }

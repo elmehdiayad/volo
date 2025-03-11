@@ -4,7 +4,6 @@ import {
   FormControl,
   FormHelperText,
   Button,
-  Paper,
   Select,
   MenuItem,
   FormControlLabel,
@@ -75,7 +74,7 @@ interface UserFormProps {
 
 const UserForm = ({ user, isUpdate, defaultType, admin, onSubmit, onCancel, setLoading }: UserFormProps) => {
   const [avatar, setAvatar] = useState(user?.avatar || '')
-  const [type, setType] = useState(user?.type || defaultType || '')
+  const [type, setType] = useState(user?.type || defaultType || 'admin')
   const [documents, setDocuments] = useState<{
     licenseRecto?: string
     licenseVerso?: string
@@ -288,10 +287,10 @@ const UserForm = ({ user, isUpdate, defaultType, admin, onSubmit, onCancel, setL
 
   return (
     <div className="user-form">
-      <Paper className="user-form-wrapper" elevation={10}>
-        <h1 className="user-form-title">
+      <div className="user-form-wrapper">
+        <h3 className="user-form-title">
           {isUpdate ? updateUserStrings.UPDATE_USER_HEADING : createUserStrings.CREATE_USER_HEADING}
-        </h1>
+        </h3>
         <Formik
           initialValues={initialValues}
           validationSchema={validationSchema}
@@ -562,7 +561,7 @@ const UserForm = ({ user, isUpdate, defaultType, admin, onSubmit, onCancel, setL
             </Form>
           )}
         </Formik>
-      </Paper>
+      </div>
     </div>
   )
 }

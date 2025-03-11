@@ -47,6 +47,6 @@ routes.route(routeNames.updateDocument).post([authJwt.verifyToken, multer({ stor
 routes.route(routeNames.deleteDocument).post(authJwt.verifyToken, userController.deleteDocument)
 routes.route(routeNames.deleteTempDocument).post(authJwt.verifyToken, userController.deleteTempDocument)
 routes.route(routeNames.processDocuments).post(authJwt.verifyToken, userController.processDocuments)
-routes.route(routeNames.createSignature).post([authJwt.verifyToken, multer({ storage: multer.memoryStorage() }).single('image')], userController.createSignature)
+routes.route(routeNames.createSignature).post([authJwt.verifyToken, multer({ storage: multer.memoryStorage() }).single('file')], userController.createSignature)
 
 export default routes

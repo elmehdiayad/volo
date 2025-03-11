@@ -47,12 +47,8 @@ const Signature = ({
         // Get photo from camera or library
         const image = await Camera.getPhoto({
           quality: 90,
-          allowEditing: true,
           resultType: CameraResultType.Uri,
           source: CameraSource.Prompt,
-          promptLabelHeader: 'Select Image Source',
-          promptLabelPhoto: 'Choose from Library',
-          promptLabelPicture: 'Take Photo',
         })
 
         if (image.webPath) {

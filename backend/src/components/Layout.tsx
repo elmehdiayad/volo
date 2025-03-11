@@ -9,8 +9,6 @@ import Unauthorized from './Unauthorized'
 import * as helper from '@/common/helper'
 import { useInit } from '@/common/customHooks'
 
-import '@capacitor-community/safe-area'
-
 interface LayoutProps {
   user?: bookcarsTypes.User
   strict?: boolean

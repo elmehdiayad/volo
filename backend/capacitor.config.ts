@@ -18,21 +18,15 @@ const config: CapacitorConfig = {
     contentInset: 'always',
   },
   plugins: {
-    CapacitorHttp: {
-      enabled: true
-    },
-    CapacitorCookies: {
-      enabled: true
-    },
     StatusBar: {
       overlaysWebView: false,
       style: 'DARK',
+      backgroundColor: '#121212'
     },
     Camera: {
       presentationStyle: 'fullscreen'
     }
-  },
-  loggingBehavior: 'debug' // Enable detailed logging
+  }
 }
 
 export default config

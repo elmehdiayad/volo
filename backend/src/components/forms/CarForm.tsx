@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import {
   FormControl,
   Button,
-  Paper,
   FormControlLabel,
   Switch,
   TextField,
@@ -268,10 +267,10 @@ const CarForm = ({ car, isUpdate, isSupplier, onSubmit, onCancel }: CarFormProps
 
   return (
     <div className="car-form">
-      <Paper className="car-form-wrapper" elevation={10}>
-        <h1 className="car-form-title">
+      <div className="car-form-wrapper">
+        <h3 className="car-form-title">
           {isUpdate ? commonStrings.UPDATE : strings.NEW_CAR_HEADING}
-        </h1>
+        </h3>
         <Formik
           initialValues={initialValues}
           validationSchema={validationSchema}
@@ -695,7 +694,7 @@ const CarForm = ({ car, isUpdate, isSupplier, onSubmit, onCancel }: CarFormProps
             </Form>
           )}
         </Formik>
-      </Paper>
+      </div>
     </div>
   )
 }

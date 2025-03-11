@@ -19,6 +19,8 @@ import {
   Check as VerifiedIcon,
   LocationOn as LocationIcon,
 } from '@mui/icons-material'
+import { Capacitor } from '@capacitor/core'
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera'
 import * as bookcarsTypes from ':bookcars-types'
 import * as bookcarsHelper from ':bookcars-helper'
 import env from '@/config/env.config'
@@ -100,7 +102,12 @@ const Avatar = ({
     }
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Only handle web platform file changes
+    if (Capacitor.isNativePlatform()) {
+      return // Skip on native platforms as we handle it in handleUpload
+    }
+
     if (!e.target.files) {
       helper.error()
       return
@@ -298,11 +305,234 @@ const Avatar = ({
     reader.readAsDataURL(file)
   }
 
-  const handleUpload = () => {
+  const handleUpload = async () => {
     if (!type) {
       setOpenTypeDialog(true)
       return
     }
+
+    if (Capacitor.isNativePlatform()) {
+      try {
+        // Request camera permissions
+        const permissionResult = await Camera.checkPermissions()
+        if (permissionResult.camera !== 'granted') {
+          const request = await Camera.requestPermissions()
+          if (request.camera !== 'granted') {
+            helper.error('Camera permission is required')
+            return
+          }
+        }
+
+        // Get photo from camera or library
+        const image = await Camera.getPhoto({
+          quality: 90,
+          resultType: CameraResultType.Uri,
+          source: CameraSource.Prompt,
+        })
+
+        if (image.webPath) {
+          // Convert base64 to blob
+          const response = await fetch(image.webPath).then((r) => r.blob())
+          const file = new File([response], 'avatar.png', { type: 'image/png' })
+
+          if (onBeforeUpload) {
+            onBeforeUpload()
+          }
+
+          const reader = new FileReader()
+          reader.onloadend = async () => {
+            if (type === bookcarsTypes.RecordType.Admin
+              || type === bookcarsTypes.RecordType.Supplier
+              || type === bookcarsTypes.RecordType.User) {
+              if (mode === 'create') {
+                const createAvatar = async () => {
+                  try {
+                    if (avatar) {
+                      await UserService.deleteTempAvatar(avatar)
+                    }
+
+                    const data = await UserService.createAvatar(file)
+                    setAvatar(data)
+
+                    if (onChange) {
+                      onChange(data)
+                    }
+                  } catch (err) {
+                    helper.error(err)
+                  }
+                }
+
+                await validate(file, createAvatar)
+              } else if (avatarRecord && mode === 'update') {
+                const updateAvatar = async () => {
+                  try {
+                    const { _id } = avatarRecord
+
+                    if (!_id) {
+                      helper.error()
+                      return
+                    }
+
+                    const status = await UserService.updateAvatar(_id, file)
+
+                    if (status === 200) {
+                      const user = await UserService.getUser(_id)
+
+                      if (user) {
+                        setAvatarRecord(user)
+                        setAvatar(user.avatar || '')
+
+                        if (onChange) {
+                          onChange(user.avatar || '')
+                        }
+                      } else {
+                        helper.error()
+                      }
+                    } else {
+                      helper.error()
+                    }
+                  } catch (err) {
+                    helper.error(err)
+                  }
+                }
+
+                await validate(file, updateAvatar)
+              }
+            } else if (type === bookcarsTypes.RecordType.Car) {
+              if (mode === 'create') {
+                const createAvatar = async () => {
+                  try {
+                    if (avatar) {
+                      await CarService.deleteTempImage(avatar)
+                    }
+
+                    const data = await CarService.createImage(file)
+                    setAvatar(data)
+
+                    if (onChange) {
+                      onChange(data)
+                    }
+                  } catch (err) {
+                    helper.error(err)
+                  }
+                }
+
+                await validate(file, createAvatar)
+              } else if (mode === 'update') {
+                const updateAvatar = async () => {
+                  try {
+                    if (!avatarRecord) {
+                      helper.error()
+                      return
+                    }
+
+                    const { _id } = avatarRecord
+
+                    if (!_id) {
+                      helper.error()
+                      return
+                    }
+
+                    const status = await CarService.updateImage(_id, file)
+
+                    if (status === 200) {
+                      const car = await CarService.getCar(_id)
+
+                      if (car) {
+                        setAvatarRecord(car)
+                        setAvatar(car.image || '')
+
+                        if (onChange) {
+                          onChange(car.image || '')
+                        }
+                      } else {
+                        helper.error()
+                      }
+                    } else {
+                      helper.error()
+                    }
+                  } catch (err) {
+                    helper.error(err)
+                  }
+                }
+
+                await validate(file, updateAvatar)
+              }
+            } else if (type === bookcarsTypes.RecordType.Location) {
+              if (mode === 'create') {
+                const createAvatar = async () => {
+                  try {
+                    if (avatar) {
+                      await LocationService.deleteTempImage(avatar)
+                    }
+
+                    const data = await LocationService.createImage(file)
+                    setAvatar(data)
+
+                    if (onChange) {
+                      onChange(data)
+                    }
+                  } catch (err) {
+                    helper.error(err)
+                  }
+                }
+
+                await validate(file, createAvatar)
+              } else if (mode === 'update') {
+                const updateAvatar = async () => {
+                  try {
+                    if (!avatarRecord) {
+                      helper.error()
+                      return
+                    }
+
+                    const { _id } = avatarRecord
+
+                    if (!_id) {
+                      helper.error()
+                      return
+                    }
+
+                    const status = await LocationService.updateImage(_id, file)
+
+                    if (status === 200) {
+                      const location = await LocationService.getLocation(_id)
+
+                      if (location) {
+                        setAvatarRecord(location)
+                        setAvatar(location.image || '')
+
+                        if (onChange) {
+                          onChange(location.image || '')
+                        }
+                      } else {
+                        helper.error()
+                      }
+                    } else {
+                      helper.error()
+                    }
+                  } catch (err) {
+                    helper.error(err)
+                  }
+                }
+
+                await validate(file, updateAvatar)
+              }
+            }
+          }
+          reader.readAsDataURL(file)
+        }
+      } catch (err) {
+        // User cancelled image selection
+        if ((err as Error).message.includes('User cancelled photos app')) {
+          return
+        }
+        helper.error(err)
+      }
+      return
+    }
+
+    // Handle web platform - use traditional file input
     const upload = document.getElementById('upload') as HTMLInputElement
     upload.value = ''
     setTimeout(() => {

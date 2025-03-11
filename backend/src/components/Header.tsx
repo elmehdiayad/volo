@@ -275,16 +275,7 @@ const Header = ({
 
   return (
     <div style={hidden ? { display: 'none' } : classes.grow} className="header">
-      <AppBar
-        position="fixed"
-        sx={{
-          bgcolor: '#121212',
-          boxShadow: 'none',
-          top: 'env(safe-area-inset-top)',
-          left: 0,
-          right: 0
-        }}
-      >
+      <AppBar position="fixed" sx={{ bgcolor: '#121212' }}>
         <Toolbar className="toolbar">
           {isLoaded && !loading && isSignedIn && (
             <IconButton edge="start" sx={classes.menuButton} color="inherit" aria-label="open drawer" onClick={handleSideMenuOpen}>

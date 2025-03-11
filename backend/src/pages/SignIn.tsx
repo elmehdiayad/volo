@@ -15,6 +15,7 @@ import { strings } from '@/lang/sign-in'
 import * as UserService from '@/services/UserService'
 import Header from '@/components/Header'
 import Error from '@/components/Error'
+import Logo from '@/components/Logo'
 import * as langHelper from '@/common/langHelper'
 import '@/assets/css/signin.css'
 
@@ -108,7 +109,14 @@ const SignIn = () => {
         <div className="signin">
           <Paper className="signin-form" elevation={10}>
             <form onSubmit={handleSubmit}>
-              <h1 className="signin-form-title">{strings.SIGN_IN_HEADING}</h1>
+              {Capacitor.isNativePlatform() && (
+                <div className="signin-form-logo">
+                  <Logo />
+                </div>
+              )}
+              {!Capacitor.isNativePlatform() && (
+                <h1 className="signin-form-title">{strings.SIGN_IN_HEADING}</h1>
+              )}
               <FormControl fullWidth margin="dense">
                 <InputLabel htmlFor="email">{commonStrings.EMAIL}</InputLabel>
                 <Input id="email" type="email" name="Email" onChange={handleEmailChange} autoComplete="email" required />
