@@ -9,7 +9,6 @@ import { frFR as corefrFR, enUS as coreenUS, esES as coresES } from '@mui/materi
 import { frFR, enUS, esES } from '@mui/x-date-pickers/locales'
 import { frFR as dataGridfrFR, enUS as dataGridenUS, esES as dataGridesEs } from '@mui/x-data-grid/locales'
 import { disableDevTools } from ':disable-react-devtools'
-import * as helper from '@/common/helper'
 import * as UserService from '@/services/UserService'
 import { strings as commonStrings } from '@/lang/common'
 import env from '@/config/env.config'
@@ -23,99 +22,95 @@ if (import.meta.env.VITE_NODE_ENV === 'production') {
 }
 
 let language = env.DEFAULT_LANGUAGE
-const user = await Preferences.get({ key: 'bc-be-user' })
-const userData = JSON.parse(user.value ?? 'null')
-let lang = UserService.getQueryLanguage()
 
-if (lang) {
-  if (!env.LANGUAGES.includes(lang)) {
-    const langValue = await Preferences.get({ key: 'bc-be-language' })
-    lang = langValue.value ?? env.DEFAULT_LANGUAGE
-    if (lang && !env.LANGUAGES.includes(lang)) {
-      lang = env.DEFAULT_LANGUAGE
-    }
-  }
-
+const initApp = async () => {
   try {
-    if (user) {
-      language = userData.language
-      if (lang && lang.length === 2 && userData.language !== lang) {
-        const data = {
-          id: userData.id,
-          language: lang,
-        }
+    // Try to get user data from Capacitor Preferences if available
+    const userPref = await Preferences.get({ key: 'bc-be-user' }).catch(() => ({ value: null }))
+    const userData = userPref.value ? JSON.parse(userPref.value) : null
+    let lang = UserService.getQueryLanguage()
 
-        const status = await UserService.validateAccessToken()
-
-        if (status === 200) {
-          const _status = await UserService.updateLanguage(data)
-          if (_status !== 200) {
-            helper.error(null, commonStrings.CHANGE_LANGUAGE_ERROR)
+    if (!lang) {
+      if (userData) {
+        lang = userData.language || language
+      } else {
+        const storedUser = localStorage.getItem('bc-be-user')
+        if (storedUser) {
+          const localUser = JSON.parse(storedUser)
+          if (localUser.language) {
+            lang = localUser.language
           }
         }
-
-        language = lang
       }
-    } else if (lang) {
+    }
+
+    if (lang) {
       language = lang
     }
     UserService.setLanguage(language)
     commonStrings.setLanguage(language)
-  } catch (err) {
-    helper.error(err, commonStrings.CHANGE_LANGUAGE_ERROR)
-  }
-}
 
-language = await UserService.getLanguage()
-const isFr = language === 'fr'
-const isEs = language === 'es'
-
-const theme = createTheme(
-  {
-    typography: {
-      fontFamily: [
-        'Roboto',
-        "'Helvetica Neue'",
-        'Arial',
-        'sans-serif',
-        "'Apple Color Emoji'",
-        "'Segoe UI Emoji'",
-        "'Segoe UI Symbol'",
-        '-apple-system',
-        'BlinkMacSystemFont',
-        "'Segoe UI'",
-      ].join(','),
-    },
-    components: {
-      MuiCssBaseline: {
-        styleOverrides: {
-          body: {
-            backgroundColor: '#fafafa',
+    const theme = createTheme(
+      {
+        typography: {
+          fontFamily: ['Roboto', 'sans-serif'].join(','),
+        },
+        palette: {
+          primary: {
+            main: '#1976d2',
+          },
+          secondary: {
+            main: '#dc004e',
           },
         },
       },
-    },
-  },
-  isFr ? frFR : isEs ? esES : enUS,
-  isFr ? dataGridfrFR : isEs ? dataGridesEs : dataGridenUS,
-  isFr ? corefrFR : isEs ? coresES : coreenUS,
-)
+      language === 'fr'
+        ? { ...corefrFR, ...frFR, ...dataGridfrFR }
+        : language === 'en'
+          ? { ...coreenUS, ...enUS, ...dataGridenUS }
+          : { ...coresES, ...esES, ...dataGridesEs },
+    )
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <ThemeProvider theme={theme}>
-    <CssBaseline>
-      <App />
-      <ToastContainer
-        position="bottom-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        pauseOnFocusLoss={false}
-        draggable={false}
-        pauseOnHover
-        theme="dark"
-      />
-    </CssBaseline>
-  </ThemeProvider>,
-)
+    ReactDOM.createRoot(document.getElementById('root')!).render(
+      <ThemeProvider theme={theme}>
+        <CssBaseline>
+          <App />
+          <ToastContainer
+            position="bottom-right"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            pauseOnFocusLoss={false}
+            draggable={false}
+            pauseOnHover
+            theme="dark"
+          />
+        </CssBaseline>
+      </ThemeProvider>,
+    )
+  } catch (error) {
+    console.error('Error initializing app:', error)
+    // Fallback render in case of error
+    ReactDOM.createRoot(document.getElementById('root')!).render(
+      <ThemeProvider theme={createTheme()}>
+        <CssBaseline>
+          <App />
+          <ToastContainer
+            position="bottom-right"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            pauseOnFocusLoss={false}
+            draggable={false}
+            pauseOnHover
+            theme="dark"
+          />
+        </CssBaseline>
+      </ThemeProvider>,
+    )
+  }
+}
+
+initApp()
