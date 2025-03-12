@@ -2,9 +2,11 @@ services:
   nginx:
       image: nginx:stable-alpine
       volumes:
-        - cdn:/var/www/cdn/bookcars
+        - cdn:/var/www/cdn
+        - ./__config/nginx.dev.conf:/etc/nginx/nginx.conf
       ports:
         - 80:80
+      restart: always
   api:
     build: 
       context: .
