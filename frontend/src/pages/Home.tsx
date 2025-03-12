@@ -59,7 +59,6 @@ const Home = () => {
   const [locations, setLocations] = useState<bookcarsTypes.Location[]>([])
   const [ranges, setRanges] = useState([bookcarsTypes.CarRange.Mini, bookcarsTypes.CarRange.Midi])
   const [openRangeSearchFormDialog, setOpenRangeSearchFormDialog] = useState(false)
-  const [videoLoaded, setVideoLoaded] = useState(false)
   const [miniPricePhr, setMiniPricePhr] = useState(2.5)
   const [miniPricePday, setMiniPricePday] = useState(40)
   const [midiPricePhr, setMidiPricePhr] = useState(3.5)
@@ -116,8 +115,6 @@ const Home = () => {
 
       <div className="home">
         <div className="home-content">
-
-         
 
           <div className="home-title">{strings.TITLE}</div>
           <div className="home-cover">{strings.COVER}</div>
