@@ -18,6 +18,22 @@ export const getLocations = (keyword: string, page: number, size: number): Promi
     .then((res) => res.data)
 
 /**
+ * Get locations for a specific supplier.
+ *
+ * @param {string} supplierId
+ * @param {string} keyword
+ * @param {number} page
+ * @param {number} size
+ * @returns {Promise<bookcarsTypes.Result<bookcarsTypes.Location>>}
+ */
+export const getSupplierLocations = (supplierId: string, keyword: string, page: number, size: number): Promise<bookcarsTypes.ResultData<bookcarsTypes.Location>> =>
+  axiosInstance
+    .get(
+      `/api/supplier/${encodeURIComponent(supplierId)}/locations/${page}/${size}/${UserService.getLanguage()}/?s=${encodeURIComponent(keyword)}`
+    )
+    .then((res) => res.data)
+
+/**
  * Get locations with position.
  *
  * @returns {Promise<bookcarsTypes.Result<bookcarsTypes.Location>>}

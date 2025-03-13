@@ -19,5 +19,6 @@ routes.route(routeNames.createImage).post([authJwt.verifyToken, multer({ storage
 routes.route(routeNames.updateImage).post([authJwt.verifyToken, multer({ storage: multer.memoryStorage() }).single('image')], locationController.updateImage)
 routes.route(routeNames.deleteImage).post(authJwt.verifyToken, locationController.deleteImage)
 routes.route(routeNames.deleteTempImage).post(authJwt.verifyToken, locationController.deleteTempImage)
+routes.route(routeNames.getSupplierLocations).get(locationController.getSupplierLocations)
 
 export default routes

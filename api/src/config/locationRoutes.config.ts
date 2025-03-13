@@ -12,6 +12,7 @@ const routes = {
   updateImage: '/api/update-location-image/:id',
   deleteImage: '/api/delete-location-image/:id',
   deleteTempImage: '/api/delete-temp-location-image/:image',
+  getSupplierLocations: '/api/supplier/:supplierId/locations/:page/:size/:language',
 }
 
 export default routes

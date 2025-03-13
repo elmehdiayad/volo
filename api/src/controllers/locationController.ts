@@ -500,3 +500,101 @@ export const deleteTempImage = async (req: Request, res: Response) => {
     res.status(400).send(i18n.t('ERROR') + err)
   }
 }
+
+/**
+ * Get Locations for a specific supplier.
+ *
+ * @export
+ * @async
+ * @param {Request} req
+ * @param {Response} res
+ * @returns {unknown}
+ */
+export const getSupplierLocations = async (req: Request, res: Response) => {
+  try {
+    const { supplierId } = req.params
+    const page = Number.parseInt(req.params.page, 10)
+    const size = Number.parseInt(req.params.size, 10)
+    const keyword = escapeStringRegexp(String(req.query.s || ''))
+    const options = 'i'
+
+    // First, get all cars owned by the supplier
+    const supplierCars = await Car.find({ supplier: new Types.ObjectId(supplierId) })
+    const carIds = supplierCars.map((car) => car._id)
+
+    // Then, get all locations that have these cars
+    const locations = await Location.aggregate(
+      [
+        {
+          $match: {
+            name: { $regex: keyword, $options: options },
+          },
+        },
+        {
+          $lookup: {
+            from: 'Car',
+            let: { locationId: '$_id' },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [
+                      { $in: ['$$locationId', '$locations'] },
+                      { $in: ['$_id', carIds] },
+                    ],
+                  },
+                },
+              },
+            ],
+            as: 'cars',
+          },
+        },
+        {
+          $match: {
+            cars: { $ne: [] },
+          },
+        },
+        {
+          $lookup: {
+            from: 'Country',
+            let: { country: '$country' },
+            pipeline: [
+              {
+                $match: {
+                  $expr: { $eq: ['$_id', '$$country'] },
+                },
+              },
+            ],
+            as: 'country',
+          },
+        },
+        { $unwind: { path: '$country', preserveNullAndEmptyArrays: true } },
+        {
+          $project: {
+            parkingSpots: 0,
+            cars: 0,
+          },
+        },
+        {
+          $facet: {
+            resultData: [{ $sort: { name: 1, _id: 1 } }, { $skip: (page - 1) * size }, { $limit: size }],
+            pageInfo: [
+              {
+                $count: 'totalRecords',
+              },
+            ],
+          },
+        },
+      ],
+      { collation: { locale: env.DEFAULT_LANGUAGE, strength: 2 } },
+    )
+
+    if (locations[0].resultData.length > 0) {
+      return res.json(locations[0])
+    }
+    return res.json({ resultData: [], pageInfo: [{ totalRecords: 0 }] })
+  } catch (err) {
+    logger.error(`[location.getSupplierLocations] ${i18n.t('DB_ERROR')}`, err as Error)
+    return res.status(400).send(i18n.t('DB_ERROR') + (err as Error).message)
+  }
+}

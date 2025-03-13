@@ -11,6 +11,8 @@ div.footer {
   font-size: 13px;
   padding: 12px;
   transform: translate3d(0, 0, 0);
+  position: absolute;
+  bottom: 0;
 }
 
 div.footer div.header {

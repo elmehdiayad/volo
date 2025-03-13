@@ -1,3 +1,28 @@
+.supplier-list {
+  padding: 20px;
+}
+
+.supplier-card {
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.supplier-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.supplier-image {
+  padding: 8px;
+  background: white;
+}
+
+.supplier-name {
+  font-size: 0.875rem;
+  line-height: 1.2;
+  margin: 0;
+  color: rgba(0, 0, 0, 0.87);
+}
+
 div.supplier-list {
   display: flex;
   flex-wrap: wrap;
