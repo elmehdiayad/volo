@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react'
-import { Button } from '@mui/material'
+import { Button, IconButton } from '@mui/material'
+import FilterListIcon from '@mui/icons-material/FilterList'
+import FilterListOffIcon from '@mui/icons-material/FilterListOff'
 import * as bookcarsTypes from ':bookcars-types'
 import * as bookcarsHelper from ':bookcars-helper'
 import * as helper from '@/common/helper'
@@ -30,6 +32,7 @@ import '@/assets/css/cars.css'
 const Cars = () => {
   const [user, setUser] = useState<bookcarsTypes.User>()
   const [admin, setAdmin] = useState(false)
+  const [showFilters, setShowFilters] = useState(false)
   const [allSuppliers, setAllSuppliers] = useState<bookcarsTypes.User[]>([])
   const [suppliers, setSuppliers] = useState<string[]>()
   const [keyword, setKeyword] = useState('')
@@ -171,7 +174,16 @@ const Cars = () => {
         <div className="cars">
           <div className="col-1">
             <div className="col-1-container">
-              <Search onSubmit={handleSearch} className="search" />
+              <div className="search-container">
+                <Search onSubmit={handleSearch} className="search" />
+                <IconButton
+                  onClick={() => setShowFilters(!showFilters)}
+                  color="primary"
+                  className="filter-toggle"
+                >
+                  {showFilters ? <FilterListOffIcon /> : <FilterListIcon />}
+                </IconButton>
+              </div>
 
               <Button type="submit" variant="contained" className="btn-primary new-car" size="small" href="/create-car">
                 {strings.NEW_CAR}
@@ -179,21 +191,25 @@ const Cars = () => {
 
               {rowCount > 0 && <InfoBox value={`${rowCount} ${rowCount > 1 ? commonStrings.CARS : commonStrings.CAR}`} className="car-count" />}
 
-              <SupplierFilter suppliers={allSuppliers} onChange={handleSupplierFilterChange} className="filter" />
-
-              {rowCount > -1 && (
+              {showFilters && (
                 <>
-                  <CarRatingFilter className="filter" onChange={handleRatingFilterChange} />
-                  <CarRangeFilter className="filter" onChange={handleRangeFilterChange} />
-                  <CarMultimediaFilter className="filter" onChange={handleMultimediaFilterChange} />
-                  <CarSeatsFilter className="filter" onChange={handleSeatsFilterChange} />
-                  <CarSpecsFilter className="filter" onChange={handleCarSpecsFilterChange} />
-                  <CarTypeFilter className="car-filter" onChange={handleCarTypeFilterChange} />
-                  <GearboxFilter className="car-filter" onChange={handleGearboxFilterChange} />
-                  <MileageFilter className="car-filter" onChange={handleMileageFilterChange} />
-                  <FuelPolicyFilter className="filter" onChange={handleFuelPolicyFilterChange} />
-                  <DepositFilter className="car-filter" onChange={handleDepositFilterChange} />
-                  {admin && <AvailabilityFilter className="car-filter" onChange={handleAvailabilityFilterChange} />}
+                  <SupplierFilter suppliers={allSuppliers} onChange={handleSupplierFilterChange} className="filter" />
+
+                  {rowCount > -1 && (
+                    <>
+                      <CarRatingFilter className="filter" onChange={handleRatingFilterChange} />
+                      <CarRangeFilter className="filter" onChange={handleRangeFilterChange} />
+                      <CarMultimediaFilter className="filter" onChange={handleMultimediaFilterChange} />
+                      <CarSeatsFilter className="filter" onChange={handleSeatsFilterChange} />
+                      <CarSpecsFilter className="filter" onChange={handleCarSpecsFilterChange} />
+                      <CarTypeFilter className="car-filter" onChange={handleCarTypeFilterChange} />
+                      <GearboxFilter className="car-filter" onChange={handleGearboxFilterChange} />
+                      <MileageFilter className="car-filter" onChange={handleMileageFilterChange} />
+                      <FuelPolicyFilter className="filter" onChange={handleFuelPolicyFilterChange} />
+                      <DepositFilter className="car-filter" onChange={handleDepositFilterChange} />
+                      {admin && <AvailabilityFilter className="car-filter" onChange={handleAvailabilityFilterChange} />}
+                    </>
+                  )}
                 </>
               )}
             </div>

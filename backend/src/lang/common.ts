@@ -162,6 +162,8 @@ const strings = new LocalizedStrings({
     CUSTOMER: 'Customer',
     GENERATE: 'Generate',
     NUMBER_OF_DAYS: 'Nombre de jours',
+    SHOW_FILTERS: 'Afficher les filtres',
+    HIDE_FILTERS: 'Masquer les filtres',
   },
   en: {
     GENERIC_ERROR: 'An error occurred.',
@@ -322,6 +324,8 @@ const strings = new LocalizedStrings({
     CUSTOMER: 'Customer',
     GENERATE: 'Generate',
     NUMBER_OF_DAYS: 'Number of days',
+    SHOW_FILTERS: 'Show Filters',
+    HIDE_FILTERS: 'Hide Filters',
   },
   es: {
     GENERIC_ERROR: 'Se ha producido un error no controlado.',
@@ -452,6 +456,8 @@ const strings = new LocalizedStrings({
     CUSTOMER: 'Customer',
     GENERATE: 'Generate',
     NUMBER_OF_DAYS: 'Number of days',
+    SHOW_FILTERS: 'Mostrar filtros',
+    HIDE_FILTERS: 'Ocultar filtros',
   },
 })
 

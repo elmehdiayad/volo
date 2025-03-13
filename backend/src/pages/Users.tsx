@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
-import { Button } from '@mui/material'
+import { Button, IconButton } from '@mui/material'
+import FilterListIcon from '@mui/icons-material/FilterList'
+import FilterListOffIcon from '@mui/icons-material/FilterListOff'
 import * as bookcarsTypes from ':bookcars-types'
 import Layout from '@/components/Layout'
 import env from '@/config/env.config'
@@ -14,6 +16,7 @@ import '@/assets/css/users.css'
 const Users = () => {
   const [user, setUser] = useState<bookcarsTypes.User>()
   const [admin, setAdmin] = useState(false)
+  const [showFilters, setShowFilters] = useState(false)
   const [types, setTypes] = useState<bookcarsTypes.UserType[]>()
   const [keyword, setKeyword] = useState('')
 
@@ -42,15 +45,23 @@ const Users = () => {
         <div className="users">
           <div className="col-1">
             <div className="col-1-container">
-              <Search onSubmit={handleSearch} className="search" />
+              <div className="search-container">
+                <Search onSubmit={handleSearch} className="search" />
+                <IconButton
+                  onClick={() => setShowFilters(!showFilters)}
+                  color="primary"
+                  className="filter-toggle"
+                >
+                  {showFilters ? <FilterListOffIcon /> : <FilterListIcon />}
+                </IconButton>
+              </div>
 
-              {admin
-                && (
+              {admin && showFilters && (
                 <UserTypeFilter
                   className="user-type-filter"
                   onChange={handleUserTypeFilterChange}
                 />
-)}
+              )}
 
               <Button variant="contained" className="btn-primary new-user" size="small" href="/create-user">
                 {strings.NEW_USER}

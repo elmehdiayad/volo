@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react'
-import { TextField, Box, CircularProgress } from '@mui/material'
+import { TextField, Box, CircularProgress, IconButton } from '@mui/material'
+import FilterListIcon from '@mui/icons-material/FilterList'
+import FilterListOffIcon from '@mui/icons-material/FilterListOff'
 import * as bookcarsTypes from ':bookcars-types'
 import Layout from '@/components/Layout'
 import SupplierList from '@/components/SupplierList'
@@ -19,6 +21,7 @@ const Suppliers = () => {
   const [location, setLocation] = useState<bookcarsTypes.Location>()
   const [nameFilter, setNameFilter] = useState('')
   const [loading, setLoading] = useState(true)
+  const [showFilters, setShowFilters] = useState(false)
 
   useEffect(() => {
     const fetchSuppliers = async () => {
@@ -90,25 +93,35 @@ const Suppliers = () => {
     <Layout strict={false}>
       <div className="search">
         <div className="col-1">
+          <div className="search-container">
+            <TextField
+              label={commonStrings.FULL_NAME}
+              variant="outlined"
+              value={nameFilter}
+              onChange={(e) => setNameFilter(e.target.value)}
+              fullWidth
+              size="small"
+            />
+            <IconButton
+              onClick={() => setShowFilters(!showFilters)}
+              color="primary"
+              className="filter-toggle"
+            >
+              {showFilters ? <FilterListOffIcon /> : <FilterListIcon />}
+            </IconButton>
+          </div>
 
-          <Accordion title={commonStrings.SEARCH} className="filter" collapse>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, p: 2 }}>
-              <TextField
-                label={commonStrings.FULL_NAME}
-                variant="outlined"
-                value={nameFilter}
-                onChange={(e) => setNameFilter(e.target.value)}
-                fullWidth
-                size="small"
-              />
-              <LocationFilter
-                label={commonStrings.LOCATION}
-                onChange={handleLocationChange}
-                value={location}
-              />
-            </Box>
-          </Accordion>
-
+          {showFilters && (
+            <Accordion title={commonStrings.SEARCH} className="filter" collapse>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, p: 2 }}>
+                <LocationFilter
+                  label={commonStrings.LOCATION}
+                  onChange={handleLocationChange}
+                  value={location}
+                />
+              </Box>
+            </Accordion>
+          )}
         </div>
         <div className="col-2">
           {loading ? (
