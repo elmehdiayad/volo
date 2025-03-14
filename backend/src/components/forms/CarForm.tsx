@@ -447,7 +447,7 @@ const CarForm = ({ car, isUpdate, isSupplier, onSubmit, onCancel }: CarFormProps
                   label={strings.CAR_RANGE}
                   variant="standard"
                   required
-                  value={car?.range}
+                  value={car?.range || bookcarsTypes.CarRange.Midi}
                   onChange={(value: string) => setFieldValue('range', value)}
                 />
                 <CustomErrorMessage name="range" />
@@ -458,7 +458,7 @@ const CarForm = ({ car, isUpdate, isSupplier, onSubmit, onCancel }: CarFormProps
                   label={strings.CAR_TYPE}
                   variant="standard"
                   required
-                  value={car?.type}
+                  value={car?.type || bookcarsTypes.CarType.Diesel}
                   onChange={(value: string) => setFieldValue('type', value)}
                 />
                 <CustomErrorMessage name="type" />
@@ -469,7 +469,7 @@ const CarForm = ({ car, isUpdate, isSupplier, onSubmit, onCancel }: CarFormProps
                   label={strings.GEARBOX}
                   variant="standard"
                   required
-                  value={car?.gearbox}
+                  value={car?.gearbox || bookcarsTypes.GearboxType.Manual}
                   onChange={(value: string) => setFieldValue('gearbox', value)}
                 />
                 <CustomErrorMessage name="gearbox" />
@@ -480,7 +480,7 @@ const CarForm = ({ car, isUpdate, isSupplier, onSubmit, onCancel }: CarFormProps
                   label={strings.SEATS}
                   variant="standard"
                   required
-                  value={car?.seats?.toString()}
+                  value={car?.seats?.toString() || '5'}
                   onChange={(value: string) => setFieldValue('seats', value)}
                 />
                 <CustomErrorMessage name="seats" />
@@ -491,7 +491,7 @@ const CarForm = ({ car, isUpdate, isSupplier, onSubmit, onCancel }: CarFormProps
                   label={strings.DOORS}
                   variant="standard"
                   required
-                  value={car?.doors?.toString()}
+                  value={car?.doors?.toString() || '5'}
                   onChange={(value: string) => setFieldValue('doors', value)}
                 />
                 <CustomErrorMessage name="doors" />
@@ -502,7 +502,7 @@ const CarForm = ({ car, isUpdate, isSupplier, onSubmit, onCancel }: CarFormProps
                   label={csStrings.FUEL_POLICY}
                   variant="standard"
                   required
-                  value={car?.fuelPolicy}
+                  value={car?.fuelPolicy || bookcarsTypes.FuelPolicy.LikeForLike}
                   onChange={(value: string) => setFieldValue('fuelPolicy', value)}
                 />
                 <CustomErrorMessage name="fuelPolicy" />
@@ -649,7 +649,7 @@ const CarForm = ({ car, isUpdate, isSupplier, onSubmit, onCancel }: CarFormProps
                       {({ field }: { field: any }) => (
                         <Switch
                           {...field}
-                          checked={field.value}
+                          checked={field.value || true}
                           color="primary"
                         />
                       )}
