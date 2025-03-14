@@ -477,9 +477,18 @@ export const getBackendSuppliers = async (req: Request, res: Response) => {
 
     const $match: mongoose.FilterQuery<bookcarsTypes.Car> = {
       $and: [
-        { name: { $regex: keyword, $options: options } },
-        { fuelPolicy: { $in: fuelPolicy } },
+        {
+          $or: [
+            { brand: { $regex: keyword, $options: options } },
+            { carModel: { $regex: keyword, $options: options } },
+            { plateNumber: { $regex: keyword, $options: options } },
+          ],
+        },
       ],
+    }
+
+    if (fuelPolicy && fuelPolicy.length > 0) {
+      $match.$and!.push({ fuelPolicy: { $in: fuelPolicy } })
     }
 
     if (carSpecs) {
@@ -494,15 +503,15 @@ export const getBackendSuppliers = async (req: Request, res: Response) => {
       }
     }
 
-    if (carType) {
+    if (carType && carType.length > 0) {
       $match.$and!.push({ type: { $in: carType } })
     }
 
-    if (gearbox) {
+    if (gearbox && gearbox.length > 0) {
       $match.$and!.push({ gearbox: { $in: gearbox } })
     }
 
-    if (mileage) {
+    if (mileage && mileage.length > 0) {
       if (mileage.length === 1 && mileage[0] === bookcarsTypes.Mileage.Limited) {
         $match.$and!.push({ mileage: { $gt: -1 } })
       } else if (mileage.length === 1 && mileage[0] === bookcarsTypes.Mileage.Unlimited) {
@@ -516,7 +525,7 @@ export const getBackendSuppliers = async (req: Request, res: Response) => {
       $match.$and!.push({ deposit: { $lte: deposit } })
     }
 
-    if (Array.isArray(availability)) {
+    if (Array.isArray(availability) && availability.length > 0) {
       if (availability.length === 1 && availability[0] === bookcarsTypes.Availablity.Available) {
         $match.$and!.push({ available: true })
       } else if (availability.length === 1 && availability[0] === bookcarsTypes.Availablity.Unavailable) {
@@ -526,7 +535,7 @@ export const getBackendSuppliers = async (req: Request, res: Response) => {
       }
     }
 
-    if (ranges) {
+    if (ranges && ranges.length > 0) {
       $match.$and!.push({ range: { $in: ranges } })
     }
 
@@ -540,13 +549,11 @@ export const getBackendSuppliers = async (req: Request, res: Response) => {
       $match.$and!.push({ rating: { $gte: rating } })
     }
 
-    if (seats) {
-      if (seats > -1) {
-        if (seats === 6) {
-          $match.$and!.push({ seats: { $gte: 5 } })
-        } else {
-          $match.$and!.push({ seats })
-        }
+    if (seats && seats > -1) {
+      if (seats === 6) {
+        $match.$and!.push({ seats: { $gte: 5 } })
+      } else {
+        $match.$and!.push({ seats })
       }
     }
 

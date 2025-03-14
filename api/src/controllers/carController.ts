@@ -446,7 +446,7 @@ export const getCars = async (req: Request, res: Response) => {
 
     const $match: mongoose.FilterQuery<bookcarsTypes.Car> = {
       $and: [
-        { name: { $regex: keyword, $options: options } },
+        { brand: { $regex: keyword, $options: options } },
         { supplier: { $in: suppliers } },
       ],
     }

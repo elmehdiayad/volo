@@ -6,9 +6,13 @@ import {
   Switch,
   TextField,
   FormHelperText,
-  Autocomplete
+  Autocomplete,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Typography,
 } from '@mui/material'
-import { Info as InfoIcon } from '@mui/icons-material'
+import { Info as InfoIcon, ExpandMore as ExpandMoreIcon } from '@mui/icons-material'
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
 import * as bookcarsTypes from ':bookcars-types'
@@ -31,6 +35,7 @@ import CarRangeList from '@/components/CarRangeList'
 import MultimediaList from '@/components/MultimediaList'
 import { cars } from '@/data/cars'
 
+import '@/assets/css/shared-form.css'
 import '@/assets/css/create-car.css'
 
 interface CarFormProps {
@@ -157,16 +162,16 @@ const CarForm = ({ car, isUpdate, isSupplier, onSubmit, onCancel }: CarFormProps
     monthlyPrice: car?.monthlyPrice?.toString() || '',
     discountedMonthlyPrice: car?.discountedMonthlyPrice?.toString() || '',
     deposit: car?.deposit?.toString() || '',
-    available: car?.available ?? false,
-    type: car?.type || '',
-    gearbox: car?.gearbox || '',
+    available: car?.available ?? true,
+    type: car?.type || bookcarsTypes.CarType.Diesel,
+    gearbox: car?.gearbox || bookcarsTypes.GearboxType.Manual,
     aircon: car?.aircon ?? false,
-    seats: car?.seats?.toString() || '',
-    doors: car?.doors?.toString() || '',
-    fuelPolicy: car?.fuelPolicy || '',
+    seats: car?.seats?.toString() || '5',
+    doors: car?.doors?.toString() || '5',
+    fuelPolicy: car?.fuelPolicy || bookcarsTypes.FuelPolicy.LikeForLike,
     mileage: car?.mileage?.toString() || '',
     additionalDriver: car?.additionalDriver?.toString() || '0',
-    range: car?.range || '',
+    range: car?.range || bookcarsTypes.CarRange.Midi,
     multimedia: car?.multimedia || [],
     rating: car?.rating?.toString() || '',
     co2: car?.co2?.toString() || '',
@@ -266,9 +271,9 @@ const CarForm = ({ car, isUpdate, isSupplier, onSubmit, onCancel }: CarFormProps
   }
 
   return (
-    <div className="car-form">
-      <div className="car-form-wrapper">
-        <h3 className="car-form-title">
+    <div className="form">
+      <div className="form-wrapper">
+        <h3 className="form-title">
           {isUpdate ? commonStrings.UPDATE : strings.NEW_CAR_HEADING}
         </h3>
         <Formik
@@ -295,6 +300,15 @@ const CarForm = ({ car, isUpdate, isSupplier, onSubmit, onCancel }: CarFormProps
               <div className="info">
                 <InfoIcon />
                 <span>{strings.RECOMMENDED_IMAGE_SIZE}</span>
+                <span>
+                  {imageError && <Error message={commonStrings.IMAGE_REQUIRED} />}
+                </span>
+                <span>
+                  {imageSizeError && <Error message={strings.CAR_IMAGE_SIZE_ERROR} />}
+                </span>
+                <span>
+                  {formError && <Error message={commonStrings.FORM_ERROR} />}
+                </span>
               </div>
 
               {!isSupplier && (
@@ -508,140 +522,6 @@ const CarForm = ({ car, isUpdate, isSupplier, onSubmit, onCancel }: CarFormProps
                 <CustomErrorMessage name="fuelPolicy" />
               </FormControl>
 
-              <div className="info">
-                <InfoIcon />
-                <span>{commonStrings.OPTIONAL}</span>
-              </div>
-
-              <FormControl fullWidth margin="dense">
-                <Field
-                  as={TextField}
-                  label={`${strings.DISCOUNTED_DAILY_PRICE} (${commonStrings.CURRENCY})`}
-                  name="discountedDailyPrice"
-                  autoComplete="off"
-                  variant="standard"
-                  slotProps={{ input: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
-                />
-                <CustomErrorMessage name="discountedDailyPrice" />
-              </FormControl>
-
-              <FormControl fullWidth margin="dense">
-                <Field
-                  as={TextField}
-                  label={`${strings.BI_WEEKLY_PRICE} (${commonStrings.CURRENCY})`}
-                  name="biWeeklyPrice"
-                  autoComplete="off"
-                  variant="standard"
-                  slotProps={{ input: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
-                />
-                <CustomErrorMessage name="biWeeklyPrice" />
-              </FormControl>
-
-              <FormControl fullWidth margin="dense">
-                <Field
-                  as={TextField}
-                  label={`${strings.DISCOUNTED_BI_WEEKLY_PRICE} (${commonStrings.CURRENCY})`}
-                  name="discountedBiWeeklyPrice"
-                  autoComplete="off"
-                  variant="standard"
-                  slotProps={{ input: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
-                />
-                <CustomErrorMessage name="discountedBiWeeklyPrice" />
-              </FormControl>
-
-              <FormControl fullWidth margin="dense">
-                <Field
-                  as={TextField}
-                  label={`${strings.WEEKLY_PRICE} (${commonStrings.CURRENCY})`}
-                  name="weeklyPrice"
-                  autoComplete="off"
-                  variant="standard"
-                  slotProps={{ input: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
-                />
-                <CustomErrorMessage name="weeklyPrice" />
-              </FormControl>
-
-              <FormControl fullWidth margin="dense">
-                <Field
-                  as={TextField}
-                  label={`${strings.DISCOUNTED_WEEKLY_PRICE} (${commonStrings.CURRENCY})`}
-                  name="discountedWeeklyPrice"
-                  autoComplete="off"
-                  variant="standard"
-                  slotProps={{ input: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
-                />
-                <CustomErrorMessage name="discountedWeeklyPrice" />
-              </FormControl>
-
-              <FormControl fullWidth margin="dense">
-                <Field
-                  as={TextField}
-                  label={`${strings.MONTHLY_PRICE} (${commonStrings.CURRENCY})`}
-                  name="monthlyPrice"
-                  autoComplete="off"
-                  variant="standard"
-                  slotProps={{ input: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
-                />
-                <CustomErrorMessage name="monthlyPrice" />
-              </FormControl>
-
-              <FormControl fullWidth margin="dense">
-                <Field
-                  as={TextField}
-                  label={`${strings.DISCOUNTED_MONThLY_PRICE} (${commonStrings.CURRENCY})`}
-                  name="discountedMonthlyPrice"
-                  autoComplete="off"
-                  variant="standard"
-                  slotProps={{ input: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
-                />
-                <CustomErrorMessage name="discountedMonthlyPrice" />
-              </FormControl>
-
-              <FormControl fullWidth margin="dense">
-                <Field
-                  as={TextField}
-                  label={`${csStrings.ADDITIONAL_DRIVER} (${csStrings.CAR_CURRENCY})`}
-                  name="additionalDriver"
-                  autoComplete="off"
-                  variant="standard"
-                  slotProps={{ input: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
-                />
-                <CustomErrorMessage name="additionalDriver" />
-              </FormControl>
-
-              <FormControl fullWidth margin="dense">
-                <MultimediaList
-                  label={strings.MULTIMEDIA}
-                  value={car?.multimedia}
-                  onChange={(value: bookcarsTypes.CarMultimedia[]) => setFieldValue('multimedia', value)}
-                />
-                <CustomErrorMessage name="multimedia" />
-              </FormControl>
-
-              <FormControl fullWidth margin="dense">
-                <Field
-                  as={TextField}
-                  label={strings.RATING}
-                  name="rating"
-                  autoComplete="off"
-                  variant="standard"
-                  slotProps={{ input: { type: 'number', min: 1, max: 5, step: 0.01 } }}
-                />
-                <CustomErrorMessage name="rating" />
-              </FormControl>
-
-              <FormControl fullWidth margin="dense">
-                <Field
-                  as={TextField}
-                  label={strings.CO2}
-                  name="co2"
-                  autoComplete="off"
-                  variant="standard"
-                  slotProps={{ input: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
-                />
-                <CustomErrorMessage name="co2" />
-              </FormControl>
-
               <FormControl fullWidth margin="dense" className="checkbox-fc">
                 <FormControlLabel
                   control={(
@@ -649,7 +529,7 @@ const CarForm = ({ car, isUpdate, isSupplier, onSubmit, onCancel }: CarFormProps
                       {({ field }: { field: any }) => (
                         <Switch
                           {...field}
-                          checked={field.value || true}
+                          checked={field.value}
                           color="primary"
                         />
                       )}
@@ -660,6 +540,147 @@ const CarForm = ({ car, isUpdate, isSupplier, onSubmit, onCancel }: CarFormProps
                 />
                 <CustomErrorMessage name="available" />
               </FormControl>
+
+              <Accordion className="optional-parameters-accordion">
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon />}
+                  aria-controls="optional-parameters-content"
+                  id="optional-parameters-header"
+                >
+                  <Typography>{commonStrings.OPTIONAL}</Typography>
+
+                </AccordionSummary>
+                <AccordionDetails>
+                  <FormControl fullWidth margin="dense">
+                    <Field
+                      as={TextField}
+                      label={`${strings.DISCOUNTED_DAILY_PRICE} (${commonStrings.CURRENCY})`}
+                      name="discountedDailyPrice"
+                      autoComplete="off"
+                      variant="standard"
+                      slotProps={{ input: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
+                    />
+                    <CustomErrorMessage name="discountedDailyPrice" />
+                  </FormControl>
+
+                  <FormControl fullWidth margin="dense">
+                    <Field
+                      as={TextField}
+                      label={`${strings.BI_WEEKLY_PRICE} (${commonStrings.CURRENCY})`}
+                      name="biWeeklyPrice"
+                      autoComplete="off"
+                      variant="standard"
+                      slotProps={{ input: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
+                    />
+                    <CustomErrorMessage name="biWeeklyPrice" />
+                  </FormControl>
+
+                  <FormControl fullWidth margin="dense">
+                    <Field
+                      as={TextField}
+                      label={`${strings.DISCOUNTED_BI_WEEKLY_PRICE} (${commonStrings.CURRENCY})`}
+                      name="discountedBiWeeklyPrice"
+                      autoComplete="off"
+                      variant="standard"
+                      slotProps={{ input: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
+                    />
+                    <CustomErrorMessage name="discountedBiWeeklyPrice" />
+                  </FormControl>
+
+                  <FormControl fullWidth margin="dense">
+                    <Field
+                      as={TextField}
+                      label={`${strings.WEEKLY_PRICE} (${commonStrings.CURRENCY})`}
+                      name="weeklyPrice"
+                      autoComplete="off"
+                      variant="standard"
+                      slotProps={{ input: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
+                    />
+                    <CustomErrorMessage name="weeklyPrice" />
+                  </FormControl>
+
+                  <FormControl fullWidth margin="dense">
+                    <Field
+                      as={TextField}
+                      label={`${strings.DISCOUNTED_WEEKLY_PRICE} (${commonStrings.CURRENCY})`}
+                      name="discountedWeeklyPrice"
+                      autoComplete="off"
+                      variant="standard"
+                      slotProps={{ input: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
+                    />
+                    <CustomErrorMessage name="discountedWeeklyPrice" />
+                  </FormControl>
+
+                  <FormControl fullWidth margin="dense">
+                    <Field
+                      as={TextField}
+                      label={`${strings.MONTHLY_PRICE} (${commonStrings.CURRENCY})`}
+                      name="monthlyPrice"
+                      autoComplete="off"
+                      variant="standard"
+                      slotProps={{ input: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
+                    />
+                    <CustomErrorMessage name="monthlyPrice" />
+                  </FormControl>
+
+                  <FormControl fullWidth margin="dense">
+                    <Field
+                      as={TextField}
+                      label={`${strings.DISCOUNTED_MONThLY_PRICE} (${commonStrings.CURRENCY})`}
+                      name="discountedMonthlyPrice"
+                      autoComplete="off"
+                      variant="standard"
+                      slotProps={{ input: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
+                    />
+                    <CustomErrorMessage name="discountedMonthlyPrice" />
+                  </FormControl>
+
+                  <FormControl fullWidth margin="dense">
+                    <Field
+                      as={TextField}
+                      label={`${csStrings.ADDITIONAL_DRIVER} (${csStrings.CAR_CURRENCY})`}
+                      name="additionalDriver"
+                      autoComplete="off"
+                      variant="standard"
+                      slotProps={{ input: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
+                    />
+                    <CustomErrorMessage name="additionalDriver" />
+                  </FormControl>
+
+                  <FormControl fullWidth margin="dense">
+                    <MultimediaList
+                      label={strings.MULTIMEDIA}
+                      value={car?.multimedia}
+                      onChange={(value: bookcarsTypes.CarMultimedia[]) => setFieldValue('multimedia', value)}
+                    />
+                    <CustomErrorMessage name="multimedia" />
+                  </FormControl>
+
+                  <FormControl fullWidth margin="dense">
+                    <Field
+                      as={TextField}
+                      label={strings.RATING}
+                      name="rating"
+                      autoComplete="off"
+                      variant="standard"
+                      slotProps={{ input: { type: 'number', min: 1, max: 5, step: 0.01 } }}
+                    />
+                    <CustomErrorMessage name="rating" />
+                  </FormControl>
+
+                  <FormControl fullWidth margin="dense">
+                    <Field
+                      as={TextField}
+                      label={strings.CO2}
+                      name="co2"
+                      autoComplete="off"
+                      variant="standard"
+                      slotProps={{ input: { inputMode: 'numeric', pattern: '^\\d+(.\\d+)?$' } }}
+                    />
+                    <CustomErrorMessage name="co2" />
+                  </FormControl>
+                </AccordionDetails>
+              </Accordion>
 
               <div className="buttons">
                 <Button
@@ -684,12 +705,6 @@ const CarForm = ({ car, isUpdate, isSupplier, onSubmit, onCancel }: CarFormProps
                 >
                   {commonStrings.CANCEL}
                 </Button>
-              </div>
-
-              <div className="form-error">
-                {imageError && <Error message={commonStrings.IMAGE_REQUIRED} />}
-                {imageSizeError && <Error message={strings.CAR_IMAGE_SIZE_ERROR} />}
-                {formError && <Error message={commonStrings.FORM_ERROR} />}
               </div>
             </Form>
           )}

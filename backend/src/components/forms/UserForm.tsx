@@ -37,6 +37,7 @@ import DatePicker from '@/components/DatePicker'
 import DriverLicense from '@/components/DriverLicense'
 import Signature from '@/components/Signature'
 
+import '@/assets/css/shared-form.css'
 import '@/assets/css/create-user.css'
 
 const CustomErrorMessage = ({ name }: { name: string }) => (
@@ -286,9 +287,9 @@ const UserForm = ({ user, isUpdate, defaultType, admin, onSubmit, onCancel, setL
   }
 
   return (
-    <div className="user-form">
-      <div className="user-form-wrapper">
-        <h3 className="user-form-title">
+    <div className="form">
+      <div className="form-wrapper">
+        <h3 className="form-title">
           {isUpdate ? updateUserStrings.UPDATE_USER_HEADING : createUserStrings.CREATE_USER_HEADING}
         </h3>
         <Formik

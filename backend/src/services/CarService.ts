@@ -141,14 +141,15 @@ export const deleteTempImage = (image: string): Promise<number> =>
  * @param {string} id
  * @returns {Promise<bookcarsTypes.Car>}
  */
-export const getCar = (id: string): Promise<bookcarsTypes.Car> =>
-  axiosInstance
+export const getCar = async (id: string): Promise<bookcarsTypes.Car> => {
+  const language = await UserService.getLanguage()
+  return axiosInstance
     .get(
-      `/api/car/${encodeURIComponent(id)}/${UserService.getLanguage()}`,
+      `/api/car/${encodeURIComponent(id)}/${language}`,
       { withCredentials: true }
     )
     .then((res) => res.data)
-
+}
 /**
  * Get Cars.
  *
