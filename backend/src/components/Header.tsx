@@ -13,9 +13,7 @@ import {
   List,
   ListItemButton,
   ListItemIcon,
-  ListItemText,
-  useMediaQuery,
-  useTheme
+  ListItemText
 } from '@mui/material'
 import {
   Menu as MenuIcon,
@@ -33,10 +31,9 @@ import {
   // DescriptionTwoTone as TosIcon,
   ExitToApp as SignoutIcon,
   Flag as CountriesIcon,
-  FormatListBulleted as BookingsIcon,
-  ArrowBack as ArrowBackIcon
+  FormatListBulleted as BookingsIcon
 } from '@mui/icons-material'
-import { useNavigate, Link, useLocation } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import * as bookcarsTypes from ':bookcars-types'
 import env from '@/config/env.config'
 import { strings } from '@/lang/header'
@@ -63,10 +60,6 @@ const Header = ({
   hidden,
 }: HeaderProps) => {
   const navigate = useNavigate()
-  const location = useLocation()
-  const theme = useTheme()
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
-  const showBackButton = isMobile && location.pathname !== '/'
   // const { notificationCount, setNotificationCount } = useGlobalContext() as GlobalContextType
 
   const [lang, setLang] = useState(helper.getLanguage(env.DEFAULT_LANGUAGE))
@@ -178,10 +171,6 @@ const Header = ({
     setSideAnchorEl(null)
   }
 
-  const handleBack = () => {
-    navigate(-1)
-  }
-
   // const handleNotificationsClick = () => {
   //   navigate('/notifications')
   // }
@@ -289,17 +278,9 @@ const Header = ({
       <AppBar position="fixed" sx={{ bgcolor: '#121212' }}>
         <Toolbar className="toolbar">
           {isLoaded && !loading && isSignedIn && (
-            <>
-              {showBackButton ? (
-                <IconButton edge="start" sx={classes.menuButton} color="inherit" aria-label="go back" onClick={handleBack}>
-                  <ArrowBackIcon />
-                </IconButton>
-              ) : (
-                <IconButton edge="start" sx={classes.menuButton} color="inherit" aria-label="open drawer" onClick={handleSideMenuOpen}>
-                  <MenuIcon />
-                </IconButton>
-              )}
-            </>
+            <IconButton edge="start" sx={classes.menuButton} color="inherit" aria-label="open drawer" onClick={handleSideMenuOpen}>
+              <MenuIcon />
+            </IconButton>
           )}
           <Link to="/" className="logo">
             <Logo fillColor="#fff" />
