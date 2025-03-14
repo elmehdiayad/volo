@@ -184,13 +184,7 @@ const Cars = () => {
                   {showFilters ? <FilterListOffIcon /> : <FilterListIcon />}
                 </IconButton>
               </div>
-
-              <Button type="submit" variant="contained" className="btn-primary new-car" size="small" href="/create-car">
-                {strings.NEW_CAR}
-              </Button>
-
               {rowCount > 0 && <InfoBox value={`${rowCount} ${rowCount > 1 ? commonStrings.CARS : commonStrings.CAR}`} className="car-count" />}
-
               {showFilters && (
                 <>
                   <SupplierFilter suppliers={allSuppliers} onChange={handleSupplierFilterChange} className="filter" />
@@ -212,6 +206,9 @@ const Cars = () => {
                   )}
                 </>
               )}
+              <Button type="submit" variant="contained" className="btn-primary new-car" size="small" href="/create-car">
+                {strings.NEW_CAR}
+              </Button>
             </div>
           </div>
           <div className="col-2">

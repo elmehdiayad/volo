@@ -55,7 +55,6 @@ const Users = () => {
                   {showFilters ? <FilterListOffIcon /> : <FilterListIcon />}
                 </IconButton>
               </div>
-
               {admin && showFilters && (
                 <UserTypeFilter
                   className="user-type-filter"
