@@ -200,7 +200,6 @@ const Supplier = () => {
               language={language}
               onLoad={handleCarListLoad}
               onDelete={handleCarDelete}
-              hideSupplier
             />
           </div>
         </div>
