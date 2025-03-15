@@ -38,15 +38,16 @@
 
 .buttons {
   display: flex;
+  flex-direction: row;
   gap: 10px;
   margin-top: 20px;
-  
+
   @media (min-width: 481px) {
     position: sticky;
     bottom: 20px;
     justify-content: flex-end;
   }
-  
+
   @media (max-width: 480px) {
     position: fixed;
     bottom: 0;
@@ -58,19 +59,23 @@
     margin: 0;
     justify-content: center;
     z-index: 1000;
+    flex-direction: column;
+  }
+
+  Button {
+    flex: 1 1 auto;
   }
 }
 
 .btn-margin-bottom {
-  margin-right: 10px !important;
   margin-bottom: 0 !important;
 }
 
 .form-error {
   margin-top: 20px;
-  
+
   @media (max-width: 480px) {
     margin-bottom: 80px;
     padding: 0 15px;
   }
-} 
+}

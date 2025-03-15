@@ -7,7 +7,6 @@ import {
   FormControlLabel,
   Switch,
   Button,
-  Paper
 } from '@mui/material'
 import validator from 'validator'
 import * as bookcarsTypes from ':bookcars-types'
@@ -20,7 +19,7 @@ import Backdrop from '@/components/SimpleBackdrop'
 import Avatar from '@/components/Avatar'
 import * as helper from '@/common/helper'
 
-import '@/assets/css/settings.css'
+import '@/assets/css/shared-form.css'
 
 const Settings = () => {
   const [user, setUser] = useState<bookcarsTypes.User>()
@@ -149,61 +148,55 @@ const Settings = () => {
   return (
     <Layout onLoad={onLoad} user={user} strict>
       {visible && user && (
-        <div className="settings">
-          <Paper className="settings-form settings-form-wrapper" elevation={10}>
-            <form onSubmit={handleSubmit}>
-              <Avatar
-                type={user.type}
-                mode="update"
-                record={user}
-                size="large"
-                readonly={false}
-                onBeforeUpload={onBeforeUpload}
-                onChange={onAvatarChange}
-                hideDelete={!admin}
-                color="disabled"
-                className="avatar-ctn"
-              />
-              <FormControl fullWidth margin="dense">
-                <InputLabel className="required">{commonStrings.FULL_NAME}</InputLabel>
-                <Input id="full-name" type="text" required onChange={handleFullNameChange} autoComplete="off" value={fullName} />
-              </FormControl>
-              <FormControl fullWidth margin="dense">
-                <InputLabel className="required">{commonStrings.EMAIL}</InputLabel>
-                <Input id="email" type="text" value={user.email} disabled />
-              </FormControl>
-              <FormControl fullWidth margin="dense">
-                <InputLabel>{commonStrings.PHONE}</InputLabel>
-                <Input id="phone" type="text" error={!phoneValid} onChange={handlePhoneChange} autoComplete="off" value={phone} />
-                <FormHelperText error={!phoneValid}>{(!phoneValid && commonStrings.PHONE_NOT_VALID) || ''}</FormHelperText>
-              </FormControl>
-              <FormControl fullWidth margin="dense">
-                <InputLabel>{commonStrings.LOCATION}</InputLabel>
-                <Input id="location" type="text" onChange={handleLocationChange} autoComplete="off" value={location} />
-              </FormControl>
-              <div className="buttons">
-                <Button variant="contained" className="btn-primary btn-margin btn-margin-bottom" size="small" href="/change-password">
-                  {commonStrings.RESET_PASSWORD}
-                </Button>
-                <Button type="submit" variant="contained" className="btn-primary btn-margin-bottom" size="small">
-                  {commonStrings.SAVE}
-                </Button>
-                <Button variant="contained" className="btn-secondary btn-margin-bottom" size="small" href="/">
-                  {commonStrings.CANCEL}
-                </Button>
-              </div>
-            </form>
-          </Paper>
-          <Paper className="settings-net settings-net-wrapper" elevation={10}>
-            <h1 className="settings-form-title">
-              {' '}
+        <div className="form form-wrapper">
+          <form onSubmit={handleSubmit}>
+            <Avatar
+              type={user.type}
+              mode="update"
+              record={user}
+              size="large"
+              readonly={false}
+              onBeforeUpload={onBeforeUpload}
+              onChange={onAvatarChange}
+              hideDelete={!admin}
+              color="disabled"
+              className="avatar-ctn"
+            />
+            <FormControl fullWidth margin="dense">
+              <InputLabel className="required">{commonStrings.FULL_NAME}</InputLabel>
+              <Input id="full-name" type="text" required onChange={handleFullNameChange} autoComplete="off" value={fullName} />
+            </FormControl>
+            <FormControl fullWidth margin="dense">
+              <InputLabel className="required">{commonStrings.EMAIL}</InputLabel>
+              <Input id="email" type="text" value={user.email} disabled />
+            </FormControl>
+            <FormControl fullWidth margin="dense">
+              <InputLabel>{commonStrings.PHONE}</InputLabel>
+              <Input id="phone" type="text" error={!phoneValid} onChange={handlePhoneChange} autoComplete="off" value={phone} />
+              <FormHelperText error={!phoneValid}>{(!phoneValid && commonStrings.PHONE_NOT_VALID) || ''}</FormHelperText>
+            </FormControl>
+            <FormControl fullWidth margin="dense">
+              <InputLabel>{commonStrings.LOCATION}</InputLabel>
+              <Input id="location" type="text" onChange={handleLocationChange} autoComplete="off" value={location} />
+            </FormControl>
+            <h4 className="form-title">
               {strings.NETWORK_SETTINGS}
-              {' '}
-            </h1>
+            </h4>
             <FormControl component="fieldset">
               <FormControlLabel control={<Switch checked={enableEmailNotifications} onChange={handleEmailNotificationsChange} />} label={strings.SETTINGS_EMAIL_NOTIFICATIONS} />
             </FormControl>
-          </Paper>
+            <div className="buttons">
+              <Button variant="contained" className="btn-primary btn-margin btn-margin-bottom" size="small" href="/change-password">
+                {commonStrings.RESET_PASSWORD}
+              </Button>
+              <Button type="submit" variant="contained" className="btn-primary btn-margin-bottom" size="small">
+                {commonStrings.SAVE}
+              </Button>
+              <Button variant="contained" className="btn-secondary btn-margin-bottom" size="small" href="/">
+                {commonStrings.CANCEL}
+              </Button>
+            </div>
+          </form>
         </div>
       )}
       {loading && <Backdrop text={commonStrings.PLEASE_WAIT} />}
