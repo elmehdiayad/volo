@@ -23,7 +23,6 @@ import {
   Language as LanguageIcon,
   Settings as SettingsIcon,
   Dashboard as DashboardIcon,
-  CorporateFare as SuppliersIcon,
   LocationOn as LocationsIcon,
   DirectionsCar as CarsIcon,
   People as UsersIcon,
@@ -295,10 +294,6 @@ const Header = ({
                 <ListItemLink href="/bookings">
                   <ListItemIcon><BookingsIcon /></ListItemIcon>
                   <ListItemText primary={strings.BOOKINGS} />
-                </ListItemLink>
-                <ListItemLink href="/suppliers">
-                  <ListItemIcon><SuppliersIcon /></ListItemIcon>
-                  <ListItemText primary={strings.COMPANIES} />
                 </ListItemLink>
                 {isAdmin && (
                   <>

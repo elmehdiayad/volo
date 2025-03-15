@@ -8,7 +8,6 @@ div.users div.search {
   width: 100%;
   display: flex;
   justify-content: center;
-  padding: 0 15px;
 }
 
 div.users div.col-1 .filter,
@@ -66,8 +65,7 @@ div.users div.col-1 div.info-box {
   }
 
   div.users div.col-1 {
-    width: 300px;
-    margin-left: 20px;
+    padding: 0 15px;
   }
 
   div.users div.col-2 {

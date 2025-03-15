@@ -8,7 +8,6 @@ div.suppliers div.search {
   width: 100%;
   display: flex;
   justify-content: center;
-  padding: 0 15px;
 }
 
 div.suppliers div.col-1 .filter,

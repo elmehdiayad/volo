@@ -3,7 +3,7 @@ import * as langHelper from '@/common/langHelper'
 
 const strings = new LocalizedStrings({
   fr: {
-    NEW_USER: 'Nouvel utilisateur',
+    NEW_USER: 'Nouveau utilisateur',
   },
   en: {
     NEW_USER: 'New user',

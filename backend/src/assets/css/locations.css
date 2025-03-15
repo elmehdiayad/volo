@@ -8,7 +8,6 @@ div.locations div.search {
   width: 100%;
   display: flex;
   justify-content: center;
-  padding: 0 15px;
 }
 
 div.locations div.col-1 .filter,
@@ -62,8 +61,7 @@ div.locations div.col-1 div.info-box {
   }
 
   div.locations div.col-1 {
-    width: 300px;
-    margin-left: 20px;
+    padding: 0 15px;
   }
 
   div.locations div.col-2 {
