@@ -238,10 +238,10 @@ const UserForm = ({ user, isUpdate, defaultType, admin, onSubmit, onCancel, setL
         if (!avatar) {
           errors.avatar = commonStrings.IMAGE_REQUIRED
         }
-        if (!signature) {
-          errors.signature = commonStrings.SIGNATURE_REQUIRED
-          setSignatureError(true)
-        }
+        // if (!signature) {
+        //   errors.signature = commonStrings.SIGNATURE_REQUIRED
+        //   setSignatureError(true)
+        // }
 
         if (!isUpdate) {
           const _emailValid = await validateEmail(values.email)
@@ -258,6 +258,7 @@ const UserForm = ({ user, isUpdate, defaultType, admin, onSubmit, onCancel, setL
       }
 
       const data: bookcarsTypes.CreateUserPayload | bookcarsTypes.UpdateUserPayload = {
+        _id: user?._id,
         fullName: values.fullName,
         type,
         email: values.email,

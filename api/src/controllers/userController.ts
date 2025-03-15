@@ -1200,8 +1200,7 @@ export const createAvatar = async (req: Request, res: Response) => {
     const filename = `${helper.getFilenameWithoutExtension(req.file.originalname)}_${nanoid()}_${Date.now()}${path.extname(req.file.originalname)}`
     const filepath = path.join(env.CDN_TEMP_USERS, filename)
     const optimizedImage = await sharp(req.file.buffer)
-      .resize({ width: 800, height: 800, fit: 'inside' })
-      .toFormat('jpeg', { quality: 80 })
+      .toFormat('png', { quality: 80 })
       .toBuffer()
     await fs.writeFile(filepath, optimizedImage)
     return res.json(filename)
@@ -1245,8 +1244,7 @@ export const updateAvatar = async (req: Request, res: Response) => {
       const filepath = path.join(env.CDN_USERS, filename)
 
       const optimizedImage = await sharp(req.file.buffer)
-        .resize({ width: 800, height: 800, fit: 'inside' })
-        .toFormat('jpeg', { quality: 80 })
+        .toFormat('png', { quality: 80 })
         .toBuffer()
 
       await fs.writeFile(filepath, optimizedImage)
