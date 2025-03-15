@@ -9,20 +9,13 @@ import {
   Tooltip,
   Card,
   CardContent,
-  Typography
+  Typography,
+  Grid,
 } from '@mui/material'
 import {
-  LocalGasStation as CarTypeIcon,
-  AccountTree as GearboxIcon,
-  Person as SeatsIcon,
-  AcUnit as AirconIcon,
-  DirectionsCar as MileageIcon,
-  Check as CheckIcon,
-  Clear as UncheckIcon,
   Visibility as ViewIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
-  Info as InfoIcon,
 } from '@mui/icons-material'
 import * as bookcarsTypes from ':bookcars-types'
 import * as bookcarsHelper from ':bookcars-helper'
@@ -34,12 +27,6 @@ import * as helper from '@/common/helper'
 import * as CarService from '@/services/CarService'
 import Pager from './Pager'
 import SimpleBackdrop from './SimpleBackdrop'
-
-import DoorsIcon from '@/assets/img/car-door.png'
-import RatingIcon from '@/assets/img/rating-icon.png'
-import CO2MinIcon from '@/assets/img/co2-min-icon.png'
-import CO2MiddleIcon from '@/assets/img/co2-middle-icon.png'
-import CO2MaxIcon from '@/assets/img/co2-max-icon.png'
 
 import '@/assets/css/car-list.css'
 
@@ -56,10 +43,8 @@ interface CarListProps {
   reload?: boolean
   cars?: bookcarsTypes.Car[]
   user?: bookcarsTypes.User
-  booking?: bookcarsTypes.Booking
   className?: string
   loading?: boolean
-  hideSupplier?: boolean
   hidePrice?: boolean
   language?: string
   range?: string[]
@@ -83,10 +68,8 @@ const CarList = ({
   reload,
   cars,
   user: carUser,
-  booking,
   className,
   loading: carLoading,
-  hideSupplier,
   hidePrice,
   language,
   range,
@@ -349,317 +332,122 @@ const CarList = ({
     setCarId('')
   }
 
-  const getExtraIcon = (option: string, extra: number) => {
-    let available = false
-    if (booking) {
-      if (option === 'cancellation' && booking.cancellation && extra > 0) {
-        available = true
-      }
-      if (option === 'amendments' && booking.amendments && extra > 0) {
-        available = true
-      }
-      if (option === 'collisionDamageWaiver' && booking.collisionDamageWaiver && extra > 0) {
-        available = true
-      }
-      if (option === 'theftProtection' && booking.theftProtection && extra > 0) {
-        available = true
-      }
-      if (option === 'fullInsurance' && booking.fullInsurance && extra > 0) {
-        available = true
-      }
-      if (option === 'additionalDriver' && booking.additionalDriver && extra > 0) {
-        available = true
-      }
-    }
-
-    return extra === -1
-      ? <UncheckIcon className="unavailable" />
-      : extra === 0 || available
-        ? <CheckIcon className="available" />
-        : <InfoIcon className="extra-info" />
-  }
-
   const admin = helper.admin(user)
-  const fr = bookcarsHelper.isFrench(language)
 
   return (
     (user && (
       <>
         <section className={`${className ? `${className} ` : ''}car-list`}>
-          {rows.length === 0
-            ? !init
-            && !loading
-            && !carLoading
-            && (
+          {rows.length === 0 ? (
+            !init && !loading && !carLoading && (
               <Card variant="outlined" className="empty-list">
                 <CardContent>
                   <Typography color="textSecondary">{strings.EMPTY_LIST}</Typography>
                 </CardContent>
               </Card>
             )
-            : rows.map((car, index) => {
-              const edit = admin || car.supplier._id === user._id
-              return (
-                <article key={car._id}>
-                  <div className="name">
-                    <h2>{car.name}</h2>
-                  </div>
-                  <div className="car">
-                    <img src={bookcarsHelper.joinURL(env.CDN_CARS, car.image)} alt={car.name} className="car-img" />
-                    <div className="car-footer">
-                      <div className="car-footer-row1">
-                        <div className="rating">
-                          {car.rating && car.rating >= 1 && (
-                            <>
-                              <span className="value">{car.rating.toFixed(2)}</span>
-                              <img alt="Rating" src={RatingIcon} />
-                            </>
-                          )}
-                          {car.trips >= 10 && <span className="trips">{`(${car.trips} ${strings.TRIPS})`}</span>}
-                        </div>
-                        {car.co2 && (
-                          <div className="co2">
-                            <img
-                              alt="CO2 Effect"
-                              src={
-                                car.co2 <= 90
-                                  ? CO2MinIcon
-                                  : car.co2 <= 110
-                                    ? CO2MiddleIcon
-                                    : CO2MaxIcon
-                              }
-                            />
-                            <span>{strings.CO2}</span>
+          ) : (
+            <Grid container spacing={3} justifyContent="flex-start">
+              {rows.map((car, index) => {
+                const edit = admin || car.supplier._id === user._id
+                return (
+                  <Grid item xs={12} sm={6} lg={4} xl={3} key={car._id} style={{ display: 'flex' }}>
+                    <Card className="car-card">
+                      <div className="car-header">
+                        <Typography variant="h6" className="car-name">
+                          {`${car.brand} ${car.carModel}`}
+                        </Typography>
+                        {car.plateNumber && (
+                          <div className="car-plate">
+                            {car.plateNumber}
                           </div>
                         )}
                       </div>
-                      {!hideSupplier && (
-                        <div className="car-supplier" title={car.supplier.fullName}>
-                          <span className="car-supplier-logo">
-                            <img src={bookcarsHelper.joinURL(env.CDN_USERS, car.supplier.avatar)} alt={car.supplier.fullName} />
-                          </span>
-                          <a href={`/supplier/${car.supplier._id}`} className="car-supplier-info">
-                            {car.supplier.fullName}
-                          </a>
+                      <div className="car-image-container">
+                        <img
+                          src={bookcarsHelper.joinURL(env.CDN_CARS, car.image)}
+                          alt={car.name}
+                          className="car-image"
+                        />
+                        <div className="car-overlay-bottom">
+                          {!hidePrice && (
+                            <div className="car-price">
+                              {`${bookcarsHelper.formatPrice(car.dailyPrice, commonStrings.CURRENCY, language as string)}${commonStrings.DAILY}`}
+                            </div>
+                          )}
+                          <div className="supplier-logo">
+                            <img
+                              src={bookcarsHelper.joinURL(env.CDN_USERS, car.supplier.avatar)}
+                              alt={car.supplier.fullName}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      {edit && (
+                        <div className="car-actions">
+                          <Tooltip title={strings.VIEW_CAR}>
+                            <IconButton href={`/car/${car._id}`} size="small">
+                              <ViewIcon />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title={commonStrings.UPDATE}>
+                            <IconButton href={`/update-car/${car._id}`} size="small">
+                              <EditIcon />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title={commonStrings.DELETE}>
+                            <IconButton
+                              data-id={car._id}
+                              data-index={index}
+                              onClick={handleDelete}
+                              size="small"
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          </Tooltip>
                         </div>
                       )}
-                    </div>
-                  </div>
-                  <div className="car-info">
-
-                    <ul className="car-info-list">
-                      {car.type !== bookcarsTypes.CarType.Unknown && (
-                        <li className="car-type">
-                          <Tooltip title={helper.getCarTypeTooltip(car.type)} placement="top">
-                            <div className="car-info-list-item">
-                              <CarTypeIcon />
-                              <span className="car-info-list-text">{helper.getCarTypeShort(car.type)}</span>
-                            </div>
-                          </Tooltip>
-                        </li>
-                      )}
-                      <li className="gearbox">
-                        <Tooltip title={helper.getGearboxTooltip(car.gearbox)} placement="top">
-                          <div className="car-info-list-item">
-                            <GearboxIcon />
-                            <span className="car-info-list-text">{helper.getGearboxTypeShort(car.gearbox)}</span>
-                          </div>
-                        </Tooltip>
-                      </li>
-                      {car.seats > 0 && (
-                        <li className="seats">
-                          <Tooltip title={helper.getSeatsTooltip(car.seats)} placement="top">
-                            <div className="car-info-list-item">
-                              <SeatsIcon />
-                              <span className="car-info-list-text">{car.seats}</span>
-                            </div>
-                          </Tooltip>
-                        </li>
-                      )}
-                      {car.doors > 0 && (
-                        <li className="doors">
-                          <Tooltip title={helper.getDoorsTooltip(car.doors)} placement="top">
-                            <div className="car-info-list-item">
-                              <img src={DoorsIcon} alt="" className="car-doors" />
-                              <span className="car-info-list-text">{car.doors}</span>
-                            </div>
-                          </Tooltip>
-                        </li>
-                      )}
-                      {car.aircon && (
-                        <li className="aircon">
-                          <Tooltip title={strings.AIRCON_TOOLTIP} placement="top">
-                            <div className="car-info-list-item">
-                              <AirconIcon />
-                            </div>
-                          </Tooltip>
-                        </li>
-                      )}
-                      {car.mileage !== 0 && (
-                        <li className="mileage">
-                          <Tooltip title={helper.getMileageTooltip(car.mileage, language as string)} placement="left">
-                            <div className="car-info-list-item">
-                              <MileageIcon />
-                              <span className="car-info-list-text">{`${strings.MILEAGE}${fr ? ' : ' : ': '}${helper.getMileage(car.mileage, language as string)}`}</span>
-                            </div>
-                          </Tooltip>
-                        </li>
-                      )}
-                      <li className="fuel-policy">
-                        <Tooltip title={helper.getFuelPolicyTooltip(car.fuelPolicy)} placement="left">
-                          <div className="car-info-list-item">
-                            <CarTypeIcon />
-                            <span className="car-info-list-text">{`${strings.FUEL_POLICY}${fr ? ' : ' : ': '}${helper.getFuelPolicy(car.fuelPolicy)}`}</span>
-                          </div>
-                        </Tooltip>
-                      </li>
-                    </ul>
-                    <ul className="extras-list">
-                      {car.plateNumber && (
-                        <li className="plate">
-                          <h3>{car.plateNumber}</h3>
-                        </li>
-                      )}
-                      {edit && (
-                        <li className={car.available ? 'car-available' : 'car-unavailable'}>
-                          <Tooltip title={car.available ? strings.CAR_AVAILABLE_TOOLTIP : strings.CAR_UNAVAILABLE_TOOLTIP}>
-                            <div className="car-info-list-item">
-                              {car.available ? <CheckIcon /> : <UncheckIcon />}
-                              {car.available ? <span className="car-info-list-text">{strings.CAR_AVAILABLE}</span> : <span className="car-info-list-text">{strings.CAR_UNAVAILABLE}</span>}
-                            </div>
-                          </Tooltip>
-                        </li>
-                      )}
-                      {car.cancellation > -1 && (
-                        <li>
-                          <Tooltip title={booking ? '' : car.cancellation > -1 ? strings.CANCELLATION_TOOLTIP : helper.getCancellation(car.cancellation, language as string)} placement="left">
-                            <div className="car-info-list-item">
-                              {getExtraIcon('cancellation', car.cancellation)}
-                              <span className="car-info-list-text">{helper.getCancellation(car.cancellation, language as string)}</span>
-                            </div>
-                          </Tooltip>
-                        </li>
-                      )}
-                      {car.amendments > -1 && (
-                        <li>
-                          <Tooltip title={booking ? '' : car.amendments > -1 ? strings.AMENDMENTS_TOOLTIP : helper.getAmendments(car.amendments, language as string)} placement="left">
-                            <div className="car-info-list-item">
-                              {getExtraIcon('amendments', car.amendments)}
-                              <span className="car-info-list-text">{helper.getAmendments(car.amendments, language as string)}</span>
-                            </div>
-                          </Tooltip>
-                        </li>
-                      )}
-                      {car.collisionDamageWaiver > -1 && (
-                        <li>
-                          <Tooltip
-                            title={
-                              booking ? '' : car.collisionDamageWaiver > -1 ? strings.COLLISION_DAMAGE_WAVER_TOOLTIP : helper.getCollisionDamageWaiver(car.collisionDamageWaiver, language as string)
-                            }
-                            placement="left"
-                          >
-                            <div className="car-info-list-item">
-                              {getExtraIcon('collisionDamageWaiver', car.collisionDamageWaiver)}
-                              <span className="car-info-list-text">{helper.getCollisionDamageWaiver(car.collisionDamageWaiver, language as string)}</span>
-                            </div>
-                          </Tooltip>
-                        </li>
-                      )}
-                      {car.theftProtection > -1 && (
-                        <li>
-                          <Tooltip
-                            title={booking ? '' : car.theftProtection > -1 ? strings.THEFT_PROTECTION_TOOLTIP : helper.getTheftProtection(car.theftProtection, language as string)}
-                            placement="left"
-                          >
-                            <div className="car-info-list-item">
-                              {getExtraIcon('theftProtection', car.theftProtection)}
-                              <span className="car-info-list-text">{helper.getTheftProtection(car.theftProtection, language as string)}</span>
-                            </div>
-                          </Tooltip>
-                        </li>
-                      )}
-                      {car.fullInsurance > -1 && (
-                        <li>
-                          <Tooltip title={booking ? '' : car.fullInsurance > -1 ? strings.FULL_INSURANCE_TOOLTIP : helper.getFullInsurance(car.fullInsurance, language as string)} placement="left">
-                            <div className="car-info-list-item">
-                              {getExtraIcon('fullInsurance', car.fullInsurance)}
-                              <span className="car-info-list-text">{helper.getFullInsurance(car.fullInsurance, language as string)}</span>
-                            </div>
-                          </Tooltip>
-                        </li>
-                      )}
-                      {car.additionalDriver > -1 && (
-                        <li>
-                          <Tooltip title={booking ? '' : helper.getAdditionalDriver(car.additionalDriver, language as string)} placement="left">
-                            <div className="car-info-list-item">
-                              {getExtraIcon('additionalDriver', car.additionalDriver)}
-                              <span className="car-info-list-text">{helper.getAdditionalDriver(car.additionalDriver, language as string)}</span>
-                            </div>
-                          </Tooltip>
-                        </li>
-                      )}
-                    </ul>
-                  </div>
-                  {!hidePrice && <div className="price">{`${bookcarsHelper.formatPrice(car.dailyPrice, commonStrings.CURRENCY, language as string)}${commonStrings.DAILY}`}</div>}
-                  <div className="action">
-                    {edit && (
-                      <>
-                        <Tooltip title={strings.VIEW_CAR}>
-                          <IconButton href={`/car/${car._id}`}>
-                            <ViewIcon />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title={commonStrings.UPDATE}>
-                          <IconButton href={`/update-car/${car._id}`}>
-                            <EditIcon />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title={commonStrings.DELETE}>
-                          <IconButton data-id={car._id} data-index={index} onClick={handleDelete}>
-                            <DeleteIcon />
-                          </IconButton>
-                        </Tooltip>
-                      </>
-                    )}
-                  </div>
-                </article>
-              )
-            })}
-          <Dialog disableEscapeKeyDown maxWidth="xs" open={openInfoDialog}>
-            <DialogTitle className="dialog-header">{commonStrings.INFO}</DialogTitle>
-            <DialogContent>{strings.CANNOT_DELETE_CAR}</DialogContent>
-            <DialogActions className="dialog-actions">
-              <Button onClick={handleCloseInfo} variant="contained" className="btn-secondary">
-                {commonStrings.CLOSE}
-              </Button>
-            </DialogActions>
-          </Dialog>
-
-          <Dialog disableEscapeKeyDown maxWidth="xs" open={openDeleteDialog}>
-            <DialogTitle className="dialog-header">{commonStrings.CONFIRM_TITLE}</DialogTitle>
-            <DialogContent>{strings.DELETE_CAR}</DialogContent>
-            <DialogActions className="dialog-actions">
-              <Button onClick={handleCancelDelete} variant="contained" className="btn-secondary">
-                {commonStrings.CANCEL}
-              </Button>
-              <Button onClick={handleConfirmDelete} variant="contained" color="error">
-                {commonStrings.DELETE}
-              </Button>
-            </DialogActions>
-          </Dialog>
+                    </Card>
+                  </Grid>
+                )
+              })}
+            </Grid>
+          )}
         </section>
-        {
-          env.PAGINATION_MODE === Const.PAGINATION_MODE.CLASSIC && !env.isMobile && (
-            <Pager
-              page={page}
-              pageSize={env.CARS_PAGE_SIZE}
-              rowCount={rowCount}
-              totalRecords={totalRecords}
-              onNext={() => setPage(page + 1)}
-              onPrevious={() => setPage(page - 1)}
-            />
-          )
-        }
+
+        <Dialog disableEscapeKeyDown maxWidth="xs" open={openInfoDialog}>
+          <DialogTitle className="dialog-header">{commonStrings.INFO}</DialogTitle>
+          <DialogContent>{strings.CANNOT_DELETE_CAR}</DialogContent>
+          <DialogActions className="dialog-actions">
+            <Button onClick={handleCloseInfo} variant="contained" className="btn-secondary">
+              {commonStrings.CLOSE}
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        <Dialog disableEscapeKeyDown maxWidth="xs" open={openDeleteDialog}>
+          <DialogTitle className="dialog-header">{commonStrings.CONFIRM_TITLE}</DialogTitle>
+          <DialogContent>{strings.DELETE_CAR}</DialogContent>
+          <DialogActions className="dialog-actions">
+            <Button onClick={handleCancelDelete} variant="contained" className="btn-secondary">
+              {commonStrings.CANCEL}
+            </Button>
+            <Button onClick={handleConfirmDelete} variant="contained" color="error">
+              {commonStrings.DELETE}
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {env.PAGINATION_MODE === Const.PAGINATION_MODE.CLASSIC && !env.isMobile && (
+          <Pager
+            page={page}
+            pageSize={env.CARS_PAGE_SIZE}
+            rowCount={rowCount}
+            totalRecords={totalRecords}
+            onNext={() => setPage(page + 1)}
+            onPrevious={() => setPage(page - 1)}
+          />
+        )}
         {loading && <SimpleBackdrop text={commonStrings.LOADING} />}
       </>
     )) || <></>
