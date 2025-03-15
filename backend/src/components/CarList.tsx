@@ -10,7 +10,6 @@ import {
   Card,
   CardContent,
   Typography,
-  Grid,
 } from '@mui/material'
 import {
   Visibility as ViewIcon,
@@ -347,71 +346,69 @@ const CarList = ({
               </Card>
             )
           ) : (
-            <Grid container spacing={3} justifyContent="flex-start">
+            <div className="car-list">
               {rows.map((car, index) => {
                 const edit = admin || car.supplier._id === user._id
                 return (
-                  <Grid item xs={12} sm={6} lg={4} xl={3} key={car._id} style={{ display: 'flex' }}>
-                    <Card className="car-card">
-                      <div className="car-header">
-                        <Typography variant="h6" className="car-name">
-                          {`${car.brand} ${car.carModel}`}
-                        </Typography>
-                        {car.plateNumber && (
-                          <div className="car-plate">
-                            {car.plateNumber}
-                          </div>
-                        )}
-                      </div>
-                      <div className="car-image-container">
-                        <img
-                          src={bookcarsHelper.joinURL(env.CDN_CARS, car.image)}
-                          alt={car.name}
-                          className="car-image"
-                        />
-                        <div className="car-overlay-bottom">
-                          {!hidePrice && (
-                            <div className="car-price">
-                              {`${bookcarsHelper.formatPrice(car.dailyPrice, commonStrings.CURRENCY, language as string)}${commonStrings.DAILY}`}
-                            </div>
-                          )}
-                          <div className="supplier-logo">
-                            <img
-                              src={bookcarsHelper.joinURL(env.CDN_USERS, car.supplier.avatar)}
-                              alt={car.supplier.fullName}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                      {edit && (
-                        <div className="car-actions">
-                          <Tooltip title={strings.VIEW_CAR}>
-                            <IconButton href={`/car/${car._id}`} size="small">
-                              <ViewIcon />
-                            </IconButton>
-                          </Tooltip>
-                          <Tooltip title={commonStrings.UPDATE}>
-                            <IconButton href={`/update-car/${car._id}`} size="small">
-                              <EditIcon />
-                            </IconButton>
-                          </Tooltip>
-                          <Tooltip title={commonStrings.DELETE}>
-                            <IconButton
-                              data-id={car._id}
-                              data-index={index}
-                              onClick={handleDelete}
-                              size="small"
-                            >
-                              <DeleteIcon />
-                            </IconButton>
-                          </Tooltip>
+                  <Card className="car-card" key={car._id} style={{ width: '320px' }}>
+                    <div className="car-header">
+                      <Typography variant="h6" className="car-name">
+                        {`${car.brand} ${car.carModel}`}
+                      </Typography>
+                      {car.plateNumber && (
+                        <div className="car-plate">
+                          {car.plateNumber}
                         </div>
                       )}
-                    </Card>
-                  </Grid>
+                    </div>
+                    <div className="car-image-container">
+                      <img
+                        src={bookcarsHelper.joinURL(env.CDN_CARS, car.image)}
+                        alt={car.name}
+                        className="car-image"
+                      />
+                      <div className="car-overlay-bottom">
+                        {!hidePrice && (
+                          <div className="car-price">
+                            {`${bookcarsHelper.formatPrice(car.dailyPrice, commonStrings.CURRENCY, language as string)}${commonStrings.DAILY}`}
+                          </div>
+                        )}
+                        <div className="supplier-logo">
+                          <img
+                            src={bookcarsHelper.joinURL(env.CDN_USERS, car.supplier.avatar)}
+                            alt={car.supplier.fullName}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    {edit && (
+                      <div className="car-actions">
+                        <Tooltip title={strings.VIEW_CAR}>
+                          <IconButton href={`/car/${car._id}`} size="small">
+                            <ViewIcon />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title={commonStrings.UPDATE}>
+                          <IconButton href={`/update-car/${car._id}`} size="small">
+                            <EditIcon />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title={commonStrings.DELETE}>
+                          <IconButton
+                            data-id={car._id}
+                            data-index={index}
+                            onClick={handleDelete}
+                            size="small"
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        </Tooltip>
+                      </div>
+                    )}
+                  </Card>
                 )
               })}
-            </Grid>
+            </div>
           )}
         </section>
 

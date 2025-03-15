@@ -49,9 +49,6 @@ div.cars div.col-1 div.info-box {
   }
 
   div.cars div.col-2 {
-    margin-top: 3px;
-    padding: 1px;
-    width: 100%;
     display: flex;
     justify-content: center;
   }
@@ -69,10 +66,7 @@ div.cars div.col-1 div.info-box {
   }
 
   div.cars div.col-2 {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    flex: 1;
+    padding: 10px 15px;
   }
 
   div.cars div.search {
