@@ -45,7 +45,7 @@ const Search = ({
 
   return (
     <div className={className}>
-      <form autoComplete="off" onSubmit={handleSubmit}>
+      <form className="search-form" autoComplete="off" onSubmit={handleSubmit}>
         <input autoComplete="false" name="hidden" type="text" style={{ display: 'none' }} />
         <TextField
           inputRef={inputRef}

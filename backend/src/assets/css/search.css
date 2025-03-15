@@ -2,12 +2,12 @@
   width: 100%;
 }
 
-form {
+.search-form {
   width: 100%;
   display: flex;
   align-items: center;
 }
 
-form .MuiTextField-root {
+.search-form .MuiTextField-root {
   flex: 1;
 }

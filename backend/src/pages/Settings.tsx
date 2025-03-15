@@ -1,14 +1,15 @@
 import React, { useState } from 'react'
 import {
-  Input,
-  InputLabel,
-  FormHelperText,
+  TextField,
   FormControl,
+  FormHelperText,
   FormControlLabel,
   Switch,
   Button,
 } from '@mui/material'
 import validator from 'validator'
+import * as Yup from 'yup'
+import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as bookcarsTypes from ':bookcars-types'
 import * as bookcarsHelper from ':bookcars-helper'
 import Layout from '@/components/Layout'
@@ -21,52 +22,39 @@ import * as helper from '@/common/helper'
 
 import '@/assets/css/shared-form.css'
 
+const CustomErrorMessage = ({ name }: { name: string }) => (
+  <ErrorMessage name={name}>
+    {(msg) => <FormHelperText error>{msg}</FormHelperText>}
+  </ErrorMessage>
+)
+
+interface FormValues {
+  fullName: string
+  email: string
+  phone: string
+  location: string
+  enableEmailNotifications: boolean
+}
+
+const validationSchema = Yup.object().shape({
+  fullName: Yup.string().required(commonStrings.REQUIRED_FIELD),
+  phone: Yup.string()
+    .test('phone', commonStrings.PHONE_NOT_VALID, (value) => !value || validator.isMobilePhone(value)),
+  location: Yup.string(),
+  enableEmailNotifications: Yup.boolean(),
+})
+
 const Settings = () => {
   const [user, setUser] = useState<bookcarsTypes.User>()
   const [admin, setAdmin] = useState(false)
-  const [fullName, setFullName] = useState('')
-  const [phone, setPhone] = useState('')
-  const [location, setLocation] = useState('')
   const [visible, setVisible] = useState(false)
   const [loading, setLoading] = useState(true)
-  const [phoneValid, setPhoneValid] = useState(true)
-  const [enableEmailNotifications, setEnableEmailNotifications] = useState(false)
 
-  const handleFullNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFullName(e.target.value)
-  }
-
-  const validatePhone = (_phone?: string) => {
-    if (_phone) {
-      const _phoneValid = validator.isMobilePhone(_phone)
-      setPhoneValid(_phoneValid)
-
-      return _phoneValid
-    }
-    setPhoneValid(true)
-
-    return true
-  }
-
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPhone(e.target.value)
-
-    if (!e.target.value) {
-      setPhoneValid(true)
-    }
-  }
-
-  const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLocation(e.target.value)
-  }
-
-  const handleEmailNotificationsChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleEmailNotificationsChange = async (value: boolean) => {
     try {
       if (user) {
-        setEnableEmailNotifications(e.target.checked)
-
         const _user = bookcarsHelper.clone(user) as bookcarsTypes.User
-        _user.enableEmailNotifications = e.target.checked
+        _user.enableEmailNotifications = value
 
         const payload: bookcarsTypes.UpdateEmailNotificationsPayload = {
           _id: user._id as string,
@@ -99,25 +87,18 @@ const Settings = () => {
     setLoading(false)
   }
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (values: FormValues, { setSubmitting }: any) => {
     try {
-      e.preventDefault()
-
       if (!user) {
         helper.error()
         return
       }
 
-      const _phoneValid = validatePhone(phone)
-      if (!_phoneValid) {
-        return
-      }
-
       const data: bookcarsTypes.UpdateUserPayload = {
         _id: user._id as string,
-        fullName,
-        phone,
-        location,
+        fullName: values.fullName,
+        phone: values.phone,
+        location: values.location,
       }
 
       const status = await UserService.updateUser(data)
@@ -129,6 +110,8 @@ const Settings = () => {
       }
     } catch (err) {
       helper.error(err)
+    } finally {
+      setSubmitting(false)
     }
   }
 
@@ -136,67 +119,143 @@ const Settings = () => {
     if (_user) {
       setUser(_user)
       setAdmin(helper.admin(_user))
-      setFullName(_user.fullName)
-      setPhone(_user.phone || '')
-      setLocation(_user.location || '')
-      setEnableEmailNotifications(_user.enableEmailNotifications || false)
       setVisible(true)
       setLoading(false)
     }
   }
 
+  const initialValues: FormValues = {
+    fullName: user?.fullName || '',
+    email: user?.email || '',
+    phone: user?.phone || '',
+    location: user?.location || '',
+    enableEmailNotifications: user?.enableEmailNotifications || false,
+  }
+
   return (
     <Layout onLoad={onLoad} user={user} strict>
       {visible && user && (
-        <div className="form form-wrapper">
-          <form onSubmit={handleSubmit}>
-            <Avatar
-              type={user.type}
-              mode="update"
-              record={user}
-              size="large"
-              readonly={false}
-              onBeforeUpload={onBeforeUpload}
-              onChange={onAvatarChange}
-              hideDelete={!admin}
-              color="disabled"
-              className="avatar-ctn"
-            />
-            <FormControl fullWidth margin="dense">
-              <InputLabel className="required">{commonStrings.FULL_NAME}</InputLabel>
-              <Input id="full-name" type="text" required onChange={handleFullNameChange} autoComplete="off" value={fullName} />
-            </FormControl>
-            <FormControl fullWidth margin="dense">
-              <InputLabel className="required">{commonStrings.EMAIL}</InputLabel>
-              <Input id="email" type="text" value={user.email} disabled />
-            </FormControl>
-            <FormControl fullWidth margin="dense">
-              <InputLabel>{commonStrings.PHONE}</InputLabel>
-              <Input id="phone" type="text" error={!phoneValid} onChange={handlePhoneChange} autoComplete="off" value={phone} />
-              <FormHelperText error={!phoneValid}>{(!phoneValid && commonStrings.PHONE_NOT_VALID) || ''}</FormHelperText>
-            </FormControl>
-            <FormControl fullWidth margin="dense">
-              <InputLabel>{commonStrings.LOCATION}</InputLabel>
-              <Input id="location" type="text" onChange={handleLocationChange} autoComplete="off" value={location} />
-            </FormControl>
-            <h4 className="form-title">
-              {strings.NETWORK_SETTINGS}
-            </h4>
-            <FormControl component="fieldset">
-              <FormControlLabel control={<Switch checked={enableEmailNotifications} onChange={handleEmailNotificationsChange} />} label={strings.SETTINGS_EMAIL_NOTIFICATIONS} />
-            </FormControl>
-            <div className="buttons">
-              <Button variant="contained" className="btn-primary btn-margin btn-margin-bottom" size="small" href="/change-password">
-                {commonStrings.RESET_PASSWORD}
-              </Button>
-              <Button type="submit" variant="contained" className="btn-primary btn-margin-bottom" size="small">
-                {commonStrings.SAVE}
-              </Button>
-              <Button variant="contained" className="btn-secondary btn-margin-bottom" size="small" href="/">
-                {commonStrings.CANCEL}
-              </Button>
-            </div>
-          </form>
+        <div className="form">
+          <div className="form-wrapper">
+            <Formik
+              initialValues={initialValues}
+              validationSchema={validationSchema}
+              onSubmit={handleSubmit}
+              enableReinitialize
+            >
+              {({ isSubmitting, setFieldValue }) => (
+                <Form>
+                  <Avatar
+                    type={user.type}
+                    mode="update"
+                    record={user}
+                    size="large"
+                    readonly={false}
+                    onBeforeUpload={onBeforeUpload}
+                    onChange={onAvatarChange}
+                    hideDelete={!admin}
+                    color="disabled"
+                    className="avatar-ctn"
+                  />
+
+                  <FormControl fullWidth margin="dense">
+                    <Field
+                      as={TextField}
+                      name="fullName"
+                      label={commonStrings.FULL_NAME}
+                      required
+                      autoComplete="off"
+                      variant="standard"
+                    />
+                    <CustomErrorMessage name="fullName" />
+                  </FormControl>
+
+                  <FormControl fullWidth margin="dense">
+                    <Field
+                      as={TextField}
+                      name="email"
+                      label={commonStrings.EMAIL}
+                      required
+                      autoComplete="off"
+                      variant="standard"
+                      disabled
+                    />
+                  </FormControl>
+
+                  <FormControl fullWidth margin="dense">
+                    <Field
+                      as={TextField}
+                      name="phone"
+                      label={commonStrings.PHONE}
+                      autoComplete="off"
+                      variant="standard"
+                    />
+                    <CustomErrorMessage name="phone" />
+                  </FormControl>
+
+                  <FormControl fullWidth margin="dense">
+                    <Field
+                      as={TextField}
+                      name="location"
+                      label={commonStrings.LOCATION}
+                      autoComplete="off"
+                      variant="standard"
+                    />
+                    <CustomErrorMessage name="location" />
+                  </FormControl>
+
+                  <h4 className="form-title">
+                    {strings.NETWORK_SETTINGS}
+                  </h4>
+                  <FormControl component="fieldset">
+                    <FormControlLabel
+                      control={(
+                        <Field
+                          as={Switch}
+                          type="checkbox"
+                          name="enableEmailNotifications"
+                          color="primary"
+                          onChange={async ({ target: { checked } }: React.ChangeEvent<HTMLInputElement>) => {
+                            setFieldValue('enableEmailNotifications', checked)
+                            await handleEmailNotificationsChange(checked)
+                          }}
+                        />
+                      )}
+                      label={strings.SETTINGS_EMAIL_NOTIFICATIONS}
+                    />
+                  </FormControl>
+
+                  <div className="buttons">
+                    <Button
+                      variant="contained"
+                      className="btn-primary btn-margin btn-margin-bottom"
+                      size="small"
+                      href="/change-password"
+                    >
+                      {commonStrings.RESET_PASSWORD}
+                    </Button>
+                    <Button
+                      type="submit"
+                      variant="contained"
+                      className="btn-primary btn-margin-bottom"
+                      size="small"
+                      disabled={isSubmitting}
+                    >
+                      {commonStrings.SAVE}
+                    </Button>
+                    <Button
+                      variant="contained"
+                      className="btn-secondary btn-margin-bottom"
+                      size="small"
+                      href="/"
+                    >
+                      {commonStrings.CANCEL}
+                    </Button>
+                  </div>
+                </Form>
+              )}
+            </Formik>
+          </div>
         </div>
       )}
       {loading && <Backdrop text={commonStrings.PLEASE_WAIT} />}
