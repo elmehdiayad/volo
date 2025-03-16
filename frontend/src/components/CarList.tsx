@@ -37,13 +37,13 @@ interface CarListProps {
   hidePrice?: boolean
   hideSupplier?: boolean
   loading?: boolean
-  sizeAuto?: boolean
   ranges?: string[]
   multimedia?: string[]
   rating?: number
   seats?: number
   distance?: string
   onLoad?: bookcarsTypes.DataEvent<bookcarsTypes.Car>
+  sizeAuto?: boolean
 }
 
 const CarList = ({
@@ -66,12 +66,12 @@ const CarList = ({
   hidePrice,
   hideSupplier,
   loading: carListLoading,
-  sizeAuto,
   ranges,
   multimedia,
   rating,
   seats,
   distance,
+  sizeAuto,
   onLoad,
 }: CarListProps) => {
   const [init, setInit] = useState(true)
@@ -234,8 +234,8 @@ const CarList = ({
               pickupLocationName={pickupLocationName}
               distance={distance}
               hideSupplier={hideSupplier}
-              sizeAuto={sizeAuto}
               hidePrice={hidePrice}
+              sizeAuto={sizeAuto}
             />
           ))}
         {loading && <Progress />}

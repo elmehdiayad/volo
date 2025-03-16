@@ -29,7 +29,6 @@ import {
   EmbeddedCheckout,
 } from '@stripe/react-stripe-js'
 import { loadStripe } from '@stripe/stripe-js'
-import CarList from '@/components/CarList'
 import * as bookcarsTypes from ':bookcars-types'
 import * as bookcarsHelper from ':bookcars-helper'
 import env from '@/config/env.config'
@@ -49,7 +48,6 @@ import DatePicker from '@/components/DatePicker'
 import SocialLogin from '@/components/SocialLogin'
 import Map from '@/components/Map'
 import DriverLicense from '@/components/DriverLicense'
-import Progress from '@/components/Progress'
 import CheckoutStatus from '@/components/CheckoutStatus'
 import NoMatch from './NoMatch'
 import CheckoutOptions from '@/components/CheckoutOptions'
@@ -58,6 +56,7 @@ import ViewOnMapButton from '@/components/ViewOnMapButton'
 import MapDialog from '@/components/MapDialog'
 
 import '@/assets/css/checkout.css'
+import Car from '@/components/Car'
 
 //
 // Make sure to call `loadStripe` outside of a component’s render to avoid
@@ -104,7 +103,6 @@ const Checkout = () => {
 
   const [success, setSuccess] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [loadingPage, setLoadingPage] = useState(true)
   const [addiontalDriverFullName, setAddiontalDriverFullName] = useState('')
   const [addiontalDriverEmail, setAddiontalDriverEmail] = useState('')
   const [addiontalDriverPhone, setAddiontalDriverPhone] = useState('')
@@ -590,13 +588,13 @@ const Checkout = () => {
                         </Map>
                       )}
 
-                    <CarList
-                      cars={[car]}
-                      // pickupLocationName={pickupLocation.name}
-                      // distance={distance}
-                      hidePrice
+                    <Car
+                      car={car}
+                      from={from}
+                      to={to}
                       sizeAuto
-                      onLoad={() => setLoadingPage(false)}
+                      hidePrice
+                      hideSupplier
                     />
 
                     <CheckoutOptions
@@ -1020,8 +1018,6 @@ const Checkout = () => {
           onClose={() => setOpenMapDialog(false)}
         />
       </Layout>
-
-      {loadingPage && !noMatch && <Progress />}
     </>
   )
 }

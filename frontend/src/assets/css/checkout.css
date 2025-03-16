@@ -5,7 +5,7 @@ div.checkout {
   justify-content: center;
   transform: translate3d(0, 0, 0);
   min-height: 100vh;
-  margin: 80px 0 200px 0;
+  margin: 20px 0;
 }
 
 div.checkout .map {
@@ -257,3 +257,5 @@ div.checkout .btn-cancel {
     width: 390px;
   }
 }
+
+

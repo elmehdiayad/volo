@@ -350,7 +350,7 @@ const CarList = ({
               {rows.map((car, index) => {
                 const edit = admin || car.supplier._id === user._id
                 return (
-                  <Card className="car-card" key={car._id} style={{ width: '320px' }}>
+                  <Card className="car-card" key={car._id}>
                     <div className="car-header">
                       <Typography variant="h6" className="car-name">
                         {`${car.brand} ${car.carModel}`}
