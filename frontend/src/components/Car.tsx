@@ -9,6 +9,12 @@ import {
   Card,
   CardContent,
   Typography,
+  Box,
+  Stack,
+  Chip,
+  IconButton,
+  useTheme,
+  alpha
 } from '@mui/material'
 import {
   LocalGasStation as CarTypeIcon,
@@ -27,14 +33,10 @@ import env from '@/config/env.config'
 import * as helper from '@/common/helper'
 import { strings as commonStrings } from '@/lang/common'
 import { strings } from '@/lang/cars'
-import Badge from '@/components/Badge'
 import * as UserService from '@/services/UserService'
 import * as StripeService from '@/services/StripeService'
 
 import DoorsIcon from '@/assets/img/car-door.png'
-import DistanceIcon from '@/assets/img/distance-icon.png'
-
-import '@/assets/css/car.css'
 
 interface CarProps {
   car: bookcarsTypes.Car
@@ -64,6 +66,7 @@ const Car = ({
   sizeAuto,
 }: CarProps) => {
   const navigate = useNavigate()
+  const theme = useTheme()
 
   const [language, setLanguage] = useState('')
   const [days, setDays] = useState(0)
@@ -113,7 +116,6 @@ const Car = ({
         const _totalPrice = await StripeService.convertPrice(bookcarsHelper.calculateTotalPrice(car, from as Date, to as Date))
         setTotalPrice(_totalPrice)
       }
-      // console.log('init car')
     }
 
     init()
@@ -122,246 +124,269 @@ const Car = ({
   const getExtraIcon = (option: string, extra: number) => {
     let available = false
     if (booking) {
-      if (option === 'cancellation' && booking.cancellation && extra > 0) {
-        available = true
-      }
-      if (option === 'amendments' && booking.amendments && extra > 0) {
-        available = true
-      }
-      if (option === 'collisionDamageWaiver' && booking.collisionDamageWaiver && extra > 0) {
-        available = true
-      }
-      if (option === 'theftProtection' && booking.theftProtection && extra > 0) {
-        available = true
-      }
-      if (option === 'fullInsurance' && booking.fullInsurance && extra > 0) {
-        available = true
-      }
-      if (option === 'additionalDriver' && booking.additionalDriver && extra > 0) {
-        available = true
-      }
+      if (option === 'cancellation' && booking.cancellation && extra > 0) available = true
+      if (option === 'amendments' && booking.amendments && extra > 0) available = true
+      if (option === 'collisionDamageWaiver' && booking.collisionDamageWaiver && extra > 0) available = true
+      if (option === 'theftProtection' && booking.theftProtection && extra > 0) available = true
+      if (option === 'fullInsurance' && booking.fullInsurance && extra > 0) available = true
+      if (option === 'additionalDriver' && booking.additionalDriver && extra > 0) available = true
     }
 
-    return extra === -1
-      ? <UncheckIcon className="unavailable" />
-      : extra === 0 || available
-        ? <CheckIcon className="available" />
-        : <InfoIcon className="extra-info" />
+    return extra === -1 ? (
+      <UncheckIcon className="unavailable" />
+    ) : extra === 0 || available ? (
+      <CheckIcon className="available" sx={{ color: theme.palette.success.main }} />
+    ) : (
+      <InfoIcon className="extra-info" sx={{ color: theme.palette.info.main }} />
+    )
   }
 
   if (loading || !language || (!hidePrice && (!days || !totalPrice))) {
     return null
   }
-  // console.log('car')
-
-  const fr = language === 'fr'
 
   return (
-    <div key={car._id} className={`car-container ${sizeAuto ? 'size-auto' : ''}`}>
-      <Card className="car-card">
-        <div className="car-image-container">
-          <img
-            src={bookcarsHelper.joinURL(env.CDN_CARS, car.image)}
-            alt={car.name}
-            className="car-image"
-          />
-          <div className="car-overlay-top">
-            <Typography variant="h6" className="car-name">
-              {car.name}
-            </Typography>
-            {pickupLocationName && (
-              <div className="location">
-                <LocationIcon />
-                <span className="location-name">{pickupLocationName}</span>
-                {distance && (
-                  <div className="distance">
-                    <img alt="Distance" src={DistanceIcon} />
-                    <Badge backgroundColor="#D8EDF9" color="#000" text={`${distance} ${strings.FROM_YOU}`} />
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-          <div className="car-overlay-bottom">
-            {!hidePrice && (
-              <div className="car-price">
-                <span className="price-days">{helper.getDays(days)}</span>
-                <span className="price-main">{bookcarsHelper.formatPrice(totalPrice, commonStrings.CURRENCY, language)}</span>
-                <span className="price-day">
-                  <span>{`${strings.PRICE_PER_DAY} `}</span>
-                  <span className="price-day-value">{bookcarsHelper.formatPrice(totalPrice / days, commonStrings.CURRENCY, language)}</span>
-                </span>
-              </div>
-            )}
-            {!hideSupplier && (
-              <div className="supplier-logo">
-                <img
-                  src={bookcarsHelper.joinURL(env.CDN_USERS, car.supplier.avatar)}
-                  alt={car.supplier.fullName}
-                />
-              </div>
-            )}
-          </div>
-        </div>
+    <Card
+      className={`car-container ${sizeAuto ? 'size-auto' : ''}`}
+      sx={{
+        position: 'relative',
+        overflow: 'visible',
+        '&:hover': {
+          boxShadow: theme.shadows[8],
+          transform: 'translateY(-4px)',
+          transition: 'all 0.3s ease-in-out'
+        }
+      }}
+    >
+      <Box sx={{ position: 'relative' }}>
+        <Box
+          component="img"
+          src={bookcarsHelper.joinURL(env.CDN_CARS, car.image)}
+          alt={car.name}
+          sx={{
+            width: '100%',
+            height: 200,
+            objectFit: 'cover',
+            borderRadius: '8px 8px 0 0'
+          }}
+        />
 
-        <CardContent>
-          <div className="car-info">
-            <ul className="car-info-list">
-              {car.type !== bookcarsTypes.CarType.Unknown && (
-                <li className="car-type">
-                  <Tooltip title={helper.getCarTypeTooltip(car.type)} placement="top">
-                    <div className="car-info-list-item">
-                      <CarTypeIcon />
-                      <span className="car-info-list-text">{helper.getCarTypeShort(car.type)}</span>
-                    </div>
-                  </Tooltip>
-                </li>
-              )}
-              <li className="gearbox">
-                <Tooltip title={helper.getGearboxTooltip(car.gearbox)} placement="top">
-                  <div className="car-info-list-item">
-                    <GearboxIcon />
-                    <span className="car-info-list-text">{helper.getGearboxTypeShort(car.gearbox)}</span>
-                  </div>
-                </Tooltip>
-              </li>
-              {car.seats > 0 && (
-                <li className="seats">
-                  <Tooltip title={helper.getSeatsTooltip(car.seats)} placement="top">
-                    <div className="car-info-list-item">
-                      <SeatsIcon />
-                      <span className="car-info-list-text">{car.seats}</span>
-                    </div>
-                  </Tooltip>
-                </li>
-              )}
-              {car.doors > 0 && (
-                <li className="doors">
-                  <Tooltip title={helper.getDoorsTooltip(car.doors)} placement="top">
-                    <div className="car-info-list-item">
-                      <img src={DoorsIcon} alt="" className="car-doors" />
-                      <span className="car-info-list-text">{car.doors}</span>
-                    </div>
-                  </Tooltip>
-                </li>
-              )}
-              {car.aircon && (
-                <li className="aircon">
-                  <Tooltip title={strings.AIRCON_TOOLTIP} placement="top">
-                    <div className="car-info-list-item">
-                      <AirconIcon />
-                    </div>
-                  </Tooltip>
-                </li>
-              )}
-            </ul>
-
-            <Accordion className="accordion">
-              <AccordionSummary className="accordion-summary" expandIcon={<ExpandMoreIcon />}>
-                {strings.DETAILS}
-              </AccordionSummary>
-              <AccordionDetails>
-                <ul className="extras-list">
-                  <li className="fuel-policy">
-                    <Tooltip title={helper.getFuelPolicyTooltip(car.fuelPolicy)} placement="left">
-                      <div className="car-info-list-item">
-                        <CarTypeIcon />
-                        <span className="car-info-list-text">{`${strings.FUEL_POLICY}${fr ? ' : ' : ': '}${helper.getFuelPolicy(car.fuelPolicy)}`}</span>
-                      </div>
-                    </Tooltip>
-                  </li>
-                  {car.cancellation > -1 && (
-                    <li>
-                      <Tooltip title={booking ? '' : car.cancellation > -1 ? strings.CANCELLATION_TOOLTIP : cancellation} placement="left">
-                        <div className="car-info-list-item">
-                          {getExtraIcon('cancellation', car.cancellation)}
-                          <span className="car-info-list-text">{cancellation}</span>
-                        </div>
-                      </Tooltip>
-                    </li>
-                  )}
-                  {car.amendments > -1 && (
-                    <li>
-                      <Tooltip title={booking ? '' : car.amendments > -1 ? strings.AMENDMENTS_TOOLTIP : amendments} placement="left">
-                        <div className="car-info-list-item">
-                          {getExtraIcon('amendments', car.amendments)}
-                          <span className="car-info-list-text">{amendments}</span>
-                        </div>
-                      </Tooltip>
-                    </li>
-                  )}
-                  {car.theftProtection > -1 && (
-                    <li>
-                      <Tooltip title={booking ? '' : car.theftProtection > -1 ? strings.THEFT_PROTECTION_TOOLTIP : theftProtection} placement="left">
-                        <div className="car-info-list-item">
-                          {getExtraIcon('theftProtection', car.theftProtection)}
-                          <span className="car-info-list-text">{theftProtection}</span>
-                        </div>
-                      </Tooltip>
-                    </li>
-                  )}
-                  {car.collisionDamageWaiver > -1 && (
-                    <li>
-                      <Tooltip
-                        title={booking ? '' : car.collisionDamageWaiver > -1 ? strings.COLLISION_DAMAGE_WAVER_TOOLTIP : collisionDamageWaiver}
-                        placement="left"
-                      >
-                        <div className="car-info-list-item">
-                          {getExtraIcon('collisionDamageWaiver', car.collisionDamageWaiver)}
-                          <span className="car-info-list-text">{collisionDamageWaiver}</span>
-                        </div>
-                      </Tooltip>
-                    </li>
-                  )}
-                  {car.fullInsurance > -1 && (
-                    <li>
-                      <Tooltip title={booking ? '' : car.fullInsurance > -1 ? strings.FULL_INSURANCE_TOOLTIP : fullInsurance} placement="left">
-                        <div className="car-info-list-item">
-                          {getExtraIcon('fullInsurance', car.fullInsurance)}
-                          <span className="car-info-list-text">{fullInsurance}</span>
-                        </div>
-                      </Tooltip>
-                    </li>
-                  )}
-                  {car.additionalDriver > -1 && (
-                    <li>
-                      <Tooltip title={booking ? '' : additionalDriver} placement="left">
-                        <div className="car-info-list-item">
-                          {getExtraIcon('additionalDriver', car.additionalDriver)}
-                          <span className="car-info-list-text">{additionalDriver}</span>
-                        </div>
-                      </Tooltip>
-                    </li>
-                  )}
-                </ul>
-              </AccordionDetails>
-            </Accordion>
-
-            {!hidePrice && (
-              <div className="action">
-                <Button
-                  variant="contained"
-                  className="btn-primary btn-book"
-                  onClick={() => {
-                    navigate('/checkout', {
-                      state: {
-                        carId: car._id,
-                        pickupLocationId: pickupLocation,
-                        dropOffLocationId: dropOffLocation,
-                        from,
-                        to
-                      }
-                    })
+        {/* Car name and location overlay */}
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            p: 2,
+            background: 'linear-gradient(180deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%)',
+            borderRadius: '8px 8px 0 0'
+          }}
+        >
+          <Typography variant="h6" sx={{ color: 'white', fontWeight: 'bold', mb: 1 }}>
+            {`${car.brand} ${car.carModel}`}
+          </Typography>
+          {pickupLocationName && (
+            <Stack direction="row" spacing={1} alignItems="center">
+              <LocationIcon sx={{ color: 'white', fontSize: 20 }} />
+              <Typography variant="body2" sx={{ color: 'white' }}>
+                {pickupLocationName}
+              </Typography>
+              {distance && (
+                <Chip
+                  size="small"
+                  label={`${distance} ${strings.FROM_YOU}`}
+                  sx={{
+                    backgroundColor: alpha(theme.palette.primary.main, 0.2),
+                    color: 'white',
+                    ml: 1
                   }}
-                >
-                  {strings.BOOK}
-                </Button>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+                />
+              )}
+            </Stack>
+          )}
+        </Box>
+
+        {/* Supplier logo overlay */}
+        {!hideSupplier && (
+          <Box
+            sx={{
+              position: 'absolute',
+              bottom: -20,
+              right: 16,
+              width: 50,
+              height: 50,
+              borderRadius: '50%',
+              backgroundColor: 'white',
+              padding: '2px',
+              boxShadow: theme.shadows[2],
+              zIndex: 1
+            }}
+          >
+            <Box
+              component="img"
+              src={bookcarsHelper.joinURL(env.CDN_USERS, car.supplier.avatar)}
+              alt={car.supplier.fullName}
+              sx={{
+                width: '100%',
+                height: '100%',
+                borderRadius: '50%',
+                border: `2px solid ${theme.palette.primary.main}`,
+                objectFit: 'cover'
+              }}
+            />
+          </Box>
+        )}
+      </Box>
+
+      <CardContent sx={{ pt: 3 }}>
+        {/* Car specifications */}
+        <Stack
+          direction="row"
+          spacing={2}
+          sx={{
+            mb: 2,
+            p: 1.5,
+            backgroundColor: alpha(theme.palette.primary.main, 0.05),
+            borderRadius: 1
+          }}
+        >
+          {car.type !== bookcarsTypes.CarType.Unknown && (
+            <Tooltip title={helper.getCarTypeTooltip(car.type)}>
+              <Stack direction="row" spacing={0.5} alignItems="center">
+                <CarTypeIcon sx={{ fontSize: 20 }} />
+                <Typography variant="body2">{helper.getCarTypeShort(car.type)}</Typography>
+              </Stack>
+            </Tooltip>
+          )}
+          <Tooltip title={helper.getGearboxTooltip(car.gearbox)}>
+            <Stack direction="row" spacing={0.5} alignItems="center">
+              <GearboxIcon sx={{ fontSize: 20 }} />
+              <Typography variant="body2">{helper.getGearboxTypeShort(car.gearbox)}</Typography>
+            </Stack>
+          </Tooltip>
+          {car.seats > 0 && (
+            <Tooltip title={helper.getSeatsTooltip(car.seats)}>
+              <Stack direction="row" spacing={0.5} alignItems="center">
+                <SeatsIcon sx={{ fontSize: 20 }} />
+                <Typography variant="body2">{car.seats}</Typography>
+              </Stack>
+            </Tooltip>
+          )}
+          {car.doors > 0 && (
+            <Tooltip title={helper.getDoorsTooltip(car.doors)}>
+              <Stack direction="row" spacing={0.5} alignItems="center">
+                <Box component="img" src={DoorsIcon} sx={{ width: 20, height: 20 }} />
+                <Typography variant="body2">{car.doors}</Typography>
+              </Stack>
+            </Tooltip>
+          )}
+          {car.aircon && (
+            <Tooltip title={strings.AIRCON_TOOLTIP}>
+              <IconButton size="small">
+                <AirconIcon sx={{ fontSize: 20 }} />
+              </IconButton>
+            </Tooltip>
+          )}
+        </Stack>
+
+        {/* Price section */}
+        {!hidePrice && (
+          <Box sx={{ mb: 2 }}>
+            <Stack
+              direction="row"
+              justifyContent="space-between"
+              alignItems="center"
+              sx={{
+                p: 1.5,
+                backgroundColor: alpha(theme.palette.success.main, 0.1),
+                borderRadius: 1
+              }}
+            >
+              <Box>
+                <Typography variant="caption" color="text.secondary">
+                  {helper.getDays(days)}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {`${strings.PRICE_PER_DAY}: ${bookcarsHelper.formatPrice(totalPrice / days, commonStrings.CURRENCY, language)}`}
+                </Typography>
+              </Box>
+              <Typography variant="h6" color="primary" fontWeight="bold">
+                {bookcarsHelper.formatPrice(totalPrice, commonStrings.CURRENCY, language)}
+              </Typography>
+            </Stack>
+          </Box>
+        )}
+
+        {/* Car details accordion */}
+        <Accordion
+          sx={{
+            '&:before': { display: 'none' },
+            boxShadow: 'none',
+            borderRadius: 1,
+            border: `1px solid ${theme.palette.divider}`
+          }}
+        >
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography variant="subtitle2">{strings.DETAILS}</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Stack spacing={1.5}>
+              <Stack direction="row" spacing={1} alignItems="center">
+                <CarTypeIcon sx={{ color: theme.palette.text.secondary }} />
+                <Typography variant="body2">
+                  {`${strings.FUEL_POLICY}: ${helper.getFuelPolicy(car.fuelPolicy)}`}
+                </Typography>
+              </Stack>
+              {[
+                { label: cancellation, option: 'cancellation', value: car.cancellation },
+                { label: amendments, option: 'amendments', value: car.amendments },
+                { label: theftProtection, option: 'theftProtection', value: car.theftProtection },
+                { label: collisionDamageWaiver, option: 'collisionDamageWaiver', value: car.collisionDamageWaiver },
+                { label: fullInsurance, option: 'fullInsurance', value: car.fullInsurance },
+                { label: additionalDriver, option: 'additionalDriver', value: car.additionalDriver }
+              ].map((item) => (
+                item.label && (
+                  <Stack key={item.option} direction="row" spacing={1} alignItems="center">
+                    {getExtraIcon(item.option, item.value)}
+                    <Typography variant="body2">{item.label}</Typography>
+                  </Stack>
+                )
+              ))}
+            </Stack>
+          </AccordionDetails>
+        </Accordion>
+
+        {/* Book button */}
+        {!hidePrice && (
+          <Box sx={{ mt: 2 }}>
+            <Button
+              variant="contained"
+              fullWidth
+              size="large"
+              onClick={() => {
+                navigate('/checkout', {
+                  state: {
+                    carId: car._id,
+                    pickupLocationId: pickupLocation,
+                    dropOffLocationId: dropOffLocation,
+                    from,
+                    to
+                  }
+                })
+              }}
+              sx={{
+                borderRadius: 2,
+                textTransform: 'none',
+                fontWeight: 'bold'
+              }}
+            >
+              {strings.BOOK}
+            </Button>
+          </Box>
+        )}
+      </CardContent>
+    </Card>
   )
 }
 

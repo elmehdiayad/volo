@@ -16,8 +16,8 @@ const additionalDriverSchema = new Schema<env.AdditionalDriver>(
       validate: [function isEmail(this: env.AdditionalDriver) {
         return this.email ? validator.isEmail(this.email) : true
       }, 'is not valid'],
-      index: true,
       trim: true,
+      unique: true,
     },
     phone: {
       type: String,

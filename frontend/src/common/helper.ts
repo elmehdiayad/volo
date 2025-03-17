@@ -658,3 +658,19 @@ export const verifyReCaptcha = async (token: string): Promise<boolean> => {
     return false
   }
 }
+
+/**
+ * Get error message from error object.
+ *
+ * @param {unknown} err
+ * @returns {string}
+ */
+export const getErrorMessage = (err: unknown): string => {
+  if (err instanceof Error) {
+    return err.message
+  }
+  if (typeof err === 'string') {
+    return err
+  }
+  return commonStrings.GENERIC_ERROR
+}

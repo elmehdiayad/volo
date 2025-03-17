@@ -5,6 +5,7 @@ import * as StripeService from '@/services/StripeService'
 
 const strings = new LocalizedStrings({
   fr: {
+    TERMS: 'Conditions d\'utilisation',
     BOOKCARS: env.WEBSITE_NAME,
     GENERIC_ERROR: "Une erreur non gérée s'est produite.",
     CHANGE_LANGUAGE_ERROR: "Une erreur s'est produite lors du changement de langue.",
@@ -91,6 +92,9 @@ const strings = new LocalizedStrings({
     UPLOAD_FILE: 'Charger un ficher...',
     NATIONAL_ID: 'Numéro national d\'identité',
     NATIONAL_ID_NOT_VALID: 'Numéro national d\'identité non valide',
+    REQUIRED_FIELD: 'Champ obligatoire',
+    NAME_TOO_SHORT: 'Le nom doit contenir au moins 4 caractères',
+    REQUIRED_FIELDS_ERROR: 'Veuillez remplir tous les champs obligatoires',
   },
   en: {
     BOOKCARS: env.WEBSITE_NAME,
@@ -179,6 +183,9 @@ const strings = new LocalizedStrings({
     UPLOAD_FILE: 'Upload file...',
     NATIONAL_ID: 'National ID',
     NATIONAL_ID_NOT_VALID: 'Invalid national ID',
+    REQUIRED_FIELD: 'Required field',
+    NAME_TOO_SHORT: 'Name must be at least 4 characters long',
+    REQUIRED_FIELDS_ERROR: 'Please fill in all required fields',
   },
   es: {
     BOOKCARS: env.WEBSITE_NAME,
@@ -267,6 +274,9 @@ const strings = new LocalizedStrings({
     UPLOAD_FILE: 'Subir archivo...',
     NATIONAL_ID: 'Documento nacional de identidad',
     NATIONAL_ID_NOT_VALID: 'Documento nacional de identidad no válido',
+    REQUIRED_FIELD: 'Campo obligatorio',
+    NAME_TOO_SHORT: 'El nombre debe tener al menos 4 caracteres',
+    REQUIRED_FIELDS_ERROR: 'Por favor, complete todos los campos obligatorios',
   },
 })
 
