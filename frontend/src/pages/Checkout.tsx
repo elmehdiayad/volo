@@ -621,7 +621,7 @@ const Checkout = () => {
     switch (activeStep) {
       case 0: // Vehicle Details
         return (
-          <Box sx={{ p: 3 }}>
+          <Box sx={{ p: { xs: 1, md: 3 } }}>
             <Grid container spacing={3}>
               <Grid item xs={12} md={4}>
                 {car && from && to && (
@@ -767,7 +767,7 @@ const Checkout = () => {
 
       case 1: // Driver Details
         return (
-          <Box sx={{ p: 3 }}>
+          <Box sx={{ p: { xs: 1, md: 3 } }}>
             <Formik
               initialValues={getInitialValues(car)}
               validationSchema={validationSchema}
@@ -894,7 +894,7 @@ const Checkout = () => {
 
       case 2: // Payment Details
         return (
-          <Box sx={{ p: 3 }}>
+          <Box sx={{ p: { xs: 1, md: 3 } }}>
             <Formik
               initialValues={getInitialValues(car)}
               validationSchema={validationSchema}
@@ -979,7 +979,7 @@ const Checkout = () => {
 
       case 3: // Confirmation
         return (
-          <Box sx={{ p: 3 }}>
+          <Box sx={{ p: { xs: 1, md: 3 } }}>
             <Grid container spacing={3} justifyContent="center">
               <Grid item xs={12} md={8}>
                 <Card>
@@ -1028,7 +1028,7 @@ const Checkout = () => {
   if (loading && !car) {
     return (
       <Layout>
-        <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', p: { xs: 1, md: 3 } }}>
           <CircularProgress />
         </Box>
       </Layout>
@@ -1038,7 +1038,7 @@ const Checkout = () => {
   return (
     <Layout>
       <Container maxWidth="lg" sx={{ mb: 4 }}>
-        <Paper sx={{ p: { xs: 2, md: 3 }, mt: 3 }}>
+        <Paper sx={{ p: { xs: 1, md: 3 }, mt: { xs: 1, md: 3 } }}>
           <Box sx={{ width: '100%' }}>
             <Stepper
               activeStep={activeStep}

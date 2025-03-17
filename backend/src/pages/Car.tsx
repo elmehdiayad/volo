@@ -175,7 +175,7 @@ const Car = () => {
           <div className="col-1">
             <section className="car-sec">
               <div className="name">
-                <h2>{car.name}</h2>
+                <h2>{`${car.brand} ${car.carModel}`}</h2>
               </div>
               {car.plateNumber && (
                 <div className="plate">

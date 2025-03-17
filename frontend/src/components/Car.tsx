@@ -162,7 +162,7 @@ const Car = ({
         <Box
           component="img"
           src={bookcarsHelper.joinURL(env.CDN_CARS, car.image)}
-          alt={car.name}
+          alt={`${car.brand} ${car.carModel}`}
           sx={{
             width: '100%',
             height: 200,

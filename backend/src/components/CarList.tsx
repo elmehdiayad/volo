@@ -364,7 +364,7 @@ const CarList = ({
                     <div className="car-image-container">
                       <img
                         src={bookcarsHelper.joinURL(env.CDN_CARS, car.image)}
-                        alt={car.name}
+                        alt={`${car.brand} ${car.carModel}`}
                         className="car-image"
                       />
                       <div className="car-overlay-bottom">
