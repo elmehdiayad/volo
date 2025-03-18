@@ -218,9 +218,8 @@ const CarList = ({
           )
           : ((from && to && pickupLocation && dropOffLocation) || hidePrice) // || (hidePrice && booking))
           && rows.map((car) => (
-            <Grid item xs={12} sm={6} md={4} lg={3}>
+            <Grid item xs={12} sm={6} md={4} lg={3} key={car._id}>
               <Car
-                key={car._id}
                 car={car}
                 booking={booking}
                 pickupLocation={pickupLocation}
