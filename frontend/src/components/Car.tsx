@@ -49,7 +49,6 @@ interface CarProps {
   distance?: string
   hideSupplier?: boolean
   hidePrice?: boolean
-  sizeAuto?: boolean
 }
 
 const Car = ({
@@ -63,7 +62,6 @@ const Car = ({
   distance,
   hideSupplier,
   hidePrice,
-  sizeAuto,
 }: CarProps) => {
   const navigate = useNavigate()
   const theme = useTheme()
@@ -147,7 +145,6 @@ const Car = ({
 
   return (
     <Card
-      className={`car-container ${sizeAuto ? 'size-auto' : ''}`}
       sx={{
         position: 'relative',
         overflow: 'visible',

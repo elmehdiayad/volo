@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import {
   Card,
   CardContent,
+  Grid,
   Typography
 } from '@mui/material'
 import * as bookcarsTypes from ':bookcars-types'
@@ -14,8 +15,6 @@ import * as CarService from '@/services/CarService'
 import Pager from '@/components/Pager'
 import Car from '@/components/Car'
 import Progress from '@/components/Progress'
-
-import '@/assets/css/car-list.css'
 
 interface CarListProps {
   from?: Date
@@ -33,7 +32,6 @@ interface CarListProps {
   cars?: bookcarsTypes.Car[]
   reload?: boolean
   booking?: bookcarsTypes.Booking
-  className?: string
   hidePrice?: boolean
   hideSupplier?: boolean
   loading?: boolean
@@ -43,7 +41,6 @@ interface CarListProps {
   seats?: number
   distance?: string
   onLoad?: bookcarsTypes.DataEvent<bookcarsTypes.Car>
-  sizeAuto?: boolean
 }
 
 const CarList = ({
@@ -62,7 +59,6 @@ const CarList = ({
   cars,
   reload,
   booking,
-  className,
   hidePrice,
   hideSupplier,
   loading: carListLoading,
@@ -71,7 +67,6 @@ const CarList = ({
   rating,
   seats,
   distance,
-  sizeAuto,
   onLoad,
 }: CarListProps) => {
   const [init, setInit] = useState(true)
@@ -209,7 +204,7 @@ const CarList = ({
 
   return (
     <>
-      <section className={`${className ? `${className} ` : ''}car-list`}>
+      <Grid container spacing={3} p={2}>
         {rows.length === 0
           ? !init
           && !loading
@@ -223,23 +218,24 @@ const CarList = ({
           )
           : ((from && to && pickupLocation && dropOffLocation) || hidePrice) // || (hidePrice && booking))
           && rows.map((car) => (
-            <Car
-              key={car._id}
-              car={car}
-              booking={booking}
-              pickupLocation={pickupLocation}
-              dropOffLocation={dropOffLocation}
-              from={from as Date}
-              to={to as Date}
-              pickupLocationName={pickupLocationName}
-              distance={distance}
-              hideSupplier={hideSupplier}
-              hidePrice={hidePrice}
-              sizeAuto={sizeAuto}
-            />
+            <Grid item xs={12} sm={6} md={4} lg={3}>
+              <Car
+                key={car._id}
+                car={car}
+                booking={booking}
+                pickupLocation={pickupLocation}
+                dropOffLocation={dropOffLocation}
+                from={from as Date}
+                to={to as Date}
+                pickupLocationName={pickupLocationName}
+                distance={distance}
+                hideSupplier={hideSupplier}
+                hidePrice={hidePrice}
+              />
+            </Grid>
           ))}
         {loading && <Progress />}
-      </section>
+      </Grid>
       {env.PAGINATION_MODE === Const.PAGINATION_MODE.CLASSIC && !env.isMobile && (
         <Pager page={page} pageSize={env.CARS_PAGE_SIZE} rowCount={rowCount} totalRecords={totalRecords} onNext={() => setPage(page + 1)} onPrevious={() => setPage(page - 1)} />
       )}

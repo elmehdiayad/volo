@@ -98,14 +98,6 @@ const Home = () => {
     setCountries(_countries)
     const _locations = await LocationService.getLocationsWithPosition()
     setLocations(_locations)
-
-    const video = document.getElementById('cover') as HTMLVideoElement
-    if (video) {
-      video.muted = true
-      video.play()
-    } else {
-      console.error('Cover video tag not loaded')
-    }
   }
 
   const language = UserService.getLanguage()
@@ -118,7 +110,6 @@ const Home = () => {
 
           <div className="home-title">{strings.TITLE}</div>
           <div className="home-cover">{strings.COVER}</div>
-          {/* <div className="home-subtitle">{strings.SUBTITLE}</div> */}
 
         </div>
 

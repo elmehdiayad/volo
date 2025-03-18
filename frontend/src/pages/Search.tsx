@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
-import { Button } from '@mui/material'
+import { Button, Grid } from '@mui/material'
 import { Tune as FiltersIcon } from '@mui/icons-material'
 import * as bookcarsTypes from ':bookcars-types'
 import * as bookcarsHelper from ':bookcars-helper'
@@ -25,11 +25,8 @@ import CarRangeFilter from '@/components/CarRangeFilter'
 import CarMultimediaFilter from '@/components/CarMultimediaFilter'
 import CarSeatsFilter from '@/components/CarSeatsFilter'
 import Map from '@/components/Map'
-// import Progress from '@/components/Progress'
 import ViewOnMapButton from '@/components/ViewOnMapButton'
 import MapDialog from '@/components/MapDialog'
-
-import '@/assets/css/search.css'
 
 const Search = () => {
   const location = useLocation()
@@ -245,106 +242,99 @@ const Search = () => {
   }
 
   return (
-    <>
-      <Layout onLoad={onLoad} strict={false}>
-        {visible && supplierIds && pickupLocation && dropOffLocation && from && to && (
-          <div className="search">
-            <div className="col-1">
-              {!loading && (
-                <>
-                  {((pickupLocation.latitude && pickupLocation.longitude)
-                    || (pickupLocation.parkingSpots && pickupLocation.parkingSpots.length > 0)) && (
-                      <Map
-                        position={[pickupLocation.latitude || 36.191113, pickupLocation.longitude || 44.009167]}
-                        initialZoom={pickupLocation.latitude && pickupLocation.longitude ? 10 : 2.5}
-                        locations={[pickupLocation]}
-                        parkingSpots={pickupLocation.parkingSpots}
-                        className="map"
-                      >
-                        <ViewOnMapButton onClick={() => setOpenMapDialog(true)} />
-                      </Map>
-                    )}
+    <Layout onLoad={onLoad} strict={false}>
+      {visible && supplierIds && pickupLocation && dropOffLocation && from && to && (
+        <Grid container spacing={3} p={2}>
+          <Grid item xs={12} sm={6} md={2} lg={2}>
+            {!loading && (
+              <>
+                {((pickupLocation.latitude && pickupLocation.longitude)
+                  || (pickupLocation.parkingSpots && pickupLocation.parkingSpots.length > 0)) && (
+                    <Map
+                      position={[pickupLocation.latitude || 36.191113, pickupLocation.longitude || 44.009167]}
+                      initialZoom={pickupLocation.latitude && pickupLocation.longitude ? 10 : 2.5}
+                      locations={[pickupLocation]}
+                      parkingSpots={pickupLocation.parkingSpots}
+                      className="map"
+                    >
+                      <ViewOnMapButton onClick={() => setOpenMapDialog(true)} />
+                    </Map>
+                  )}
 
-                  <CarFilter
-                    className="filter"
-                    pickupLocation={pickupLocation}
-                    dropOffLocation={dropOffLocation}
-                    from={from}
-                    to={to}
-                    accordion
-                    collapse
-                    onSubmit={handleCarFilterSubmit}
-                  />
+                <CarFilter
+                  className="filter"
+                  pickupLocation={pickupLocation}
+                  dropOffLocation={dropOffLocation}
+                  from={from}
+                  to={to}
+                  accordion
+                  collapse
+                  onSubmit={handleCarFilterSubmit}
+                />
 
-                  <Button
-                    variant="outlined"
-                    color="primary"
-                    startIcon={<FiltersIcon />}
-                    disableElevation
-                    fullWidth
-                    className="btn btn-filters"
-                    onClick={() => setShowFilters((prev) => !prev)}
-                  >
-                    {showFilters ? strings.HILE_FILTERS : strings.SHOW_FILTERS}
-                  </Button>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  startIcon={<FiltersIcon />}
+                  disableElevation
+                  fullWidth
+                  className="btn btn-filters"
+                  onClick={() => setShowFilters((prev) => !prev)}
+                >
+                  {showFilters ? strings.HILE_FILTERS : strings.SHOW_FILTERS}
+                </Button>
 
-                  {
-                    showFilters && (
-                      <>
-                        <SupplierFilter className="filter" suppliers={suppliers} onChange={handleSupplierFilterChange} />
-                        <CarRatingFilter className="filter" onChange={handleRatingFilterChange} />
-                        <CarRangeFilter className="filter" onChange={handleRangeFilterChange} />
-                        <CarMultimediaFilter className="filter" onChange={handleMultimediaFilterChange} />
-                        <CarSeatsFilter className="filter" onChange={handleSeatsFilterChange} />
-                        <CarSpecsFilter className="filter" onChange={handleCarSpecsFilterChange} />
-                        <CarType className="filter" onChange={handleCarTypeFilterChange} />
-                        <GearboxFilter className="filter" onChange={handleGearboxFilterChange} />
-                        <MileageFilter className="filter" onChange={handleMileageFilterChange} />
-                        <FuelPolicyFilter className="filter" onChange={handleFuelPolicyFilterChange} />
-                        <DepositFilter className="filter" onChange={handleDepositFilterChange} />
-                      </>
-                    )
-                  }
-                </>
-              )}
-            </div>
-            <div className="col-2">
-              <CarList
-                carSpecs={carSpecs}
-                suppliers={supplierIds}
-                carType={carType}
-                gearbox={gearbox}
-                mileage={mileage}
-                fuelPolicy={fuelPolicy}
-                deposit={deposit}
-                pickupLocation={pickupLocation._id}
-                dropOffLocation={dropOffLocation._id}
-                // pickupLocationName={pickupLocation.name}
-                loading={loading}
-                from={from}
-                to={to}
-                ranges={ranges}
-                multimedia={multimedia}
-                rating={rating}
-                seats={seats}
-              // distance={distance}
-              // onLoad={() => setLoadingPage(false)}
-              />
-            </div>
-          </div>
-        )}
+                {
+                  showFilters && (
+                    <>
+                      <SupplierFilter className="filter" suppliers={suppliers} onChange={handleSupplierFilterChange} />
+                      <CarRatingFilter className="filter" onChange={handleRatingFilterChange} />
+                      <CarRangeFilter className="filter" onChange={handleRangeFilterChange} />
+                      <CarMultimediaFilter className="filter" onChange={handleMultimediaFilterChange} />
+                      <CarSeatsFilter className="filter" onChange={handleSeatsFilterChange} />
+                      <CarSpecsFilter className="filter" onChange={handleCarSpecsFilterChange} />
+                      <CarType className="filter" onChange={handleCarTypeFilterChange} />
+                      <GearboxFilter className="filter" onChange={handleGearboxFilterChange} />
+                      <MileageFilter className="filter" onChange={handleMileageFilterChange} />
+                      <FuelPolicyFilter className="filter" onChange={handleFuelPolicyFilterChange} />
+                      <DepositFilter className="filter" onChange={handleDepositFilterChange} />
+                    </>
+                  )
+                }
+              </>
+            )}
+          </Grid>
+          <Grid item xs={12} sm={6} md={10} lg={10}>
+            <CarList
+              carSpecs={carSpecs}
+              suppliers={supplierIds}
+              carType={carType}
+              gearbox={gearbox}
+              mileage={mileage}
+              fuelPolicy={fuelPolicy}
+              deposit={deposit}
+              pickupLocation={pickupLocation._id}
+              dropOffLocation={dropOffLocation._id}
+              loading={loading}
+              from={from}
+              to={to}
+              ranges={ranges}
+              multimedia={multimedia}
+              rating={rating}
+              seats={seats}
+            />
+          </Grid>
+        </Grid>
+      )}
 
-        <MapDialog
-          pickupLocation={pickupLocation}
-          openMapDialog={openMapDialog}
-          onClose={() => setOpenMapDialog(false)}
-        />
+      <MapDialog
+        pickupLocation={pickupLocation}
+        openMapDialog={openMapDialog}
+        onClose={() => setOpenMapDialog(false)}
+      />
 
-        {noMatch && <NoMatch hideHeader />}
-      </Layout>
-
-      {/* {loadingPage && !noMatch && <Progress />} */}
-    </>
+      {noMatch && <NoMatch hideHeader />}
+    </Layout>
   )
 }
 

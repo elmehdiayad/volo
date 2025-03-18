@@ -1,27 +1,21 @@
 import React, { useEffect, useState } from 'react'
-import { TextField, Box, CircularProgress, IconButton } from '@mui/material'
-import FilterListIcon from '@mui/icons-material/FilterList'
-import FilterListOffIcon from '@mui/icons-material/FilterListOff'
+import { CircularProgress, Grid } from '@mui/material'
 import * as bookcarsTypes from ':bookcars-types'
 import Layout from '@/components/Layout'
 import SupplierList from '@/components/SupplierList'
 import Footer from '@/components/Footer'
 import * as SupplierService from '@/services/SupplierService'
 import * as LocationService from '@/services/LocationService'
-import Accordion from '@/components/Accordion'
 import LocationFilter from '@/components/LocationFilter'
 import { strings as commonStrings } from '@/lang/common'
 
 import '@/assets/css/suppliers.css'
-import '@/assets/css/search.css'
 
 const Suppliers = () => {
   const [suppliers, setSuppliers] = useState<bookcarsTypes.User[]>([])
   const [allSuppliers, setAllSuppliers] = useState<bookcarsTypes.User[]>([])
   const [location, setLocation] = useState<bookcarsTypes.Location>()
-  const [nameFilter, setNameFilter] = useState('')
   const [loading, setLoading] = useState(true)
-  const [showFilters, setShowFilters] = useState(false)
 
   useEffect(() => {
     const fetchSuppliers = async () => {
@@ -44,12 +38,6 @@ const Suppliers = () => {
       setLoading(true)
       try {
         let filtered = [...allSuppliers]
-
-        // Filter by name
-        if (nameFilter) {
-          filtered = filtered.filter((supplier) =>
-            supplier.fullName.toLowerCase().includes(nameFilter.toLowerCase()))
-        }
 
         // Filter by location
         if (location) {
@@ -83,7 +71,7 @@ const Suppliers = () => {
     }
 
     filterSuppliers()
-  }, [nameFilter, location, allSuppliers])
+  }, [location, allSuppliers])
 
   const handleLocationChange = (newLocation: bookcarsTypes.Location | null) => {
     setLocation(newLocation || undefined)
@@ -91,39 +79,15 @@ const Suppliers = () => {
 
   return (
     <Layout strict={false}>
-      <div className="search">
-        <div className="col-1">
-          <div className="search-container">
-            <TextField
-              label={commonStrings.FULL_NAME}
-              variant="outlined"
-              value={nameFilter}
-              onChange={(e) => setNameFilter(e.target.value)}
-              fullWidth
-              size="small"
-            />
-            <IconButton
-              onClick={() => setShowFilters(!showFilters)}
-              color="primary"
-              className="filter-toggle"
-            >
-              {showFilters ? <FilterListOffIcon /> : <FilterListIcon />}
-            </IconButton>
-          </div>
-
-          {showFilters && (
-            <Accordion title={commonStrings.SEARCH} className="filter" collapse>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, p: 2 }}>
-                <LocationFilter
-                  label={commonStrings.LOCATION}
-                  onChange={handleLocationChange}
-                  value={location}
-                />
-              </Box>
-            </Accordion>
-          )}
-        </div>
-        <div className="col-2">
+      <Grid container spacing={3} p={2}>
+        <Grid item xs={12} sm={6} md={2} lg={2}>
+          <LocationFilter
+            label={commonStrings.LOCATION}
+            onChange={handleLocationChange}
+            value={location}
+          />
+        </Grid>
+        <Grid item xs={12} sm={6} md={10} lg={10}>
           {loading ? (
             <div className="loading-container">
               <CircularProgress />
@@ -131,8 +95,8 @@ const Suppliers = () => {
           ) : (
             <SupplierList suppliers={suppliers} />
           )}
-        </div>
-      </div>
+        </Grid>
+      </Grid>
       <Footer />
     </Layout>
   )

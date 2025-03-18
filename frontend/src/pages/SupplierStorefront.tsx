@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { Button } from '@mui/material'
+import { Button, Grid } from '@mui/material'
 import { Tune as FiltersIcon } from '@mui/icons-material'
 import * as bookcarsTypes from ':bookcars-types'
 import * as bookcarsHelper from ':bookcars-helper'
@@ -20,8 +20,6 @@ import CarRatingFilter from '@/components/CarRatingFilter'
 import CarRangeFilter from '@/components/CarRangeFilter'
 import CarMultimediaFilter from '@/components/CarMultimediaFilter'
 import CarSeatsFilter from '@/components/CarSeatsFilter'
-
-import '@/assets/css/search.css'
 
 const SupplierStorefront = () => {
   const { supplierId } = useParams<{ supplierId: string }>()
@@ -162,10 +160,10 @@ const SupplierStorefront = () => {
 
   return (
     <Layout>
-      <div className="search">
+      <Grid container spacing={3} p={2}>
         {!isLoading && supplierId && from && to && pickupLocation && (
           <>
-            <div className="col-1">
+            <Grid item xs={12} sm={6} md={2} lg={2}>
               <CarFilter
                 className="filter"
                 pickupLocation={pickupLocation}
@@ -203,8 +201,8 @@ const SupplierStorefront = () => {
                   <DepositFilter className="filter" onChange={handleDepositFilterChange} />
                 </>
               )}
-            </div>
-            <div className="col-2">
+            </Grid>
+            <Grid item xs={12} sm={6} md={10} lg={10}>
               <CarList
                 carSpecs={carSpecs}
                 suppliers={[supplierId]}
@@ -223,10 +221,10 @@ const SupplierStorefront = () => {
                 rating={rating}
                 seats={seats}
               />
-            </div>
+            </Grid>
           </>
         )}
-      </div>
+      </Grid>
     </Layout>
   )
 }

@@ -1,11 +1,9 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Grid, Card, CardContent, CardMedia, Typography } from '@mui/material'
+import { Grid, Card, CardContent, CardMedia, Typography, CardActionArea, Box, Fade } from '@mui/material'
 import * as bookcarsTypes from ':bookcars-types'
 import * as bookcarsHelper from ':bookcars-helper'
 import env from '@/config/env.config'
-
-import '@/assets/css/supplier-list.css'
 
 interface SupplierListProps {
   suppliers: bookcarsTypes.User[]
@@ -21,69 +19,99 @@ const SupplierList = ({ suppliers }: SupplierListProps) => {
   }
 
   return (
-    <Grid container spacing={2} className="supplier-list">
-      {suppliers.map((supplier) => (
+    <Grid container spacing={3}>
+      {suppliers.map((supplier, index) => (
         <Grid item xs={12} sm={6} md={4} lg={3} key={supplier._id}>
-          <Card
-            className="supplier-card"
-            onClick={() => handleSupplierClick(supplier._id)}
-            sx={{
-              cursor: 'pointer',
-              height: '100%',
-              display: 'flex',
-              flexDirection: 'column',
-              transition: 'transform 0.2s ease-in-out',
-              '&:hover': {
-                transform: 'translateY(-4px)',
-                boxShadow: 3
-              }
-            }}
-          >
-            <CardMedia
-              component="img"
-              className="supplier-image"
-              image={bookcarsHelper.joinURL(env.CDN_USERS, supplier.avatar)}
-              alt={supplier.fullName}
+          <Fade in timeout={300} style={{ transitionDelay: `${index * 50}ms` }}>
+            <Card
               sx={{
-                height: 120,
-                objectFit: 'contain',
-                p: 1
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                transition: 'all 0.3s ease-in-out',
+                '&:hover': {
+                  transform: 'translateY(-8px)',
+                  boxShadow: (theme) => theme.shadows[8],
+                  '& .MuiCardActionArea-root': {
+                    backgroundColor: (theme) => theme.palette.action.hover
+                  }
+                }
               }}
-            />
-            <CardContent sx={{ p: 1, '&:last-child': { pb: 1 }, flexGrow: 1 }}>
-              <Typography
-                variant="subtitle1"
-                align="center"
-                className="supplier-name"
+            >
+              <CardActionArea
+                onClick={() => handleSupplierClick(supplier._id)}
                 sx={{
-                  fontWeight: 500,
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  display: '-webkit-box',
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: 'vertical',
-                  mb: supplier.location ? 0.5 : 0
+                  flexGrow: 1,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  p: 2
                 }}
               >
-                {supplier.fullName}
-              </Typography>
-              {supplier.location && (
-                <Typography
-                  variant="body2"
-                  align="center"
-                  color="text.secondary"
+                <Box
                   sx={{
-                    display: 'block',
+                    position: 'relative',
+                    width: '100%',
+                    height: 140,
+                    mb: 2,
+                    borderRadius: 1,
                     overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap'
+                    backgroundColor: (theme) => theme.palette.grey[100]
                   }}
                 >
-                  {supplier.location}
-                </Typography>
-              )}
-            </CardContent>
-          </Card>
+                  <CardMedia
+                    component="img"
+                    image={bookcarsHelper.joinURL(env.CDN_USERS, supplier.avatar)}
+                    alt={supplier.fullName}
+                    sx={{
+                      height: '100%',
+                      width: '100%',
+                      objectFit: 'contain',
+                      transition: 'transform 0.3s ease-in-out',
+                      '&:hover': {
+                        transform: 'scale(1.05)'
+                      }
+                    }}
+                  />
+                </Box>
+                <CardContent sx={{ p: 0, width: '100%', textAlign: 'center' }}>
+                  <Typography
+                    variant="h6"
+                    component="h2"
+                    sx={{
+                      fontWeight: 600,
+                      mb: 1,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      color: (theme) => theme.palette.text.primary
+                    }}
+                  >
+                    {supplier.fullName}
+                  </Typography>
+                  {supplier.location && (
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: 0.5,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap'
+                      }}
+                    >
+                      {supplier.location}
+                    </Typography>
+                  )}
+                </CardContent>
+              </CardActionArea>
+            </Card>
+          </Fade>
         </Grid>
       ))}
     </Grid>
