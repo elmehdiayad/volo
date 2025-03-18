@@ -503,7 +503,6 @@ const Booking = () => {
               </div>
             </div>
             <CarList
-              className="car"
               booking={booking}
               cars={[booking.car as bookcarsTypes.Car]}
               hidePrice
