@@ -385,7 +385,6 @@ export const getCar = async (req: Request, res: Response) => {
     const car = await Car.findById(id)
       .populate<{ supplier: env.UserInfo }>('supplier')
       .populate<{ locations: env.LocationInfo[] }>('locations')
-      .lean()
 
     if (car) {
       const {
@@ -542,24 +541,9 @@ export const getCars = async (req: Request, res: Response) => {
           },
         },
         { $unwind: { path: '$supplier', preserveNullAndEmptyArrays: false } },
-        // {
-        //   $lookup: {
-        //     from: 'Location',
-        //     let: { locations: '$locations' },
-        //     pipeline: [
-        //       {
-        //         $match: {
-        //           $expr: { $in: ['$_id', '$$locations'] },
-        //         },
-        //       },
-        //     ],
-        //     as: 'locations',
-        //   },
-        // },
         {
           $facet: {
             resultData: [{ $sort: { updatedAt: -1, _id: 1 } }, { $skip: (page - 1) * size }, { $limit: size }],
-            // resultData: [{ $sort: { price: 1, _id: 1 } }, { $skip: (page - 1) * size }, { $limit: size }],
             pageInfo: [
               {
                 $count: 'totalRecords',
@@ -574,6 +558,7 @@ export const getCars = async (req: Request, res: Response) => {
     for (const car of data[0].resultData) {
       const { _id, fullName, avatar } = car.supplier
       car.supplier = { _id, fullName, avatar }
+      car.fullModelName = `${car.brand} ${car.carModel} ${car.year}`
     }
 
     return res.json(data)
@@ -746,20 +731,6 @@ export const getFrontendCars = async (req: Request, res: Response) => {
         {
           $match: $supplierMatch,
         },
-        // {
-        //   $lookup: {
-        //     from: 'Location',
-        //     let: { locations: '$locations' },
-        //     pipeline: [
-        //       {
-        //         $match: {
-        //           $expr: { $in: ['$_id', '$$locations'] },
-        //         },
-        //       },
-        //     ],
-        //     as: 'locations',
-        //   },
-        // },
         {
           $facet: {
             resultData: [{ $sort: { price: 1, _id: 1 } }, { $skip: (page - 1) * size }, { $limit: size }],
@@ -777,6 +748,7 @@ export const getFrontendCars = async (req: Request, res: Response) => {
     for (const car of data[0].resultData) {
       const { _id, fullName, avatar } = car.supplier
       car.supplier = { _id, fullName, avatar }
+      car.fullModelName = `${car.brand} ${car.carModel} ${car.year}`
     }
 
     return res.json(data)

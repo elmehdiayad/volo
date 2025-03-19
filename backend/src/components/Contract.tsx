@@ -80,12 +80,12 @@ const Contract = ({
 
       <Box className="vehicle-section">
         <Box className="car-image-container">
-          {car.image && <img src={bookcarsHelper.joinURL(env.CDN_CARS, car.image)} className="car-image" alt={`${car.brand} ${car.carModel}`} />}
+          {car.image && <img src={bookcarsHelper.joinURL(env.CDN_CARS, car.image)} className="car-image" alt={car.fullModelName} />}
         </Box>
         <Box className="car-details">
           <Box className="info-box">
             <Typography variant="subtitle2" className="label">{contractStrings.VEHICLE}</Typography>
-            <Typography variant="body1" className="value">{`${car.brand} ${car.carModel}`}</Typography>
+            <Typography variant="body1" className="value">{car.fullModelName}</Typography>
           </Box>
           <Box className="info-box">
             <Typography variant="subtitle2" className="label">{contractStrings.MODEL}</Typography>

@@ -412,7 +412,7 @@ const BookingList = ({
                   </div>
                   <div className="booking-detail" style={{ height: bookingDetailHeight }}>
                     <span className="booking-detail-title">{strings.CAR}</span>
-                    <div className="booking-detail-value">{`${_bookingCar.brand} ${_bookingCar.carModel}`}</div>
+                    <div className="booking-detail-value">{_bookingCar.fullModelName}</div>
                   </div>
                   <div className="booking-detail" style={{ height: bookingDetailHeight }}>
                     <span className="booking-detail-title">{strings.DAYS}</span>

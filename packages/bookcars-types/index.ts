@@ -197,7 +197,6 @@ export interface Car {
   supplier: User
   minimumAge: number
   locations: Location[]
-
   dailyPrice: number
   discountedDailyPrice: number | null
   biWeeklyPrice: number | null
@@ -206,7 +205,6 @@ export interface Car {
   discountedWeeklyPrice: number | null
   monthlyPrice: number | null
   discountedMonthlyPrice: number | null
-
   deposit: number
   available: boolean
   type: CarType
@@ -227,6 +225,7 @@ export interface Car {
   rating?: number
   trips: number
   co2?: number
+  fullModelName?: string
   [propKey: string]: any
 }
 

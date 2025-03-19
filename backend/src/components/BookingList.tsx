@@ -349,7 +349,7 @@ const BookingList = ({
         headerName: strings.CAR,
         flex: 1,
         renderCell: ({ row, value }: GridRenderCellParams<bookcarsTypes.Booking, string>) => <Link href={`/car/${(row.car as bookcarsTypes.Car)._id}`}>{value}</Link>,
-        valueGetter: (value: bookcarsTypes.Car) => `${value.brand} ${value.carModel}`
+        valueGetter: (value: bookcarsTypes.Car) => value.fullModelName,
       })
     }
 
@@ -543,7 +543,7 @@ const BookingList = ({
                   <div className="booking-detail" style={{ height: bookingDetailHeight }}>
                     <span className="booking-detail-title">{strings.CAR}</span>
                     <div className="booking-detail-value">
-                      <Link href={`car/${(booking.car as bookcarsTypes.Car)._id}`}>{`${(booking.car as bookcarsTypes.Car).brand} ${(booking.car as bookcarsTypes.Car).carModel}`}</Link>
+                      <Link href={`car/${(booking.car as bookcarsTypes.Car)._id}`}>{(booking.car as bookcarsTypes.Car).fullModelName}</Link>
                     </div>
                   </div>
                   <div className="booking-detail" style={{ height: bookingDetailHeight }}>

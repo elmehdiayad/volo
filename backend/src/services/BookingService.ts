@@ -84,11 +84,13 @@ export const getBooking = (id: string): Promise<bookcarsTypes.Booking> =>
  * @param {number} size
  * @returns {Promise<bookcarsTypes.Result<bookcarsTypes.Booking>>}
  */
-export const getBookings = (payload: bookcarsTypes.GetBookingsPayload, page: number, size: number): Promise<bookcarsTypes.Result<bookcarsTypes.Booking>> =>
-  axiosInstance
+export const getBookings = async (payload: bookcarsTypes.GetBookingsPayload, page: number, size: number): Promise<bookcarsTypes.Result<bookcarsTypes.Booking>> => {
+  const language = await UserService.getLanguage()
+  return axiosInstance
     .post(
-      `/api/bookings/${page}/${size}/${UserService.getLanguage()}`,
+      `/api/bookings/${page}/${size}/${language}`,
       payload,
       { withCredentials: true }
     )
     .then((res) => res.data)
+}

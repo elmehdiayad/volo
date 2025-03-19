@@ -2,8 +2,24 @@ import { Schema, model } from 'mongoose'
 import * as bookcarsTypes from ':bookcars-types'
 import * as env from '../config/env.config'
 
+// Helper function to generate model identifier
+function generateModelIdentifier(brand: string, carModel: string, year: number, type: string): string {
+  return `${brand.toLowerCase()}_${carModel.toLowerCase()}_${year}_${type.toLowerCase()}`
+}
+
 const carSchema = new Schema<env.Car>(
   {
+    // New fields for better car model management
+    modelIdentifier: {
+      type: String,
+      required: false,
+      index: true,
+    },
+    modelGroup: {
+      type: String,
+      required: false,
+      index: true,
+    },
     brand: {
       type: String,
       required: [true, "can't be blank"],
@@ -190,8 +206,50 @@ const carSchema = new Schema<env.Car>(
     timestamps: true,
     strict: true,
     collection: 'Car',
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
   },
 )
+
+// Add compound index for searching similar cars
+carSchema.index({ brand: 1, carModel: 1, year: 1, type: 1 })
+
+// Add virtual field for full model name
+carSchema.virtual('fullModelName').get(function getFullModelName(this: env.Car) {
+  return `${this.brand} ${this.carModel} ${this.year}`
+})
+
+// Add pre-save middleware to generate modelIdentifier and modelGroup
+carSchema.pre('save', function preSave(this: env.Car, next) {
+  // Always generate these fields if they don't exist or if relevant fields are modified
+  if (!this.modelIdentifier || this.isModified('brand')
+    || this.isModified('carModel')
+    || this.isModified('year')
+    || this.isModified('type')) {
+    this.modelIdentifier = generateModelIdentifier(
+      this.brand,
+      this.carModel,
+      this.year,
+      this.type,
+    )
+    this.modelGroup = `${this.brand.toLowerCase()}_${this.carModel.toLowerCase()}`
+  }
+  next()
+})
+
+// Add static methods for finding similar cars
+carSchema.statics.findSimilarModels = function findSimilarModels(brand: string, carModel: string, year: number) {
+  return this.find({
+    brand,
+    carModel,
+    year: { $gte: year - 1, $lte: year + 1 },
+  })
+}
+
+// Add method to find cars of the same model
+carSchema.statics.findSameModel = function findSameModel(modelIdentifier: string) {
+  return this.find({ modelIdentifier })
+}
 
 const Car = model<env.Car>('Car', carSchema)
 

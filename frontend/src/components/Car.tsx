@@ -159,7 +159,7 @@ const Car = ({
         <Box
           component="img"
           src={bookcarsHelper.joinURL(env.CDN_CARS, car.image)}
-          alt={`${car.brand} ${car.carModel}`}
+          alt={car.fullModelName}
           sx={{
             width: '100%',
             height: 200,
@@ -181,7 +181,7 @@ const Car = ({
           }}
         >
           <Typography variant="h6" sx={{ color: 'white', fontWeight: 'bold', mb: 1 }}>
-            {`${car.brand} ${car.carModel}`}
+            {car.fullModelName}
           </Typography>
           {pickupLocationName && (
             <Stack direction="row" spacing={1} alignItems="center">

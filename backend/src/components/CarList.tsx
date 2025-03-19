@@ -353,7 +353,7 @@ const CarList = ({
                   <Card className="car-card" key={car._id}>
                     <div className="car-header">
                       <Typography variant="h6" className="car-name">
-                        {`${car.brand} ${car.carModel}`}
+                        {car.fullModelName}
                       </Typography>
                       {car.plateNumber && (
                         <div className="car-plate">
@@ -364,7 +364,7 @@ const CarList = ({
                     <div className="car-image-container">
                       <img
                         src={bookcarsHelper.joinURL(env.CDN_CARS, car.image)}
-                        alt={`${car.brand} ${car.carModel}`}
+                        alt={car.fullModelName}
                         className="car-image"
                       />
                       <div className="car-overlay-bottom">

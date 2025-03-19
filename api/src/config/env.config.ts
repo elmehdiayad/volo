@@ -524,6 +524,8 @@ export interface Booking extends Document {
  */
 export interface Car extends Document {
   _id: Types.ObjectId
+  modelIdentifier: string
+  modelGroup: string
   brand: string
   carModel: string
   plateNumber: string
@@ -560,6 +562,7 @@ export interface Car extends Document {
   rating?: number
   trips: number
   co2?: number
+  fullModelName?: string
 }
 
 export type CarDocument = Car & Document
@@ -597,6 +600,7 @@ export interface CarInfo {
   collisionDamageWaiver: number
   fullInsurance: number
   additionalDriver: number
+  fullModelName?: string
 }
 
 /**

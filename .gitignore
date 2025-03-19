@@ -10,9 +10,3 @@ compose-prod.yml
 compose-dev.yml
 backup.sh
 
-venv/
-import_data.py
-sample-data.csv
-requirements.txt
-dummy_avatar.jpg
-dummy_car.jpg
