@@ -171,7 +171,7 @@ const Cars = () => {
       {user && (
         <Grid container spacing={3} p={2}>
           <Grid item xs={12} sm={6} md={3} lg={3}>
-            <Box display="flex">
+            <Box display="flex" p={1}>
               <Search onSubmit={handleSearch} className="sc-search" />
               <IconButton
                 onClick={() => setShowFilters(!showFilters)}
