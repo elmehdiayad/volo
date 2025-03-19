@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Button, IconButton } from '@mui/material'
+import { Box, Button, Grid, IconButton } from '@mui/material'
 import FilterListIcon from '@mui/icons-material/FilterList'
 import FilterListOffIcon from '@mui/icons-material/FilterListOff'
 import * as bookcarsTypes from ':bookcars-types'
@@ -10,8 +10,6 @@ import * as helper from '@/common/helper'
 import UserTypeFilter from '@/components/UserTypeFilter'
 import Search from '@/components/Search'
 import UserList from '@/components/UserList'
-
-import '@/assets/css/users.css'
 
 const Users = () => {
   const [user, setUser] = useState<bookcarsTypes.User>()
@@ -42,32 +40,28 @@ const Users = () => {
   return (
     <Layout onLoad={onLoad} strict>
       {user && (
-        <div className="users">
-          <div className="col-1">
-            <div className="col-1-container">
-              <div className="search-container">
-                <Search onSubmit={handleSearch} className="search" />
-                <IconButton
-                  onClick={() => setShowFilters(!showFilters)}
-                  color="primary"
-                  className="filter-toggle"
-                >
-                  {showFilters ? <FilterListOffIcon /> : <FilterListIcon />}
-                </IconButton>
-              </div>
-              {admin && showFilters && (
-                <UserTypeFilter
-                  className="user-type-filter"
-                  onChange={handleUserTypeFilterChange}
-                />
-              )}
-
-              <Button variant="contained" className="btn-primary new-user" size="small" href="/create-user">
-                {strings.NEW_USER}
-              </Button>
-            </div>
-          </div>
-          <div className="col-2">
+        <Grid container spacing={3} p={2}>
+          <Grid item xs={12} sm={6} md={3} lg={3}>
+            <Box display="flex" p={1}>
+              <Search onSubmit={handleSearch} className="sc-search" />
+              <IconButton
+                onClick={() => setShowFilters(!showFilters)}
+                color="primary"
+              >
+                {showFilters ? <FilterListOffIcon /> : <FilterListIcon />}
+              </IconButton>
+            </Box>
+            <Button fullWidth variant="contained" className="btn-primary" href="/create-user">
+              {strings.NEW_USER}
+            </Button>
+            {admin && showFilters && (
+              <UserTypeFilter
+                className="user-type-filter"
+                onChange={handleUserTypeFilterChange}
+              />
+            )}
+          </Grid>
+          <Grid item xs={12} sm={6} md={9} lg={9}>
             <UserList
               user={user}
               types={types}
@@ -75,8 +69,8 @@ const Users = () => {
               checkboxSelection={!env.isMobile && admin}
               hideDesktopColumns={env.isMobile}
             />
-          </div>
-        </div>
+          </Grid>
+        </Grid>
       )}
     </Layout>
   )

@@ -80,14 +80,14 @@ const Suppliers = () => {
   return (
     <Layout strict={false}>
       <Grid container spacing={3} p={2}>
-        <Grid item xs={12} sm={6} md={2} lg={2}>
+        <Grid item xs={12} sm={6} md={3} lg={3}>
           <LocationFilter
             label={commonStrings.LOCATION}
             onChange={handleLocationChange}
             value={location}
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={10} lg={10}>
+        <Grid item xs={12} sm={6} md={9} lg={9}>
           {loading ? (
             <div className="loading-container">
               <CircularProgress />

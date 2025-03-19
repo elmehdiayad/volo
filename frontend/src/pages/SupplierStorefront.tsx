@@ -163,7 +163,7 @@ const SupplierStorefront = () => {
       <Grid container spacing={3} p={2}>
         {!isLoading && supplierId && from && to && pickupLocation && (
           <>
-            <Grid item xs={12} sm={6} md={2} lg={2}>
+            <Grid item xs={12} sm={6} md={3} lg={3}>
               <CarFilter
                 className="filter"
                 pickupLocation={pickupLocation}
@@ -202,7 +202,7 @@ const SupplierStorefront = () => {
                 </>
               )}
             </Grid>
-            <Grid item xs={12} sm={6} md={10} lg={10}>
+            <Grid item xs={12} sm={6} md={9} lg={9}>
               <CarList
                 carSpecs={carSpecs}
                 suppliers={[supplierId]}

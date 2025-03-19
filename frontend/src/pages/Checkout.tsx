@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Formik, Form, Field, FormikProps } from 'formik'
 import * as Yup from 'yup'
 import {
@@ -124,6 +124,8 @@ const Checkout = () => {
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   const location = useLocation()
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [isNavigating, setIsNavigating] = useState(false)
 
   // State variables
   const [loading, setLoading] = useState(false)
@@ -144,6 +146,36 @@ const Checkout = () => {
   const [from, setFrom] = useState<Date>()
   const [to, setTo] = useState<Date>()
   const [totalPrice, setTotalPrice] = useState(0)
+
+  // Add useEffect to handle scrolling when step changes
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }, [activeStep])
+
+  // Add debounced navigation function
+  const handleNavigation = async (direction: 'next' | 'back', formikProps?: FormikProps<FormValues>) => {
+    if (isNavigating) return
+    setIsNavigating(true)
+    try {
+      if (direction === 'next' && formikProps) {
+        const errors = await formikProps.validateForm()
+        if (Object.keys(errors).length === 0) {
+          setActiveStep((prev) => prev + 1)
+        } else {
+          formikProps.setTouched(
+            Object.keys(errors).reduce((acc, key) => ({ ...acc, [key]: true }), {})
+          )
+        }
+      } else {
+        setActiveStep((prev) => (direction === 'next' ? prev + 1 : prev - 1))
+      }
+    } finally {
+      // Add a small delay before allowing next navigation
+      setTimeout(() => setIsNavigating(false), 500)
+    }
+  }
 
   // Load booking data on mount
   useEffect(() => {
@@ -395,7 +427,6 @@ const Checkout = () => {
             || (emailRegistered && (
               <span>
                 {commonStrings.EMAIL_ALREADY_REGISTERED}
-                {' '}
                 <a href={`/sign-in?c=${car?._id}&p=${pickupLocation?._id}&d=${dropOffLocation?._id}&f=${from?.getTime()}&t=${to?.getTime()}&from=checkout`}>
                   {checkoutStrings.SIGN_IN}
                 </a>
@@ -483,7 +514,7 @@ const Checkout = () => {
             label={(
               <Typography variant="body2">
                 <Button
-                  sx={{ p: 0, minWidth: 0, textTransform: 'none', textDecoration: 'underline', verticalAlign: 'baseline' }}
+                  sx={{ p: 0, minWidth: 0, textTransform: 'none', textDecoration: 'underline', verticalAlign: 'baseline', textAlign: 'left' }}
                   onClick={() => window.open('/tos', '_blank')}
                 >
                   {commonStrings.TOS}
@@ -497,7 +528,7 @@ const Checkout = () => {
         </FormControl>
       </Grid>
 
-      <Grid item xs={12}>
+      {/* <Grid item xs={12}>
         <FormControlLabel
           control={(
             <Field
@@ -521,7 +552,7 @@ const Checkout = () => {
             </Box>
           )}
         />
-      </Grid>
+      </Grid> */}
     </Grid>
   )
 
@@ -617,7 +648,7 @@ const Checkout = () => {
     </Card>
   )
 
-  const renderStepContent = () => {
+  const renderStepContent = (formikProps: FormikProps<FormValues>) => {
     switch (activeStep) {
       case 0: // Vehicle Details
         return (
@@ -755,9 +786,9 @@ const Checkout = () => {
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
               <Button
                 variant="contained"
-                onClick={() => setActiveStep((prev) => prev + 1)}
+                onClick={() => handleNavigation('next')}
                 endIcon={<ArrowForward />}
-                disabled={!car || !from || !to || !pickupLocation || !dropOffLocation}
+                disabled={!car || !from || !to || !pickupLocation || !dropOffLocation || isNavigating}
               >
                 {commonStrings.NEXT}
               </Button>
@@ -768,212 +799,184 @@ const Checkout = () => {
       case 1: // Driver Details
         return (
           <Box sx={{ p: { xs: 1, md: 3 } }}>
-            <Formik
-              initialValues={getInitialValues(car)}
-              validationSchema={validationSchema}
-              onSubmit={handleSubmit}
-              validateOnMount
-            >
-              {(formikProps) => (
-                <Form>
-                  <Grid container spacing={3}>
-                    <Grid item xs={12} md={8}>
-                      <Card>
-                        <CardContent>
-                          {renderDriverForm(formikProps)}
-                        </CardContent>
-                      </Card>
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={8}>
+                <Card>
+                  <CardContent>
+                    {renderDriverForm(formikProps)}
+                  </CardContent>
+                </Card>
 
-                      {formikProps.values.additionalDriver && (
-                        <Card sx={{ mt: 3 }}>
-                          <CardContent>
-                            <Typography variant="h6" gutterBottom>
-                              {carStrings.ADDITIONAL_DRIVER}
-                            </Typography>
-                            <Grid container spacing={3}>
-                              <Grid item xs={12}>
-                                <Field
-                                  name="additionalDriverName"
-                                  as={TextField}
-                                  fullWidth
-                                  label={commonStrings.FULL_NAME}
-                                  error={Boolean(formikProps.touched.additionalDriverName && formikProps.errors.additionalDriverName)}
-                                  helperText={formikProps.touched.additionalDriverName && formikProps.errors.additionalDriverName}
-                                  onChange={formikProps.handleChange}
-                                  onBlur={formikProps.handleBlur}
-                                  required
-                                />
-                              </Grid>
+                {formikProps.values.additionalDriver && (
+                  <Card sx={{ mt: 3 }}>
+                    <CardContent>
+                      <Typography variant="h6" gutterBottom>
+                        {carStrings.ADDITIONAL_DRIVER}
+                      </Typography>
+                      <Grid container spacing={3}>
+                        <Grid item xs={12}>
+                          <Field
+                            name="additionalDriverName"
+                            as={TextField}
+                            fullWidth
+                            label={commonStrings.FULL_NAME}
+                            error={Boolean(formikProps.touched.additionalDriverName && formikProps.errors.additionalDriverName)}
+                            helperText={formikProps.touched.additionalDriverName && formikProps.errors.additionalDriverName}
+                            onChange={formikProps.handleChange}
+                            onBlur={formikProps.handleBlur}
+                            required
+                          />
+                        </Grid>
 
-                              <Grid item xs={12} sm={6}>
-                                <Field
-                                  name="additionalDriverEmail"
-                                  as={TextField}
-                                  fullWidth
-                                  label={commonStrings.EMAIL}
-                                  error={Boolean(formikProps.touched.additionalDriverEmail && formikProps.errors.additionalDriverEmail)}
-                                  helperText={formikProps.touched.additionalDriverEmail && formikProps.errors.additionalDriverEmail}
-                                  onChange={formikProps.handleChange}
-                                  onBlur={formikProps.handleBlur}
-                                  required
-                                />
-                              </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <Field
+                            name="additionalDriverEmail"
+                            as={TextField}
+                            fullWidth
+                            label={commonStrings.EMAIL}
+                            error={Boolean(formikProps.touched.additionalDriverEmail && formikProps.errors.additionalDriverEmail)}
+                            helperText={formikProps.touched.additionalDriverEmail && formikProps.errors.additionalDriverEmail}
+                            onChange={formikProps.handleChange}
+                            onBlur={formikProps.handleBlur}
+                            required
+                          />
+                        </Grid>
 
-                              <Grid item xs={12} sm={6}>
-                                <Field
-                                  name="additionalDriverPhone"
-                                  as={TextField}
-                                  fullWidth
-                                  label={commonStrings.PHONE}
-                                  error={Boolean(formikProps.touched.additionalDriverPhone && formikProps.errors.additionalDriverPhone)}
-                                  helperText={formikProps.touched.additionalDriverPhone && formikProps.errors.additionalDriverPhone}
-                                  onChange={formikProps.handleChange}
-                                  onBlur={formikProps.handleBlur}
-                                  required
-                                />
-                              </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <Field
+                            name="additionalDriverPhone"
+                            as={TextField}
+                            fullWidth
+                            label={commonStrings.PHONE}
+                            error={Boolean(formikProps.touched.additionalDriverPhone && formikProps.errors.additionalDriverPhone)}
+                            helperText={formikProps.touched.additionalDriverPhone && formikProps.errors.additionalDriverPhone}
+                            onChange={formikProps.handleChange}
+                            onBlur={formikProps.handleBlur}
+                            required
+                          />
+                        </Grid>
 
-                              <Grid item xs={12}>
-                                <FormControl fullWidth error={Boolean(formikProps.touched.additionalDriverBirthDate && formikProps.errors.additionalDriverBirthDate)}>
-                                  <DatePicker
-                                    label={commonStrings.BIRTH_DATE}
-                                    value={formikProps.values.additionalDriverBirthDate}
-                                    onChange={(date: Date | null) => {
-                                      formikProps.setFieldValue('additionalDriverBirthDate', date)
-                                    }}
-                                    required
-                                    variant="outlined"
-                                    language={UserService.getLanguage()}
-                                  />
-                                  {formikProps.touched.additionalDriverBirthDate && formikProps.errors.additionalDriverBirthDate && (
-                                    <FormHelperText error>{formikProps.errors.additionalDriverBirthDate}</FormHelperText>
-                                  )}
-                                </FormControl>
-                              </Grid>
-                            </Grid>
-                          </CardContent>
-                        </Card>
-                      )}
-                    </Grid>
+                        <Grid item xs={12}>
+                          <FormControl fullWidth error={Boolean(formikProps.touched.additionalDriverBirthDate && formikProps.errors.additionalDriverBirthDate)}>
+                            <DatePicker
+                              label={commonStrings.BIRTH_DATE}
+                              value={formikProps.values.additionalDriverBirthDate}
+                              onChange={(date: Date | null) => {
+                                formikProps.setFieldValue('additionalDriverBirthDate', date)
+                              }}
+                              required
+                              variant="outlined"
+                              language={UserService.getLanguage()}
+                            />
+                            {formikProps.touched.additionalDriverBirthDate && formikProps.errors.additionalDriverBirthDate && (
+                              <FormHelperText error>{formikProps.errors.additionalDriverBirthDate}</FormHelperText>
+                            )}
+                          </FormControl>
+                        </Grid>
+                      </Grid>
+                    </CardContent>
+                  </Card>
+                )}
+              </Grid>
 
-                    <Grid item xs={12} md={4}>
-                      {renderBookingOptions(formikProps)}
-                    </Grid>
-                  </Grid>
+              <Grid item xs={12} md={4}>
+                {renderBookingOptions(formikProps)}
+              </Grid>
+            </Grid>
 
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
-                    <Button
-                      startIcon={<ArrowBack />}
-                      onClick={() => setActiveStep((prev) => prev - 1)}
-                    >
-                      {commonStrings.BACK}
-                    </Button>
-                    <Button
-                      variant="contained"
-                      onClick={() => {
-                        formikProps.validateForm().then((errors) => {
-                          if (Object.keys(errors).length === 0) {
-                            setActiveStep((prev) => prev + 1)
-                          } else {
-                            formikProps.setTouched(
-                              Object.keys(errors).reduce((acc, key) => ({ ...acc, [key]: true }), {})
-                            )
-                          }
-                        })
-                      }}
-                      endIcon={<ArrowForward />}
-                    >
-                      {commonStrings.NEXT}
-                    </Button>
-                  </Box>
-                </Form>
-              )}
-            </Formik>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
+              <Button
+                startIcon={<ArrowBack />}
+                onClick={() => handleNavigation('back')}
+                disabled={isNavigating}
+              >
+                {commonStrings.BACK}
+              </Button>
+              <Button
+                variant="contained"
+                onClick={() => handleNavigation('next', formikProps)}
+                endIcon={<ArrowForward />}
+                disabled={isNavigating}
+              >
+                {commonStrings.NEXT}
+              </Button>
+            </Box>
           </Box>
         )
 
       case 2: // Payment Details
         return (
           <Box sx={{ p: { xs: 1, md: 3 } }}>
-            <Formik
-              initialValues={getInitialValues(car)}
-              validationSchema={validationSchema}
-              onSubmit={handleSubmit}
-            >
-              {() => (
-                <Form>
-                  <Grid container spacing={3}>
-                    <Grid item xs={12} md={8}>
-                      <Card>
-                        <CardContent>
-                          <Typography variant="h6" gutterBottom>
-                            {checkoutStrings.PAYMENT_OPTIONS}
-                          </Typography>
-                          <RadioGroup
-                            value={paymentMethod}
-                            onChange={(e) => setPaymentMethod(e.target.value)}
-                          >
-                            <FormControlLabel
-                              value="card"
-                              control={<Radio />}
-                              label={checkoutStrings.PAY_ONLINE}
-                            />
-                            <FormControlLabel
-                              value="later"
-                              control={<Radio />}
-                              label={checkoutStrings.PAY_LATER}
-                            />
-                          </RadioGroup>
-
-                          {paymentMethod === 'card' && clientSecret && (
-                            <Box sx={{ mt: 3 }}>
-                              <Typography variant="body1" gutterBottom>
-                                {checkoutStrings.PAYMENT}
-                              </Typography>
-                            </Box>
-                          )}
-                        </CardContent>
-                      </Card>
-                    </Grid>
-
-                    <Grid item xs={12} md={4}>
-                      <Card>
-                        <CardContent>
-                          <Typography variant="h6" gutterBottom>
-                            {checkoutStrings.PRICE_DETAILS}
-                          </Typography>
-                          <Box sx={{ my: 2 }}>
-                            <Typography variant="body2" color="text.secondary">
-                              {checkoutStrings.COST}
-                            </Typography>
-                            <Typography variant="h6">
-                              {bookcarsHelper.formatPrice(totalPrice, commonStrings.CURRENCY, UserService.getLanguage())}
-                            </Typography>
-                          </Box>
-                        </CardContent>
-                      </Card>
-                    </Grid>
-                  </Grid>
-
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
-                    <Button
-                      startIcon={<ArrowBack />}
-                      onClick={() => setActiveStep((prev) => prev - 1)}
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={8}>
+                <Card>
+                  <CardContent>
+                    <Typography variant="h6" gutterBottom>
+                      {checkoutStrings.PAYMENT_OPTIONS}
+                    </Typography>
+                    <RadioGroup
+                      value={paymentMethod}
+                      onChange={(e) => setPaymentMethod(e.target.value)}
                     >
-                      {commonStrings.BACK}
-                    </Button>
-                    <Button
-                      variant="contained"
-                      type="submit"
-                      disabled={loading}
-                      endIcon={loading ? <CircularProgress size={20} /> : <CheckCircle />}
-                    >
-                      {checkoutStrings.BOOK}
-                    </Button>
-                  </Box>
-                </Form>
-              )}
-            </Formik>
+                      <FormControlLabel
+                        value="card"
+                        control={<Radio />}
+                        label={checkoutStrings.PAY_ONLINE}
+                      />
+                      <FormControlLabel
+                        value="later"
+                        control={<Radio />}
+                        label={checkoutStrings.PAY_LATER}
+                      />
+                    </RadioGroup>
+
+                    {paymentMethod === 'card' && clientSecret && (
+                      <Box sx={{ mt: 3 }}>
+                        <Typography variant="body1" gutterBottom>
+                          {checkoutStrings.PAYMENT}
+                        </Typography>
+                      </Box>
+                    )}
+                  </CardContent>
+                </Card>
+              </Grid>
+
+              <Grid item xs={12} md={4}>
+                <Card>
+                  <CardContent>
+                    <Typography variant="h6" gutterBottom>
+                      {checkoutStrings.PRICE_DETAILS}
+                    </Typography>
+                    <Box sx={{ my: 2 }}>
+                      <Typography variant="body2" color="text.secondary">
+                        {checkoutStrings.COST}
+                      </Typography>
+                      <Typography variant="h6">
+                        {bookcarsHelper.formatPrice(totalPrice, commonStrings.CURRENCY, UserService.getLanguage())}
+                      </Typography>
+                    </Box>
+                  </CardContent>
+                </Card>
+              </Grid>
+            </Grid>
+
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
+              <Button
+                startIcon={<ArrowBack />}
+                onClick={() => handleNavigation('back')}
+                disabled={isNavigating}
+              >
+                {commonStrings.BACK}
+              </Button>
+              <Button
+                variant="contained"
+                type="submit"
+                disabled={loading || isNavigating}
+                endIcon={loading ? <CircularProgress size={20} /> : <CheckCircle />}
+              >
+                {checkoutStrings.BOOK}
+              </Button>
+            </Box>
           </Box>
         )
 
@@ -1039,7 +1042,7 @@ const Checkout = () => {
     <Layout>
       <Container maxWidth="lg" sx={{ mb: 4 }}>
         <Paper sx={{ p: { xs: 1, md: 3 }, mt: { xs: 1, md: 3 } }}>
-          <Box sx={{ width: '100%' }}>
+          <Box sx={{ width: '100%' }} ref={containerRef}>
             <Stepper
               activeStep={activeStep}
               alternativeLabel={!isMobile}
@@ -1084,7 +1087,18 @@ const Checkout = () => {
               ))}
             </Stepper>
 
-            {renderStepContent()}
+            <Formik
+              initialValues={getInitialValues(car)}
+              validationSchema={validationSchema}
+              onSubmit={handleSubmit}
+              validateOnMount
+            >
+              {(formikProps) => (
+                <Form>
+                  {renderStepContent(formikProps)}
+                </Form>
+              )}
+            </Formik>
           </Box>
         </Paper>
       </Container>

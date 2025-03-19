@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Button, IconButton } from '@mui/material'
+import { Box, Button, Grid, IconButton } from '@mui/material'
 import FilterListIcon from '@mui/icons-material/FilterList'
 import FilterListOffIcon from '@mui/icons-material/FilterListOff'
 import * as bookcarsTypes from ':bookcars-types'
@@ -26,8 +26,6 @@ import CarRangeFilter from '@/components/CarRangeFilter'
 import CarMultimediaFilter from '@/components/CarMultimediaFilter'
 import CarRatingFilter from '@/components/CarRatingFilter'
 import CarSeatsFilter from '@/components/CarSeatsFilter'
-
-import '@/assets/css/cars.css'
 
 const Cars = () => {
   const [user, setUser] = useState<bookcarsTypes.User>()
@@ -171,47 +169,46 @@ const Cars = () => {
   return (
     <Layout onLoad={onLoad} strict>
       {user && (
-        <div className="cars">
-          <div className="col-1">
-            <div className="col-1-container">
-              <div className="search-container">
-                <Search onSubmit={handleSearch} className="search" />
-                <IconButton
-                  onClick={() => setShowFilters(!showFilters)}
-                  color="primary"
-                  className="filter-toggle"
-                >
-                  {showFilters ? <FilterListOffIcon /> : <FilterListIcon />}
-                </IconButton>
-              </div>
-              {rowCount > 0 && <InfoBox value={`${rowCount} ${rowCount > 1 ? commonStrings.CARS : commonStrings.CAR}`} className="car-count" />}
-              {showFilters && (
-                <>
-                  <SupplierFilter suppliers={allSuppliers} onChange={handleSupplierFilterChange} className="filter" />
+        <Grid container spacing={3} p={2}>
+          <Grid item xs={12} sm={6} md={3} lg={3}>
+            <Box display="flex">
+              <Search onSubmit={handleSearch} className="sc-search" />
+              <IconButton
+                onClick={() => setShowFilters(!showFilters)}
+                color="primary"
+              >
+                {showFilters ? <FilterListOffIcon /> : <FilterListIcon />}
+              </IconButton>
+            </Box>
+            {rowCount > 0 && <InfoBox value={`${rowCount} ${rowCount > 1 ? commonStrings.CARS : commonStrings.CAR}`} />}
+            <Button fullWidth type="submit" variant="contained" className="btn-primary" href="/create-car">
+              {strings.NEW_CAR}
+            </Button>
 
-                  {rowCount > -1 && (
-                    <>
-                      <CarRatingFilter className="filter" onChange={handleRatingFilterChange} />
-                      <CarRangeFilter className="filter" onChange={handleRangeFilterChange} />
-                      <CarMultimediaFilter className="filter" onChange={handleMultimediaFilterChange} />
-                      <CarSeatsFilter className="filter" onChange={handleSeatsFilterChange} />
-                      <CarSpecsFilter className="filter" onChange={handleCarSpecsFilterChange} />
-                      <CarTypeFilter className="car-filter" onChange={handleCarTypeFilterChange} />
-                      <GearboxFilter className="car-filter" onChange={handleGearboxFilterChange} />
-                      <MileageFilter className="car-filter" onChange={handleMileageFilterChange} />
-                      <FuelPolicyFilter className="filter" onChange={handleFuelPolicyFilterChange} />
-                      <DepositFilter className="car-filter" onChange={handleDepositFilterChange} />
-                      {admin && <AvailabilityFilter className="car-filter" onChange={handleAvailabilityFilterChange} />}
-                    </>
-                  )}
-                </>
-              )}
-              <Button type="submit" variant="contained" className="btn-primary new-car" size="small" href="/create-car">
-                {strings.NEW_CAR}
-              </Button>
-            </div>
-          </div>
-          <div className="col-2">
+            {showFilters && (
+              <>
+                <SupplierFilter suppliers={allSuppliers} onChange={handleSupplierFilterChange} className="filter" />
+
+                {rowCount > -1 && (
+                  <>
+                    <CarRatingFilter className="filter" onChange={handleRatingFilterChange} />
+                    <CarRangeFilter className="filter" onChange={handleRangeFilterChange} />
+                    <CarMultimediaFilter className="filter" onChange={handleMultimediaFilterChange} />
+                    <CarSeatsFilter className="filter" onChange={handleSeatsFilterChange} />
+                    <CarSpecsFilter className="filter" onChange={handleCarSpecsFilterChange} />
+                    <CarTypeFilter className="car-filter" onChange={handleCarTypeFilterChange} />
+                    <GearboxFilter className="car-filter" onChange={handleGearboxFilterChange} />
+                    <MileageFilter className="car-filter" onChange={handleMileageFilterChange} />
+                    <FuelPolicyFilter className="filter" onChange={handleFuelPolicyFilterChange} />
+                    <DepositFilter className="car-filter" onChange={handleDepositFilterChange} />
+                    {admin && <AvailabilityFilter className="car-filter" onChange={handleAvailabilityFilterChange} />}
+                  </>
+                )}
+              </>
+            )}
+
+          </Grid>
+          <Grid item xs={12} sm={6} md={9} lg={9}>
             <CarList
               user={user}
               suppliers={suppliers}
@@ -232,8 +229,8 @@ const Cars = () => {
               onLoad={handleCarListLoad}
               onDelete={handleCarDelete}
             />
-          </div>
-        </div>
+          </Grid>
+        </Grid>
       )}
     </Layout>
   )

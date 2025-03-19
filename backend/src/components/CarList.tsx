@@ -10,6 +10,7 @@ import {
   Card,
   CardContent,
   Typography,
+  Grid,
 } from '@mui/material'
 import {
   Visibility as ViewIcon,
@@ -42,7 +43,6 @@ interface CarListProps {
   reload?: boolean
   cars?: bookcarsTypes.Car[]
   user?: bookcarsTypes.User
-  className?: string
   loading?: boolean
   hidePrice?: boolean
   language?: string
@@ -67,7 +67,6 @@ const CarList = ({
   reload,
   cars,
   user: carUser,
-  className,
   loading: carLoading,
   hidePrice,
   language,
@@ -336,7 +335,7 @@ const CarList = ({
   return (
     (user && (
       <>
-        <section className={`${className ? `${className} ` : ''}car-list`}>
+        <Grid container spacing={3} p={2}>
           {rows.length === 0 ? (
             !init && !loading && !carLoading && (
               <Card variant="outlined" className="empty-list">
@@ -346,10 +345,10 @@ const CarList = ({
               </Card>
             )
           ) : (
-            <div className="car-list">
-              {rows.map((car, index) => {
-                const edit = admin || car.supplier._id === user._id
-                return (
+            rows.map((car, index) => {
+              const edit = admin || car.supplier._id === user._id
+              return (
+                <Grid item xs={12} sm={6} md={4} lg={3} key={car._id}>
                   <Card className="car-card" key={car._id}>
                     <div className="car-header">
                       <Typography variant="h6" className="car-name">
@@ -406,11 +405,11 @@ const CarList = ({
                       </div>
                     )}
                   </Card>
-                )
-              })}
-            </div>
+                </Grid>
+              )
+            })
           )}
-        </section>
+        </Grid>
 
         <Dialog disableEscapeKeyDown maxWidth="xs" open={openInfoDialog}>
           <DialogTitle className="dialog-header">{commonStrings.INFO}</DialogTitle>
