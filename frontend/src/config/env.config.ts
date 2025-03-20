@@ -113,6 +113,7 @@ const env = {
    * Minimum number of locations required for country tabs in homepage.
    */
   MIN_LOCATIONS: Number.parseInt(String(import.meta.env.VITE_BC_MIN_LOCATIONS), 10) || 4,
+  BACKEND_HOST: String(import.meta.env.VITE_BACKEND_HOST),
 }
 
 export default env

@@ -17,8 +17,6 @@ import {
   TextField,
   FormControlLabel,
   Checkbox,
-  Radio,
-  RadioGroup,
   CircularProgress,
   Alert,
   Chip,
@@ -30,8 +28,7 @@ import {
 import {
   DirectionsCar,
   Person,
-  Payment,
-  AssignmentTurnedIn,
+  WhatsApp,
   CheckCircle,
   ArrowBack,
   ArrowForward
@@ -56,6 +53,7 @@ import DriverLicense from '@/components/DriverLicense'
 import Footer from '@/components/Footer'
 import * as CarService from '@/services/CarService'
 import * as LocationService from '@/services/LocationService'
+import { generateWhatsAppMessage } from '@/lang/whatsapp'
 
 interface LocationState {
   carId: string
@@ -69,8 +67,7 @@ interface LocationState {
 const steps = [
   { label: checkoutStrings.BOOKING_DETAILS, icon: <DirectionsCar /> },
   { label: checkoutStrings.DRIVER_DETAILS, icon: <Person /> },
-  { label: checkoutStrings.PAYMENT, icon: <Payment /> },
-  { label: checkoutStrings.BOOK, icon: <AssignmentTurnedIn /> }
+  { label: checkoutStrings.CONTACT_SUPPLIER, icon: <WhatsApp /> }
 ]
 
 // Define form values type
@@ -130,10 +127,7 @@ const Checkout = () => {
   // State variables
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [success, setSuccess] = useState(false)
   const [activeStep, setActiveStep] = useState(0)
-  const [paymentMethod, setPaymentMethod] = useState('card')
-  const [clientSecret] = useState<string | null>(null)
   const [emailValid, setEmailValid] = useState(true)
   const [emailRegistered, setEmailRegistered] = useState(false)
   const [emailInfo, setEmailInfo] = useState(true)
@@ -149,10 +143,10 @@ const Checkout = () => {
 
   // Add useEffect to handle scrolling when step changes
   useEffect(() => {
-    if (containerRef.current) {
+    if (containerRef.current && isMobile) {
       containerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }
-  }, [activeStep])
+  }, [activeStep, isMobile])
 
   // Add debounced navigation function
   const handleNavigation = async (direction: 'next' | 'back', formikProps?: FormikProps<FormValues>) => {
@@ -372,16 +366,31 @@ const Checkout = () => {
         licenseDeliveryDate: new Date()
       } : undefined
 
-      const { status } = await BookingService.checkout({
+      const { status, bookingId } = await BookingService.checkout({
         driver,
         booking,
         additionalDriver: additionalDriverData,
-        payLater: paymentMethod === 'later'
+        payLater: true
       })
 
       if (status === 200) {
-        setSuccess(true)
-        setActiveStep(3) // Move to confirmation step
+        // Open WhatsApp with the booking message
+        if (car?.supplier?.phone) {
+          const phone = car.supplier.phone.replace(/\D/g, '')
+          const message = generateWhatsAppMessage(
+            car.supplier.language || 'en',
+            car,
+            pickupLocation,
+            dropOffLocation,
+            from,
+            to,
+            totalPrice,
+            values,
+            bookingId
+          )
+          window.open(`https://wa.me/${phone}?text=${message}`, '_blank')
+        }
+        setActiveStep(3) // Move to success step
       } else {
         setError(commonStrings.GENERIC_ERROR)
       }
@@ -904,7 +913,7 @@ const Checkout = () => {
           </Box>
         )
 
-      case 2: // Payment Details
+      case 2: // Contact Supplier
         return (
           <Box sx={{ p: { xs: 1, md: 3 } }}>
             <Grid container spacing={3}>
@@ -912,30 +921,15 @@ const Checkout = () => {
                 <Card>
                   <CardContent>
                     <Typography variant="h6" gutterBottom>
-                      {checkoutStrings.PAYMENT_OPTIONS}
+                      {checkoutStrings.CONTACT_SUPPLIER}
                     </Typography>
-                    <RadioGroup
-                      value={paymentMethod}
-                      onChange={(e) => setPaymentMethod(e.target.value)}
-                    >
-                      <FormControlLabel
-                        value="card"
-                        control={<Radio />}
-                        label={checkoutStrings.PAY_ONLINE}
-                      />
-                      <FormControlLabel
-                        value="later"
-                        control={<Radio />}
-                        label={checkoutStrings.PAY_LATER}
-                      />
-                    </RadioGroup>
-
-                    {paymentMethod === 'card' && clientSecret && (
-                      <Box sx={{ mt: 3 }}>
-                        <Typography variant="body1" gutterBottom>
-                          {checkoutStrings.PAYMENT}
-                        </Typography>
-                      </Box>
+                    <Typography color="text.secondary" paragraph>
+                      {checkoutStrings.CONTACT_SUPPLIER_INFO}
+                    </Typography>
+                    {error && (
+                      <Alert severity="error" sx={{ mt: 2 }}>
+                        {error}
+                      </Alert>
                     )}
                   </CardContent>
                 </Card>
@@ -980,42 +974,29 @@ const Checkout = () => {
           </Box>
         )
 
-      case 3: // Confirmation
+      case 3: // Success
         return (
           <Box sx={{ p: { xs: 1, md: 3 } }}>
-            <Grid container spacing={3} justifyContent="center">
-              <Grid item xs={12} md={8}>
+            <Grid container spacing={3}>
+              <Grid item xs={12}>
                 <Card>
                   <CardContent sx={{ textAlign: 'center' }}>
-                    {loading ? (
-                      <CircularProgress />
-                    ) : success ? (
-                      <>
-                        <CheckCircle
-                          sx={{ fontSize: 60, color: 'success.main', mb: 2 }}
-                        />
-                        <Typography variant="h5" gutterBottom>
-                          {checkoutStrings.SUCCESS}
-                        </Typography>
-                        <Typography color="text.secondary">
-                          {paymentMethod === 'later' ? checkoutStrings.PAY_LATER_SUCCESS : checkoutStrings.SUCCESS}
-                        </Typography>
-                      </>
-                    ) : (
-                      <>
-                        <Typography variant="h6" gutterBottom>
-                          {checkoutStrings.BOOK}
-                        </Typography>
-                        <Typography color="text.secondary" paragraph>
-                          {checkoutStrings.SECURE_PAYMENT_INFO}
-                        </Typography>
-                        {error && (
-                          <Alert severity="error" sx={{ mt: 2 }}>
-                            {error}
-                          </Alert>
-                        )}
-                      </>
-                    )}
+                    <CheckCircle color="success" sx={{ fontSize: 60, mb: 2 }} />
+                    <Typography variant="h5" gutterBottom>
+                      {checkoutStrings.SUCCESS}
+                    </Typography>
+                    <Typography color="text.secondary" paragraph>
+                      {checkoutStrings.PAY_LATER_SUCCESS}
+                    </Typography>
+                    <Button
+                      variant="contained"
+                      onClick={() => {
+                        window.location.href = '/'
+                      }}
+                      sx={{ mt: 2 }}
+                    >
+                      {commonStrings.GO_TO_HOME}
+                    </Button>
                   </CardContent>
                 </Card>
               </Grid>

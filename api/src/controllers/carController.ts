@@ -385,22 +385,26 @@ export const getCar = async (req: Request, res: Response) => {
     const car = await Car.findById(id)
       .populate<{ supplier: env.UserInfo }>('supplier')
       .populate<{ locations: env.LocationInfo[] }>('locations')
-
     if (car) {
+      // Only extract and return specific fields we want to expose
       const {
         _id,
         fullName,
         avatar,
         payLater,
         licenseRequired,
+        phone,
       } = car.supplier
+
+      // Explicitly set supplier to only include these fields
       car.supplier = {
         _id,
         fullName,
         avatar,
         payLater,
         licenseRequired,
-      }
+        phone,
+      } as env.UserInfo // Type assertion to match UserInfo interface
 
       return res.json(car)
     }

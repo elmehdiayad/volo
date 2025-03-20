@@ -95,6 +95,7 @@ const strings = new LocalizedStrings({
     REQUIRED_FIELD: 'Champ obligatoire',
     NAME_TOO_SHORT: 'Le nom doit contenir au moins 4 caractères',
     REQUIRED_FIELDS_ERROR: 'Veuillez remplir tous les champs obligatoires',
+    CONTACT_SUPPLIER: 'Contacter le fournisseur',
   },
   en: {
     BOOKCARS: env.WEBSITE_NAME,
@@ -186,6 +187,7 @@ const strings = new LocalizedStrings({
     REQUIRED_FIELD: 'Required field',
     NAME_TOO_SHORT: 'Name must be at least 4 characters long',
     REQUIRED_FIELDS_ERROR: 'Please fill in all required fields',
+    CONTACT_SUPPLIER: 'Contact supplier',
   },
   es: {
     BOOKCARS: env.WEBSITE_NAME,
@@ -274,9 +276,10 @@ const strings = new LocalizedStrings({
     UPLOAD_FILE: 'Subir archivo...',
     NATIONAL_ID: 'Documento nacional de identidad',
     NATIONAL_ID_NOT_VALID: 'Documento nacional de identidad no válido',
-    REQUIRED_FIELD: 'Campo obligatorio',
+    REQUIRED_FIELD: 'Campo requerido',
     NAME_TOO_SHORT: 'El nombre debe tener al menos 4 caracteres',
-    REQUIRED_FIELDS_ERROR: 'Por favor, complete todos los campos obligatorios',
+    REQUIRED_FIELDS_ERROR: 'Por favor complete todos los campos requeridos',
+    CONTACT_SUPPLIER: 'Contactar proveedor',
   },
 })
 
