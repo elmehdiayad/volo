@@ -96,6 +96,10 @@ const strings = new LocalizedStrings({
     NAME_TOO_SHORT: 'Le nom doit contenir au moins 4 caractères',
     REQUIRED_FIELDS_ERROR: 'Veuillez remplir tous les champs obligatoires',
     CONTACT_SUPPLIER: 'Contacter le fournisseur',
+    LICENSE_RECTO: 'Permis recto',
+    LICENSE_VERSO: 'Permis verso',
+    ID_RECTO: 'Pièce d\'identité recto',
+    ID_VERSO: 'Pièce d\'identité verso',
   },
   en: {
     BOOKCARS: env.WEBSITE_NAME,
@@ -188,6 +192,10 @@ const strings = new LocalizedStrings({
     NAME_TOO_SHORT: 'Name must be at least 4 characters long',
     REQUIRED_FIELDS_ERROR: 'Please fill in all required fields',
     CONTACT_SUPPLIER: 'Contact supplier',
+    LICENSE_RECTO: 'License front',
+    LICENSE_VERSO: 'License back',
+    ID_RECTO: 'ID front',
+    ID_VERSO: 'ID back',
   },
   es: {
     BOOKCARS: env.WEBSITE_NAME,
@@ -280,6 +288,10 @@ const strings = new LocalizedStrings({
     NAME_TOO_SHORT: 'El nombre debe tener al menos 4 caracteres',
     REQUIRED_FIELDS_ERROR: 'Por favor complete todos los campos requeridos',
     CONTACT_SUPPLIER: 'Contactar proveedor',
+    LICENSE_RECTO: 'Permis recto',
+    LICENSE_VERSO: 'Permis verso',
+    ID_RECTO: 'ID front',
+    ID_VERSO: 'ID back',
   },
 })
 

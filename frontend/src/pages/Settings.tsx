@@ -308,7 +308,7 @@ const Settings = () => {
 
             <Paper className="settings-form settings-form-wrapper" elevation={10}>
               <h1 className="settings-form-title">{commonStrings.DRIVER_LICENSE}</h1>
-              <DriverLicense user={user} />
+              <DriverLicense user={user} setLoading={setLoading} />
             </Paper>
 
             <Paper className="settings-net settings-net-wrapper" elevation={10}>

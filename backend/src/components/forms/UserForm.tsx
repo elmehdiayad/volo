@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import {
   TextField,
   FormControl,
@@ -84,6 +84,7 @@ const UserForm = ({ user, isUpdate, defaultType, admin, onSubmit, onCancel, setL
   }>({})
   const [signature, setSignature] = useState(user?.signature || '')
   const [signatureError, setSignatureError] = useState(false)
+  const [tempDocuments, setTempDocuments] = useState<{ [key: string]: string | null }>({})
 
   const isSupplier = type === bookcarsTypes.RecordType.Supplier
   const isDriver = type === bookcarsTypes.RecordType.User
@@ -287,6 +288,35 @@ const UserForm = ({ user, isUpdate, defaultType, admin, onSubmit, onCancel, setL
     }
   }
 
+  const clearTempDocuments = useCallback(async () => {
+    try {
+      const tempDocs = Object.entries(tempDocuments).filter(([, value]) => value !== null)
+      if (tempDocs.length > 0) {
+        await Promise.all(
+          tempDocs.map(([key, filename]) => UserService.deleteTempDocument(filename!, key))
+        )
+        setTempDocuments({})
+      }
+    } catch (err) {
+      console.error('Error clearing temporary documents:', err)
+    }
+  }, [tempDocuments])
+
+  // Handle beforeunload event separately
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (Object.values(tempDocuments).some((value) => value !== null)) {
+        e.preventDefault()
+        clearTempDocuments().catch(console.error)
+      }
+    }
+
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+    }
+  }, [clearTempDocuments, tempDocuments])
+
   return (
     <div className="form">
       <div className="form-wrapper">
@@ -323,7 +353,14 @@ const UserForm = ({ user, isUpdate, defaultType, admin, onSubmit, onCancel, setL
               )}
 
               {admin && (
-                <FormControl fullWidth margin="dense" style={{ marginTop: isSupplier ? 0 : 39 }}>
+                <FormControl
+                  fullWidth
+                  margin="dense"
+                  sx={{
+                    mt: isSupplier ? 0 : 2.5,
+                    mb: isSupplier ? 0 : 2.5
+                  }}
+                >
                   <Select
                     name="type"
                     label={commonStrings.TYPE}
@@ -345,9 +382,16 @@ const UserForm = ({ user, isUpdate, defaultType, admin, onSubmit, onCancel, setL
 
               {isDriver && (
                 <DriverLicense
-                  className="driver-license-field"
                   user={user}
-                  onDocumentsChange={setDocuments}
+                  onDocumentsChange={(newDocuments) => {
+                    setDocuments(newDocuments)
+                    // Track temporary documents
+                    Object.entries(newDocuments).forEach(([key, value]) => {
+                      if (!user && value) {
+                        setTempDocuments((prev) => ({ ...prev, [key]: value }))
+                      }
+                    })
+                  }}
                   setLoading={setLoading}
                 />
               )}
@@ -556,7 +600,15 @@ const UserForm = ({ user, isUpdate, defaultType, admin, onSubmit, onCancel, setL
                 <Button type="submit" variant="contained" className="btn-primary btn-margin-bottom" size="small" disabled={isSubmitting}>
                   {isUpdate ? commonStrings.UPDATE : commonStrings.CREATE}
                 </Button>
-                <Button variant="contained" className="btn-secondary btn-margin-bottom" size="small" onClick={onCancel}>
+                <Button
+                  variant="contained"
+                  className="btn-secondary btn-margin-bottom"
+                  size="small"
+                  onClick={() => {
+                    clearTempDocuments()
+                    onCancel()
+                  }}
+                >
                   {commonStrings.CANCEL}
                 </Button>
               </div>

@@ -57,6 +57,7 @@
     "react-circle-flags": "^0.0.23",
     "react-dom": "^19.0.0",
     "react-ga4": "^2.1.0",
+    "react-image-crop": "^11.0.7",
     "react-leaflet": "^5.0.0",
     "react-markdown": "^9.0.1",
     "react-router-dom": "^7.1.1",

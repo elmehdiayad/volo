@@ -3440,3 +3440,114 @@ export const deleteTempLicense = (file: string): Promise<number> =>
       { withCredentials: true }
     )
     .then((res) => res.status)
+
+/**
+ * Create a temporary document.
+ *
+ * @param {Blob} file
+ * @param {string} type
+ * @returns {Promise<{ filename: string }>}
+ */
+export const createDocument = (file: Blob, type: string): Promise<{ filename: string }> => {
+  const formData = new FormData()
+  formData.append('file', file)
+  formData.append('type', type)
+
+  return axiosInstance
+    .post(
+      '/api/create-document',
+      formData,
+      {
+        withCredentials: true,
+        headers: { 'Content-Type': 'multipart/form-data; boundary="boundary"; charset=utf8' }
+      },
+    )
+    .then((res) => res.data)
+}
+
+/**
+ * Update document.
+ *
+ * @param {string} userId
+ * @param {Blob} file
+ * @param {string} type
+ * @returns {Promise<bookcarsTypes.Response<{ filename: string }>>}
+ */
+export const updateDocument = (userId: string, file: Blob, type: string): Promise<bookcarsTypes.Response<{ filename: string }>> => {
+  const formData = new FormData()
+  formData.append('file', file)
+  formData.append('type', type)
+
+  return axiosInstance
+    .post(
+      `/api/update-document/${userId}/${type}`,
+      formData,
+      {
+        withCredentials: true,
+        headers: { 'Content-Type': 'multipart/form-data; boundary="boundary"; charset=utf8' }
+      },
+    )
+    .then((res) => ({ status: res.status, data: res.data }))
+}
+
+/**
+ * Delete document.
+ *
+ * @param {string} userId
+ * @param {string} type
+ * @returns {Promise<number>}
+ */
+export const deleteDocument = (userId: string, type: string): Promise<number> =>
+  axiosInstance
+    .post(
+      `/api/delete-document/${userId}/${type}`,
+      null,
+      { withCredentials: true }
+    )
+    .then((res) => res.status)
+
+/**
+ * Delete temporary document.
+ *
+ * @param {string} filename
+ * @param {string} type
+ * @returns {Promise<number>}
+ */
+export const deleteTempDocument = (filename: string, type: string): Promise<number> =>
+  axiosInstance
+    .post(
+      `/api/delete-temp-document/${encodeURIComponent(filename)}/${type}`,
+      null,
+      { withCredentials: true }
+    )
+    .then((res) => res.status)
+
+/**
+ * Create a collage from multiple documents.
+ *
+ * @param {string[]} filenames
+ * @returns {Promise<{ filename: string, extractedInfo?: bookcarsTypes.LicenseExtractedData }>}
+ */
+export const createCollage = (filenames: string[]): Promise<{ filename: string, extractedInfo?: bookcarsTypes.LicenseExtractedData }> =>
+  axiosInstance
+    .post(
+      '/api/create-collage',
+      { filenames },
+      { withCredentials: true }
+    )
+    .then((res) => res.data)
+
+/**
+ * Process multiple documents and extract information.
+ *
+ * @param {string[]} filenames
+ * @returns {Promise<{ filenames: string[], extractedInfo?: bookcarsTypes.LicenseExtractedData }>}
+ */
+export const processDocuments = (filenames: string[]): Promise<{ filenames: string[], extractedInfo?: bookcarsTypes.LicenseExtractedData }> =>
+  axiosInstance
+    .post(
+      '/api/process-documents',
+      { filenames },
+      { withCredentials: true }
+    )
+    .then((res) => res.data)

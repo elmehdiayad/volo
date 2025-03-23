@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { Formik, Form, Field, FormikProps } from 'formik'
 import * as Yup from 'yup'
 import {
@@ -63,14 +63,6 @@ interface LocationState {
   to: string
 }
 
-// Define checkout steps
-const steps = [
-  { label: checkoutStrings.BOOKING_DETAILS, icon: <DirectionsCar /> },
-  { label: checkoutStrings.DRIVER_DETAILS, icon: <Person /> },
-  { label: checkoutStrings.CONTACT_SUPPLIER, icon: <WhatsApp /> }
-]
-
-// Define form values type
 interface FormValues {
   fullName: string
   email: string
@@ -86,16 +78,19 @@ interface FormValues {
   cancellation: boolean
   amendments: boolean
   fullInsurance: boolean
-  driverLicense?: string | null
+  licenseRecto: string | null
+  licenseVerso: string | null
+  idRecto: string | null
+  idVerso: string | null
 }
 
 // Initial form values
-const getInitialValues = (car?: bookcarsTypes.Car): FormValues => ({
-  fullName: '',
-  email: '',
-  phone: '',
-  birthDate: undefined,
-  nationalId: '',
+const getInitialValues = (car?: bookcarsTypes.Car, user?: bookcarsTypes.User): FormValues => ({
+  fullName: user?.fullName || '',
+  email: user?.email || '',
+  phone: user?.phone || '',
+  birthDate: user?.birthDate ? new Date(user.birthDate) : undefined,
+  nationalId: user?.nationalId || '',
   tosAccepted: false,
   additionalDriver: false,
   additionalDriverName: '',
@@ -105,7 +100,10 @@ const getInitialValues = (car?: bookcarsTypes.Car): FormValues => ({
   cancellation: car?.cancellation === 0,
   amendments: car?.amendments === 0,
   fullInsurance: car?.fullInsurance === 0,
-  driverLicense: undefined
+  licenseRecto: user?.documents?.licenseRecto || null,
+  licenseVerso: user?.documents?.licenseVerso || null,
+  idRecto: user?.documents?.idRecto || null,
+  idVerso: user?.documents?.idVerso || null
 })
 
 const validateBirthDate = (date?: Date, minimumAge?: number) => {
@@ -123,6 +121,7 @@ const Checkout = () => {
   const location = useLocation()
   const containerRef = useRef<HTMLDivElement>(null)
   const [isNavigating, setIsNavigating] = useState(false)
+  const [tempDocuments, setTempDocuments] = useState<{ [key: string]: string | null }>({})
 
   // State variables
   const [loading, setLoading] = useState(false)
@@ -132,6 +131,7 @@ const Checkout = () => {
   const [emailRegistered, setEmailRegistered] = useState(false)
   const [emailInfo, setEmailInfo] = useState(true)
   const [user, setUser] = useState<bookcarsTypes.User>()
+  const [bookingId, setBookingId] = useState<string>()
 
   // Booking data state
   const [car, setCar] = useState<bookcarsTypes.Car>()
@@ -141,6 +141,13 @@ const Checkout = () => {
   const [to, setTo] = useState<Date>()
   const [totalPrice, setTotalPrice] = useState(0)
 
+  // Define checkout steps
+  const steps = useMemo(() => [
+    { label: checkoutStrings.BOOKING_DETAILS, icon: <DirectionsCar />, show: true },
+    { label: checkoutStrings.DRIVER_DETAILS, icon: <Person />, show: true },
+    { label: checkoutStrings.DRIVER_LICENSE, icon: <DirectionsCar />, show: user && car?.supplier.licenseRequired },
+    { label: checkoutStrings.CONTACT_SUPPLIER, icon: <WhatsApp />, show: true }
+  ], [user, car])
   // Add useEffect to handle scrolling when step changes
   useEffect(() => {
     if (containerRef.current && isMobile) {
@@ -224,7 +231,6 @@ const Checkout = () => {
 
         setActiveStep(0)
       } catch (err) {
-        console.error('Error loading booking data:', err)
         setError(helper.getErrorMessage(err))
       } finally {
         setLoading(false)
@@ -312,7 +318,22 @@ const Checkout = () => {
     cancellation: Yup.boolean(),
     amendments: Yup.boolean(),
     fullInsurance: Yup.boolean(),
-    driverLicense: Yup.string().nullable()
+    licenseRecto: Yup.string().nullable().when('$licenseRequired', {
+      is: true,
+      then: (schema) => schema.required(commonStrings.REQUIRED_FIELD)
+    }),
+    licenseVerso: Yup.string().nullable().when('$licenseRequired', {
+      is: true,
+      then: (schema) => schema.required(commonStrings.REQUIRED_FIELD)
+    }),
+    idRecto: Yup.string().nullable().when('$licenseRequired', {
+      is: true,
+      then: (schema) => schema.required(commonStrings.REQUIRED_FIELD)
+    }),
+    idVerso: Yup.string().nullable().when('$licenseRequired', {
+      is: true,
+      then: (schema) => schema.required(commonStrings.REQUIRED_FIELD)
+    })
   })
 
   // Form submission handler
@@ -333,7 +354,13 @@ const Checkout = () => {
         birthDate: values.birthDate,
         nationalId: values.nationalId,
         language: UserService.getLanguage(),
-        type: bookcarsTypes.UserType.User
+        type: bookcarsTypes.UserType.User,
+        documents: {
+          licenseRecto: values.licenseRecto,
+          licenseVerso: values.licenseVerso,
+          idRecto: values.idRecto,
+          idVerso: values.idVerso
+        }
       } as bookcarsTypes.User
 
       // Create booking object
@@ -366,7 +393,7 @@ const Checkout = () => {
         licenseDeliveryDate: new Date()
       } : undefined
 
-      const { status, bookingId } = await BookingService.checkout({
+      const { status, bookingId: bookingId2 } = await BookingService.checkout({
         driver,
         booking,
         additionalDriver: additionalDriverData,
@@ -374,23 +401,8 @@ const Checkout = () => {
       })
 
       if (status === 200) {
-        // Open WhatsApp with the booking message
-        if (car?.supplier?.phone) {
-          const phone = car.supplier.phone.replace(/\D/g, '')
-          const message = generateWhatsAppMessage(
-            car.supplier.language || 'en',
-            car,
-            pickupLocation,
-            dropOffLocation,
-            from,
-            to,
-            totalPrice,
-            values,
-            bookingId
-          )
-          window.open(`https://wa.me/${phone}?text=${message}`, '_blank')
-        }
-        setActiveStep(3) // Move to success step
+        setBookingId(bookingId2)
+        setActiveStep(4) // Move to success step
       } else {
         setError(commonStrings.GENERIC_ERROR)
       }
@@ -400,6 +412,35 @@ const Checkout = () => {
       setLoading(false)
     }
   }
+
+  const clearTempDocuments = useCallback(async () => {
+    try {
+      const tempDocs = Object.entries(tempDocuments).filter(([, value]) => value !== null)
+      if (tempDocs.length > 0) {
+        await Promise.all(
+          tempDocs.map(([key, filename]) => UserService.deleteTempDocument(filename!, key))
+        )
+        setTempDocuments({})
+      }
+    } catch (err) {
+      console.error('Error clearing temporary documents:', err)
+    }
+  }, [tempDocuments])
+
+  // Handle beforeunload event separately
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (Object.values(tempDocuments).some((value) => value !== null)) {
+        e.preventDefault()
+        clearTempDocuments().catch(console.error)
+      }
+    }
+
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+    }
+  }, [clearTempDocuments, tempDocuments])
 
   // Render form sections
   const renderDriverForm = ({ values, errors, touched, setFieldValue, handleChange, handleBlur }: FormikProps<FormValues>) => (
@@ -497,16 +538,6 @@ const Checkout = () => {
           required
         />
       </Grid>
-
-      {car?.supplier.licenseRequired && (
-        <Grid item xs={12}>
-          <DriverLicense
-            user={user}
-            onUpload={(filename) => setFieldValue('driverLicense', filename)}
-            onDelete={() => setFieldValue('driverLicense', null)}
-          />
-        </Grid>
-      )}
 
       <Grid item xs={12}>
         <FormControl error={Boolean(touched.tosAccepted && errors.tosAccepted)} fullWidth>
@@ -695,7 +726,6 @@ const Checkout = () => {
                                   const total = days * (car.dailyPrice || 0)
                                   setTotalPrice(total)
                                 }
-                                // TODO: Check car availability for new dates
                               }
                             }}
                             required
@@ -719,7 +749,6 @@ const Checkout = () => {
                                   const total = days * (car.dailyPrice || 0)
                                   setTotalPrice(total)
                                 }
-                                // TODO: Check car availability for new dates
                               }
                             }}
                             required
@@ -815,77 +844,6 @@ const Checkout = () => {
                     {renderDriverForm(formikProps)}
                   </CardContent>
                 </Card>
-
-                {formikProps.values.additionalDriver && (
-                  <Card sx={{ mt: 3 }}>
-                    <CardContent>
-                      <Typography variant="h6" gutterBottom>
-                        {carStrings.ADDITIONAL_DRIVER}
-                      </Typography>
-                      <Grid container spacing={3}>
-                        <Grid item xs={12}>
-                          <Field
-                            name="additionalDriverName"
-                            as={TextField}
-                            fullWidth
-                            label={commonStrings.FULL_NAME}
-                            error={Boolean(formikProps.touched.additionalDriverName && formikProps.errors.additionalDriverName)}
-                            helperText={formikProps.touched.additionalDriverName && formikProps.errors.additionalDriverName}
-                            onChange={formikProps.handleChange}
-                            onBlur={formikProps.handleBlur}
-                            required
-                          />
-                        </Grid>
-
-                        <Grid item xs={12} sm={6}>
-                          <Field
-                            name="additionalDriverEmail"
-                            as={TextField}
-                            fullWidth
-                            label={commonStrings.EMAIL}
-                            error={Boolean(formikProps.touched.additionalDriverEmail && formikProps.errors.additionalDriverEmail)}
-                            helperText={formikProps.touched.additionalDriverEmail && formikProps.errors.additionalDriverEmail}
-                            onChange={formikProps.handleChange}
-                            onBlur={formikProps.handleBlur}
-                            required
-                          />
-                        </Grid>
-
-                        <Grid item xs={12} sm={6}>
-                          <Field
-                            name="additionalDriverPhone"
-                            as={TextField}
-                            fullWidth
-                            label={commonStrings.PHONE}
-                            error={Boolean(formikProps.touched.additionalDriverPhone && formikProps.errors.additionalDriverPhone)}
-                            helperText={formikProps.touched.additionalDriverPhone && formikProps.errors.additionalDriverPhone}
-                            onChange={formikProps.handleChange}
-                            onBlur={formikProps.handleBlur}
-                            required
-                          />
-                        </Grid>
-
-                        <Grid item xs={12}>
-                          <FormControl fullWidth error={Boolean(formikProps.touched.additionalDriverBirthDate && formikProps.errors.additionalDriverBirthDate)}>
-                            <DatePicker
-                              label={commonStrings.BIRTH_DATE}
-                              value={formikProps.values.additionalDriverBirthDate}
-                              onChange={(date: Date | null) => {
-                                formikProps.setFieldValue('additionalDriverBirthDate', date)
-                              }}
-                              required
-                              variant="outlined"
-                              language={UserService.getLanguage()}
-                            />
-                            {formikProps.touched.additionalDriverBirthDate && formikProps.errors.additionalDriverBirthDate && (
-                              <FormHelperText error>{formikProps.errors.additionalDriverBirthDate}</FormHelperText>
-                            )}
-                          </FormControl>
-                        </Grid>
-                      </Grid>
-                    </CardContent>
-                  </Card>
-                )}
               </Grid>
 
               <Grid item xs={12} md={4}>
@@ -913,7 +871,63 @@ const Checkout = () => {
           </Box>
         )
 
-      case 2: // Contact Supplier
+      case 2: // Driver License (only for connected users and when license is required)
+        return user && car?.supplier.licenseRequired ? (
+          <Box sx={{ p: { xs: 1, md: 3 } }}>
+            <Grid container spacing={3}>
+              <Grid item xs={12}>
+                <Card>
+                  <CardContent>
+                    <Typography variant="h6" gutterBottom>
+                      {checkoutStrings.DRIVER_LICENSE}
+                    </Typography>
+                    <Typography color="text.secondary" paragraph>
+                      {checkoutStrings.LICENSE_REQUIRED}
+                    </Typography>
+                    <DriverLicense
+                      user={user}
+                      onDocumentsChange={(documents) => {
+                        Object.entries(documents).forEach(([key, value]) => {
+                          formikProps.setFieldValue(key, value)
+                          setTempDocuments((prev) => ({ ...prev, [key]: value }))
+                        })
+                      }}
+                      onDelete={() => {
+                        formikProps.setFieldValue('licenseRecto', null)
+                        formikProps.setFieldValue('licenseVerso', null)
+                        formikProps.setFieldValue('idRecto', null)
+                        formikProps.setFieldValue('idVerso', null)
+                        setTempDocuments({})
+                      }}
+                      setLoading={setLoading}
+                      loading={loading}
+                    />
+                  </CardContent>
+                </Card>
+              </Grid>
+            </Grid>
+
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
+              <Button
+                startIcon={<ArrowBack />}
+                onClick={() => handleNavigation('back')}
+                disabled={isNavigating}
+              >
+                {commonStrings.BACK}
+              </Button>
+              <Button
+                variant="contained"
+                onClick={() => handleNavigation('next', formikProps)}
+                endIcon={<ArrowForward />}
+                disabled={isNavigating}
+              >
+                {commonStrings.NEXT}
+              </Button>
+            </Box>
+          </Box>
+        ) : null
+
+      case 3: // Contact Supplier
         return (
           <Box sx={{ p: { xs: 1, md: 3 } }}>
             <Grid container spacing={3}>
@@ -974,7 +988,7 @@ const Checkout = () => {
           </Box>
         )
 
-      case 3: // Success
+      case 4: // Success
         return (
           <Box sx={{ p: { xs: 1, md: 3 } }}>
             <Grid container spacing={3}>
@@ -988,15 +1002,39 @@ const Checkout = () => {
                     <Typography color="text.secondary" paragraph>
                       {checkoutStrings.PAY_LATER_SUCCESS}
                     </Typography>
-                    <Button
-                      variant="contained"
-                      onClick={() => {
-                        window.location.href = '/'
-                      }}
-                      sx={{ mt: 2 }}
-                    >
-                      {commonStrings.GO_TO_HOME}
-                    </Button>
+                    <Box sx={{ mt: 3 }}>
+                      <Button
+                        variant="contained"
+                        color="success"
+                        startIcon={<WhatsApp />}
+                        onClick={() => {
+                          if (car?.supplier?.phone && from && to && bookingId) {
+                            const phone = car.supplier.phone.replace(/\D/g, '')
+                            const message = generateWhatsAppMessage(
+                              car.supplier.language || 'fr',
+                              car,
+                              pickupLocation,
+                              dropOffLocation,
+                              from,
+                              to,
+                              totalPrice,
+                              formikProps.values,
+                              bookingId
+                            )
+                            window.open(`https://wa.me/${phone}?text=${message}`, '_blank')
+                          }
+                        }}
+                        sx={{
+                          mt: 2,
+                          backgroundColor: '#25D366',
+                          '&:hover': {
+                            backgroundColor: '#128C7E'
+                          }
+                        }}
+                      >
+                        {checkoutStrings.CONTACT_SUPPLIER}
+                      </Button>
+                    </Box>
                   </CardContent>
                 </Card>
               </Grid>
@@ -1030,49 +1068,54 @@ const Checkout = () => {
               orientation={isMobile ? 'vertical' : 'horizontal'}
             >
               {steps.map((step) => (
-                <Step key={step.label}>
-                  <StepLabel
-                    sx={{
-                      '& .MuiStepIcon-root': {
-                        width: 40,
-                        height: 40,
-                        borderRadius: '50%',
-                        color: 'success.light',
-                        opacity: 0.5,
-                        '&.Mui-active': {
-                          color: 'success.main',
-                          opacity: 0.7,
+                step.show && (
+                  <Step key={step.label}>
+                    <StepLabel
+                      sx={{
+                        '& .MuiStepIcon-root': {
+                          width: 40,
+                          height: 40,
+                          borderRadius: '50%',
+                          color: 'success.light',
+                          opacity: 0.5,
+                          '&.Mui-active': {
+                            color: 'success.main',
+                            opacity: 0.7,
+                            '& .MuiStepIcon-text': {
+                              fill: 'white',
+                              fontWeight: 'bold'
+                            }
+                          },
+                          '&.Mui-completed': {
+                            color: 'success.main',
+                            opacity: 1,
+                            '& .MuiStepIcon-text': {
+                              fill: 'white',
+                              fontWeight: 'bold'
+                            }
+                          },
                           '& .MuiStepIcon-text': {
                             fill: 'white',
                             fontWeight: 'bold'
                           }
-                        },
-                        '&.Mui-completed': {
-                          color: 'success.main',
-                          opacity: 1,
-                          '& .MuiStepIcon-text': {
-                            fill: 'white',
-                            fontWeight: 'bold'
-                          }
-                        },
-                        '& .MuiStepIcon-text': {
-                          fill: 'white',
-                          fontWeight: 'bold'
                         }
-                      }
-                    }}
-                  >
-                    {step.label}
-                  </StepLabel>
-                </Step>
+                      }}
+                    >
+                      {step.label}
+                    </StepLabel>
+                  </Step>
+                )
               ))}
             </Stepper>
 
             <Formik
-              initialValues={getInitialValues(car)}
+              key={user?._id}
+              initialValues={getInitialValues(car, user)}
               validationSchema={validationSchema}
               onSubmit={handleSubmit}
               validateOnMount
+              enableReinitialize
+              validationContext={{ licenseRequired: car?.supplier.licenseRequired }}
             >
               {(formikProps) => (
                 <Form>

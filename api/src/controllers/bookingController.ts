@@ -204,13 +204,12 @@ export const checkout = async (req: Request, res: Response) => {
     }
 
     if (driver) {
-      const { license } = driver
-      if (supplier.licenseRequired && !license) {
+      const { documents } = driver
+
+      if (supplier.licenseRequired && !documents) {
         throw new Error("Driver's license required")
       }
-      if (supplier.licenseRequired && !(await helper.exists(path.join(env.CDN_TEMP_LICENSES, license!)))) {
-        throw new Error("Driver's license file not found")
-      }
+
       driver.verified = false
       driver.blacklisted = false
       driver.type = bookcarsTypes.UserType.User
@@ -219,14 +218,46 @@ export const checkout = async (req: Request, res: Response) => {
       user = new User(driver)
       await user.save()
 
-      // create license
-      if (license) {
-        const tempLicense = path.join(env.CDN_TEMP_LICENSES, license)
-        const filename = `${user.id}${path.extname(tempLicense)}`
-        const filepath = path.join(env.CDN_LICENSES, filename)
-        await fs.rename(tempLicense, filepath)
-        user.license = filename
+      // Handle documents
+      if (driver.documents) {
+        const newDocuments = { ...user.documents } as {
+          licenseRecto?: string,
+          licenseVerso?: string,
+          idRecto?: string,
+          idVerso?: string
+        }
+        for (const [key, value] of Object.entries(driver.documents)) {
+          if (value && (key === 'licenseRecto' || key === 'licenseVerso' || key === 'idRecto' || key === 'idVerso')) {
+            // If it's a temp file, move it to permanent storage
+            const tempFile = path.join(env.CDN_TEMP_LICENSES, value)
+            if (await helper.exists(tempFile)) {
+              // Delete old file if exists
+              if (user.documents?.[key]) {
+                const oldFile = path.join(env.CDN_LICENSES, user.documents[key])
+                if (await helper.exists(oldFile)) {
+                  await fs.unlink(oldFile)
+                }
+              }
+              const filename = `${user._id}_${key}${path.extname(value)}`
+              const newPath = path.join(env.CDN_LICENSES, filename)
+              await fs.rename(tempFile, newPath)
+              newDocuments[key] = filename
+            }
+          }
+        }
+        user.documents = newDocuments
         await user.save()
+      }
+
+      if (driver.signature) {
+        const tempFile = path.join(env.CDN_TEMP_LICENSES, driver.signature)
+        if (await helper.exists(tempFile)) {
+          const filename = `${user._id}_signature${path.extname(driver.signature)}`
+          const newPath = path.join(env.CDN_LICENSES, filename)
+          await fs.rename(tempFile, newPath)
+          user.signature = filename
+          await user.save()
+        }
       }
 
       const token = new Token({ user: user._id, token: helper.generateToken() })
@@ -254,12 +285,6 @@ export const checkout = async (req: Request, res: Response) => {
 
     if (!user) {
       throw new Error(`User ${body.booking.driver} not found`)
-    }
-    if (supplier.licenseRequired && !user!.license) {
-      throw new Error("Driver's license required")
-    }
-    if (supplier.licenseRequired && !(await helper.exists(path.join(env.CDN_LICENSES, user!.license!)))) {
-      throw new Error("Driver's license file not found")
     }
 
     if (!body.payLater) {

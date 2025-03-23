@@ -108,6 +108,12 @@ export interface CheckoutPayload {
   sessionId?: string
   paymentIntentId?: string
   customerId?: string
+  documents?: {
+    licenseRecto?: string
+    licenseVerso?: string
+    idRecto?: string
+    idVerso?: string
+  }
 }
 
 export interface Filter {

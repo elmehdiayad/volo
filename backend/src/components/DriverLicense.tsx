@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
-import { IconButton, Input, OutlinedInput, Box, Dialog, Button } from '@mui/material'
-import { Upload as UploadIcon, Delete as DeleteIcon, Visibility as ViewIcon } from '@mui/icons-material'
+import { IconButton, Input, Box, Dialog, Button, Typography, CircularProgress } from '@mui/material'
+import { Delete as DeleteIcon, Visibility as ViewIcon, FileUpload as FileUploadIcon } from '@mui/icons-material'
 import { Capacitor } from '@capacitor/core'
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera'
-import ReactCrop, { Crop } from 'react-image-crop'
+import ReactCrop, { Crop, PixelCrop } from 'react-image-crop'
 import 'react-image-crop/dist/ReactCrop.css'
 import * as bookcarsTypes from ':bookcars-types'
 import * as bookcarsHelper from ':bookcars-helper'
@@ -13,12 +13,8 @@ import * as helper from '@/common/helper'
 import env from '@/config/env.config'
 import DocumentViewer from '@/components/DocumentViewer'
 
-import '@/assets/css/driver-license.css'
-
 interface DriverLicenseProps {
   user?: bookcarsTypes.User
-  variant?: 'standard' | 'outlined'
-  className?: string
   onDelete?: () => void
   onDocumentsChange?: (documents: { [key: string]: string }) => void
   setLoading: (loading: boolean) => void
@@ -27,8 +23,6 @@ interface DriverLicenseProps {
 
 const DriverLicense = ({
   user,
-  variant = 'standard',
-  className,
   onDelete,
   onDocumentsChange,
   setLoading,
@@ -45,34 +39,40 @@ const DriverLicense = ({
   const [currentType, setCurrentType] = useState<string>('')
   const [crop, setCrop] = useState<Crop>({
     unit: '%',
-    width: 90,
-    height: 90,
-    x: 5,
-    y: 5
+    width: 100,
+    height: 100,
+    x: 0,
+    y: 0
   })
+  const [completedCrop, setCompletedCrop] = useState<PixelCrop | null>(null)
   const [imageRef, setImageRef] = useState<HTMLImageElement | null>(null)
   const [viewerOpen, setViewerOpen] = useState(false)
   const [activeDocumentIndex, setActiveDocumentIndex] = useState(0)
 
-  const getCroppedImg = (image: HTMLImageElement): Promise<Blob> => {
+  const getCroppedImg = async (image: HTMLImageElement, cropArea: PixelCrop | null): Promise<Blob> => {
+    if (!cropArea) {
+      // If no crop, return the original image as a blob
+      const response = await fetch(image.src)
+      return response.blob()
+    }
+
     const canvas = document.createElement('canvas')
     const scaleX = image.naturalWidth / image.width
     const scaleY = image.naturalHeight / image.height
 
-    canvas.width = crop.width! * scaleX
-    canvas.height = crop.height! * scaleY
+    canvas.width = cropArea.width * scaleX
+    canvas.height = cropArea.height * scaleY
 
     const ctx = canvas.getContext('2d')!
     ctx.imageSmoothingEnabled = true
     ctx.imageSmoothingQuality = 'high'
 
-    // Draw the cropped image
     ctx.drawImage(
       image,
-      crop.x! * scaleX,
-      crop.y! * scaleY,
-      crop.width! * scaleX,
-      crop.height! * scaleY,
+      cropArea.x * scaleX,
+      cropArea.y * scaleY,
+      cropArea.width * scaleX,
+      cropArea.height * scaleY,
       0,
       0,
       canvas.width,
@@ -90,7 +90,11 @@ const DriverLicense = ({
     })
   }
 
-  const handleClick = async (type: string) => {
+  const handleClick = async (type: string, e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation()
+    }
+
     if (Capacitor.isNativePlatform()) {
       try {
         // Request camera permissions
@@ -161,7 +165,7 @@ const DriverLicense = ({
 
     try {
       setLoading(true)
-      const croppedBlob = await getCroppedImg(imageRef)
+      const croppedBlob = await getCroppedImg(imageRef, completedCrop)
       const file = new File([croppedBlob], 'cropped.jpg', { type: 'image/jpeg' })
 
       let uploadResult = null
@@ -178,6 +182,7 @@ const DriverLicense = ({
         }
         uploadResult = await UserService.createDocument(file, currentType)
       }
+
       if (uploadResult) {
         const updatedImages = {
           ...images,
@@ -185,7 +190,6 @@ const DriverLicense = ({
         }
         setImages(updatedImages)
         if (onDocumentsChange) {
-          // Convert to non-null object for parent component
           const newDocuments = Object.entries(updatedImages).reduce((acc, [key, value]) => {
             if (value) {
               acc[key] = value
@@ -194,41 +198,32 @@ const DriverLicense = ({
           }, {} as { [key: string]: string })
           onDocumentsChange(newDocuments)
         }
-        setCropDialogOpen(false)
-        setCurrentImage(null)
-        setCurrentType('')
-
-        // Reset crop and rotation states
-        setCrop({
-          unit: '%',
-          width: 90,
-          height: 90,
-          x: 5,
-          y: 5
-        })
-
-        // Check if all images are uploaded and process documents
-        // if (!user && Object.values(updatedImages).every((img) => img !== null)) {
-        //   const result = await UserService.processDocuments(Object.values(updatedImages) as string[])
-        //   if (onUpload) {
-        //     onUpload(result.extractedInfo)
-        //   }
-        // }
       }
+      setCropDialogOpen(false)
+      setCurrentImage(null)
+      setCurrentType('')
+      setCompletedCrop(null)
+      setCrop({
+        unit: '%',
+        width: 100,
+        height: 100,
+        x: 0,
+        y: 0
+      })
       setLoading(false)
     } catch (err) {
       helper.error(err)
       setCropDialogOpen(false)
       setCurrentImage(null)
       setCurrentType('')
+      setCompletedCrop(null)
       setLoading(false)
-      // Reset crop and rotation states here too
       setCrop({
         unit: '%',
-        width: 90,
-        height: 90,
-        x: 5,
-        y: 5
+        width: 100,
+        height: 100,
+        x: 0,
+        y: 0
       })
     }
   }
@@ -240,21 +235,16 @@ const DriverLicense = ({
     { key: 'idVerso', label: commonStrings.ID_VERSO }
   ]
 
-  const getDocuments = () => {
-    const docs = []
-    for (const doc of documentTypes) {
-      if (images[doc.key]) {
-        docs.push({
-          url: `${bookcarsHelper.trimEnd(user ? env.CDN_LICENSES : env.CDN_TEMP_LICENSES, '/')}/${images[doc.key]}`,
-          title: doc.label
-        })
-      }
-    }
-    return docs
-  }
+  const getDocuments = () => documentTypes
+    .filter((doc) => images[doc.key])
+    .map((doc) => ({
+      url: `${bookcarsHelper.trimEnd(user ? env.CDN_LICENSES : env.CDN_TEMP_LICENSES, '/')}/${images[doc.key]}`,
+      title: doc.label
+    }))
 
   const handleViewDocument = (docKey: string) => {
-    const index = documentTypes.findIndex((dt) => dt.key === docKey)
+    const docs = getDocuments()
+    const index = docs.findIndex((doc) => doc.title === documentTypes.find((dt) => dt.key === docKey)?.label)
     if (index !== -1) {
       setActiveDocumentIndex(index)
       setViewerOpen(true)
@@ -263,45 +253,61 @@ const DriverLicense = ({
 
   return (
     <>
-      <div className={`driver-documents ${className || ''}`}>
-        <Box display="grid" gridTemplateColumns="repeat(2, 1fr)" gap={2} position="relative">
-          {documentTypes.map((doc) => (
-            <div key={doc.key}>
-              <div className="document-upload">
-                {variant === 'standard' ? (
-                  <Input
-                    value={images[doc.key] || doc.label}
-                    readOnly
-                    onClick={() => handleClick(doc.key)}
-                    className="filename"
-                  />
-                ) : (
-                  <OutlinedInput
-                    value={images[doc.key] || doc.label}
-                    readOnly
-                    onClick={() => handleClick(doc.key)}
-                    className="filename"
-                  />
-                )}
-                <div className="actions">
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, width: '100%', maxWidth: 600, mx: 'auto' }}>
+        {documentTypes.map((doc) => (
+          <Box
+            key={doc.key}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1,
+              width: '100%',
+            }}
+          >
+            <Input
+              value={images[doc.key] || ''}
+              placeholder={doc.label}
+              readOnly
+              onClick={() => handleClick(doc.key)}
+              fullWidth
+              sx={{
+                '& .MuiInput-input': {
+                  py: 0.75,
+                  px: 0,
+                  fontSize: '0.95rem',
+                },
+                '&:before': {
+                  borderBottom: '1px solid rgba(0, 0, 0, 0.12)'
+                },
+                '&:hover:not(.Mui-disabled):before': {
+                  borderBottom: '2px solid rgba(0, 0, 0, 0.27)'
+                }
+              }}
+              endAdornment={(
+                <Box sx={{ display: 'flex', gap: 0.5, mr: -1 }}>
                   <IconButton
                     size="small"
-                    onClick={() => handleClick(doc.key)}
+                    onClick={(e) => handleClick(doc.key, e)}
+                    sx={{ color: 'action.active' }}
                   >
-                    <UploadIcon className="icon" />
+                    <FileUploadIcon fontSize="small" />
                   </IconButton>
-
                   {images[doc.key] && (
-                    <div className="action-buttons">
+                    <>
                       <IconButton
                         size="small"
-                        onClick={() => handleViewDocument(doc.key)}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleViewDocument(doc.key)
+                        }}
+                        sx={{ color: 'action.active' }}
                       >
-                        <ViewIcon className="icon" />
+                        <ViewIcon fontSize="small" />
                       </IconButton>
                       <IconButton
                         size="small"
-                        onClick={async () => {
+                        onClick={async (e) => {
+                          e.stopPropagation()
                           try {
                             let status = 0
                             if (user) {
@@ -326,65 +332,166 @@ const DriverLicense = ({
                             helper.error(err)
                           }
                         }}
+                        sx={{ color: 'action.active' }}
                       >
-                        <DeleteIcon className="icon" />
+                        <DeleteIcon fontSize="small" />
                       </IconButton>
-                    </div>
+                    </>
                   )}
-                </div>
-                <input
-                  id={`upload-${doc.key}`}
-                  type="file"
-                  hidden
-                  onChange={(e) => handleChange(e, doc.key)}
-                  accept="image/*"
-                />
-              </div>
-            </div>
-          ))}
-        </Box>
-      </div>
+                </Box>
+              )}
+            />
+            <input
+              id={`upload-${doc.key}`}
+              type="file"
+              hidden
+              onChange={(e) => handleChange(e, doc.key)}
+              accept="image/*"
+            />
+          </Box>
+        ))}
+      </Box>
 
       <Dialog
         open={cropDialogOpen}
         onClose={() => setCropDialogOpen(false)}
         maxWidth="md"
         fullWidth
+        PaperProps={{
+          sx: {
+            height: 'auto',
+            maxHeight: '90vh',
+            display: 'flex',
+            flexDirection: 'column'
+          }
+        }}
       >
-        <div style={{ padding: '20px' }}>
+        <Box
+          sx={{
+            p: 3,
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
+            overflow: 'hidden'
+          }}
+        >
           {currentImage && (
             <>
-              <ReactCrop
-                crop={crop}
-                onChange={(c) => setCrop(c)}
-                aspect={43 / 27}
+              <Typography variant="h6" gutterBottom>
+                Crop Document
+              </Typography>
+              <Box
+                sx={{
+                  flex: 1,
+                  minHeight: 0,
+                  position: 'relative',
+                  overflow: 'auto',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  width: '100%'
+                }}
               >
-                <img
-                  src={currentImage}
-                  onLoad={(e) => setImageRef(e.currentTarget)}
-                  style={{
-                    maxWidth: '100%'
-                  }}
-                  alt=""
-                />
-              </ReactCrop>
+                <ReactCrop
+                  crop={crop}
+                  onChange={(c) => setCrop(c)}
+                  onComplete={(c) => setCompletedCrop(c)}
+                  aspect={43 / 27}
+                >
+                  <img
+                    src={currentImage}
+                    onLoad={(e) => {
+                      setImageRef(e.currentTarget)
+                      const img = e.currentTarget
+                      const maxWidth = 800
+                      const maxHeight = 500
+                      const minHeight = 300
+
+                      // Calculate the natural aspect ratio
+                      const naturalRatio = img.naturalWidth / img.naturalHeight
+                      const targetRatio = 43 / 27
+
+                      let width = img.naturalWidth
+                      let height = img.naturalHeight
+
+                      // If the image is wider than the target ratio
+                      if (naturalRatio > targetRatio) {
+                        if (width > maxWidth) {
+                          width = maxWidth
+                          height = width / naturalRatio
+                        }
+                        if (height > maxHeight) {
+                          height = maxHeight
+                          width = height * naturalRatio
+                        }
+                      } else {
+                        // If the image is taller than the target ratio
+                        if (height > maxHeight) {
+                          height = maxHeight
+                          width = height * naturalRatio
+                        }
+                        if (width > maxWidth) {
+                          width = maxWidth
+                          height = width / naturalRatio
+                        }
+                      }
+
+                      // Ensure minimum height for small images
+                      if (height < minHeight) {
+                        height = minHeight
+                        width = height * naturalRatio
+                      }
+
+                      e.currentTarget.style.width = `${width}px`
+                      e.currentTarget.style.height = `${height}px`
+
+                      // Adjust dialog height based on image size
+                      const dialogContent = e.currentTarget.closest('.MuiDialogContent-root') as HTMLElement
+                      if (dialogContent) {
+                        const totalHeight = height + 200 // Account for padding, title, and buttons
+                        dialogContent.style.height = `${Math.min(totalHeight, window.innerHeight * 0.9)}px`
+                      }
+                    }}
+                    style={{
+                      maxWidth: '100%',
+                      borderRadius: '4px',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                      objectFit: 'contain'
+                    }}
+                    alt=""
+                  />
+                </ReactCrop>
+              </Box>
+              <Box
+                sx={{
+                  mt: 3,
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  gap: 2,
+                  borderTop: '1px solid',
+                  borderColor: 'divider',
+                  pt: 2
+                }}
+              >
+                <Button
+                  onClick={() => setCropDialogOpen(false)}
+                  variant="outlined"
+                >
+                  {commonStrings.CANCEL}
+                </Button>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleCropComplete}
+                  disabled={loading}
+                  startIcon={loading ? <CircularProgress size={20} /> : null}
+                >
+                  {commonStrings.SAVE}
+                </Button>
+              </Box>
             </>
           )}
-          <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-            <Button onClick={() => setCropDialogOpen(false)}>
-              {commonStrings.CANCEL}
-            </Button>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleCropComplete}
-              loading={loading}
-              loadingPosition="start"
-            >
-              {commonStrings.SAVE}
-            </Button>
-          </Box>
-        </div>
+        </Box>
       </Dialog>
 
       <DocumentViewer
