@@ -20,7 +20,6 @@ import * as helper from '../common/helper'
 import * as mailHelper from '../common/mailHelper'
 import * as env from '../config/env.config'
 import * as logger from '../common/logger'
-import stripeAPI from '../stripe'
 
 /**
  * Create a Booking.
@@ -190,7 +189,7 @@ export const confirm = async (user: env.User, supplier: env.User, booking: env.B
  */
 export const checkout = async (req: Request, res: Response) => {
   try {
-    let user: env.User | null
+    let user: env.User | null = null
     const { body }: { body: bookcarsTypes.CheckoutPayload } = req
     const { driver } = body
 
@@ -210,75 +209,115 @@ export const checkout = async (req: Request, res: Response) => {
         throw new Error("Driver's license required")
       }
 
-      driver.verified = false
-      driver.blacklisted = false
-      driver.type = bookcarsTypes.UserType.User
-      driver.license = null
+      // Check if user with same email already exists
+      const existingUser = await User.findOne({ email: driver.email })
+      if (existingUser) {
+        // Update existing user with new information
+        existingUser.fullName = driver.fullName
+        existingUser.phone = driver.phone
+        existingUser.birthDate = driver.birthDate
+        existingUser.nationalId = driver.nationalId
+        existingUser.language = driver.language || 'fr'
 
-      user = new User(driver)
-      await user.save()
-
-      // Handle documents
-      if (driver.documents) {
-        const newDocuments = { ...user.documents } as {
-          licenseRecto?: string,
-          licenseVerso?: string,
-          idRecto?: string,
-          idVerso?: string
-        }
-        for (const [key, value] of Object.entries(driver.documents)) {
-          if (value && (key === 'licenseRecto' || key === 'licenseVerso' || key === 'idRecto' || key === 'idVerso')) {
-            // If it's a temp file, move it to permanent storage
-            const tempFile = path.join(env.CDN_TEMP_LICENSES, value)
-            if (await helper.exists(tempFile)) {
-              // Delete old file if exists
-              if (user.documents?.[key]) {
-                const oldFile = path.join(env.CDN_LICENSES, user.documents[key])
-                if (await helper.exists(oldFile)) {
-                  await fs.unlink(oldFile)
+        // Handle documents if provided
+        if (driver.documents) {
+          const newDocuments = { ...existingUser.documents } as {
+            licenseRecto?: string,
+            licenseVerso?: string,
+            idRecto?: string,
+            idVerso?: string
+          }
+          for (const [key, value] of Object.entries(driver.documents)) {
+            if (value && (key === 'licenseRecto' || key === 'licenseVerso' || key === 'idRecto' || key === 'idVerso')) {
+              // If it's a temp file, move it to permanent storage
+              const tempFile = path.join(env.CDN_TEMP_LICENSES, value)
+              if (await helper.exists(tempFile)) {
+                // Delete old file if exists
+                if (existingUser.documents?.[key]) {
+                  const oldFile = path.join(env.CDN_LICENSES, existingUser.documents[key])
+                  if (await helper.exists(oldFile)) {
+                    await fs.unlink(oldFile)
+                  }
                 }
+                const filename = `${existingUser._id}_${key}${path.extname(value)}`
+                const newPath = path.join(env.CDN_LICENSES, filename)
+                await fs.rename(tempFile, newPath)
+                newDocuments[key] = filename
               }
-              const filename = `${user._id}_${key}${path.extname(value)}`
-              const newPath = path.join(env.CDN_LICENSES, filename)
-              await fs.rename(tempFile, newPath)
-              newDocuments[key] = filename
             }
           }
+          existingUser.documents = newDocuments
         }
-        user.documents = newDocuments
-        await user.save()
-      }
 
-      if (driver.signature) {
-        const tempFile = path.join(env.CDN_TEMP_LICENSES, driver.signature)
-        if (await helper.exists(tempFile)) {
-          const filename = `${user._id}_signature${path.extname(driver.signature)}`
-          const newPath = path.join(env.CDN_LICENSES, filename)
-          await fs.rename(tempFile, newPath)
-          user.signature = filename
+        if (driver.signature) {
+          const tempFile = path.join(env.CDN_TEMP_LICENSES, driver.signature)
+          if (await helper.exists(tempFile)) {
+            const filename = `${existingUser._id}_signature${path.extname(driver.signature)}`
+            const newPath = path.join(env.CDN_LICENSES, filename)
+            await fs.rename(tempFile, newPath)
+            existingUser.signature = filename
+          }
+        }
+
+        await existingUser.save()
+        user = existingUser as env.User
+      } else {
+        // Create new user if they don't exist
+        driver.verified = false
+        driver.blacklisted = false
+        driver.type = bookcarsTypes.UserType.User
+        driver.license = null
+
+        user = new User(driver)
+        await user.save()
+
+        // Handle documents
+        if (driver.documents) {
+          for (const [key, value] of Object.entries(driver.documents)) {
+            if (value && (key === 'licenseRecto' || key === 'licenseVerso' || key === 'idRecto' || key === 'idVerso')) {
+              // If it's a temp file, move it to permanent storage
+              const tempFile = path.join(env.CDN_TEMP_LICENSES, value)
+              if (await helper.exists(tempFile)) {
+                const filename = `${user._id}_${key}${path.extname(value)}`
+                const newPath = path.join(env.CDN_LICENSES, filename)
+                await fs.rename(tempFile, newPath)
+                driver.documents[key] = filename
+              }
+            }
+          }
+          user.documents = driver.documents
           await user.save()
         }
+
+        if (driver.signature) {
+          const tempFile = path.join(env.CDN_TEMP_LICENSES, driver.signature)
+          if (await helper.exists(tempFile)) {
+            const filename = `${user._id}_signature${path.extname(driver.signature)}`
+            const newPath = path.join(env.CDN_LICENSES, filename)
+            await fs.rename(tempFile, newPath)
+            user.signature = filename
+            await user.save()
+          }
+        }
+
+        const token = new Token({ user: user._id, token: helper.generateToken() })
+        await token.save()
+
+        i18n.locale = user.language
+
+        const mailOptions: nodemailer.SendMailOptions = {
+          from: env.SMTP_FROM,
+          to: user.email,
+          subject: i18n.t('ACCOUNT_ACTIVATION_SUBJECT'),
+          html: `<p>
+          ${i18n.t('HELLO')}${user.fullName},<br><br>
+          ${i18n.t('ACCOUNT_ACTIVATION_LINK')}<br><br>
+          ${helper.joinURL(env.FRONTEND_HOST, 'activate')}/?u=${encodeURIComponent(user.id)}&e=${encodeURIComponent(user.email)}&t=${encodeURIComponent(token.token)}<br><br>
+          ${i18n.t('REGARDS')}<br>
+          </p>`,
+        }
+        await mailHelper.sendMail(mailOptions)
       }
-
-      const token = new Token({ user: user._id, token: helper.generateToken() })
-      await token.save()
-
-      i18n.locale = user.language
-
-      const mailOptions: nodemailer.SendMailOptions = {
-        from: env.SMTP_FROM,
-        to: user.email,
-        subject: i18n.t('ACCOUNT_ACTIVATION_SUBJECT'),
-        html: `<p>
-        ${i18n.t('HELLO')}${user.fullName},<br><br>
-        ${i18n.t('ACCOUNT_ACTIVATION_LINK')}<br><br>
-        ${helper.joinURL(env.FRONTEND_HOST, 'activate')}/?u=${encodeURIComponent(user.id)}&e=${encodeURIComponent(user.email)}&t=${encodeURIComponent(token.token)}<br><br>
-        ${i18n.t('REGARDS')}<br>
-        </p>`,
-      }
-      await mailHelper.sendMail(mailOptions)
-
-      body.booking.driver = user.id
     } else {
       user = await User.findById(body.booking.driver)
     }
@@ -287,56 +326,7 @@ export const checkout = async (req: Request, res: Response) => {
       throw new Error(`User ${body.booking.driver} not found`)
     }
 
-    if (!body.payLater) {
-      const { paymentIntentId, sessionId } = body
-
-      if (!paymentIntentId && !sessionId) {
-        throw new Error('paymentIntentId and sessionId not found')
-      }
-
-      body.booking.customerId = body.customerId
-
-      if (paymentIntentId) {
-        const paymentIntent = await stripeAPI.paymentIntents.retrieve(paymentIntentId)
-        if (paymentIntent.status !== 'succeeded') {
-          const message = `Payment failed: ${paymentIntent.status}`
-          logger.error(message, body)
-          return res.status(400).send(message)
-        }
-
-        body.booking.paymentIntentId = paymentIntentId
-        body.booking.status = bookcarsTypes.BookingStatus.Paid
-      } else {
-        //
-        // Bookings created from checkout with Stripe are temporary
-        // and are automatically deleted if the payment checkout session expires.
-        //
-        let expireAt = new Date()
-        expireAt.setSeconds(expireAt.getSeconds() + env.BOOKING_EXPIRE_AT)
-
-        body.booking.sessionId = body.sessionId
-        body.booking.status = bookcarsTypes.BookingStatus.Void
-        body.booking.expireAt = expireAt
-
-        //
-        // Non verified and active users created from checkout with Stripe are temporary
-        // and are automatically deleted if the payment checkout session expires.
-        //
-        if (!user.verified) {
-          expireAt = new Date()
-          expireAt.setSeconds(expireAt.getSeconds() + env.USER_EXPIRE_AT)
-
-          user.expireAt = expireAt
-          await user.save()
-        }
-      }
-    }
-
-    const { customerId } = body
-    if (customerId) {
-      user.customerId = customerId
-      await user?.save()
-    }
+    body.booking.driver = user as bookcarsTypes.User
 
     const { language } = user
     i18n.locale = language
@@ -349,36 +339,24 @@ export const checkout = async (req: Request, res: Response) => {
     }
 
     const booking = new Booking(body.booking)
-
     await booking.save()
 
-    if (booking.status === bookcarsTypes.BookingStatus.Paid && body.paymentIntentId && body.customerId) {
-      const car = await Car.findById(booking.car)
-      if (!car) {
-        throw new Error(`Car ${booking.car} not found`)
-      }
-      car.trips += 1
-      await car.save()
+    // Send confirmation email to customer
+    if (!await confirm(user, supplier, booking, true)) {
+      return res.sendStatus(400)
     }
 
-    if (body.payLater || (booking.status === bookcarsTypes.BookingStatus.Paid && body.paymentIntentId && body.customerId)) {
-      // Send confirmation email to customer
-      if (!await confirm(user, supplier, booking, body.payLater)) {
-        return res.sendStatus(400)
-      }
+    // Notify supplier
+    i18n.locale = supplier.language
+    let message = i18n.t('BOOKING_PAY_LATER_NOTIFICATION')
+    await notify(user, booking.id, supplier, message)
 
-      // Notify supplier
-      i18n.locale = supplier.language
-      let message = body.payLater ? i18n.t('BOOKING_PAY_LATER_NOTIFICATION') : i18n.t('BOOKING_PAID_NOTIFICATION')
-      await notify(user, booking.id, supplier, message)
-
-      // Notify admin
-      const admin = !!env.ADMIN_EMAIL && await User.findOne({ email: env.ADMIN_EMAIL, type: bookcarsTypes.UserType.Admin })
-      if (admin) {
-        i18n.locale = admin.language
-        message = body.payLater ? i18n.t('BOOKING_PAY_LATER_NOTIFICATION') : i18n.t('BOOKING_PAID_NOTIFICATION')
-        await notify(user, booking.id, admin, message)
-      }
+    // Notify admin
+    const admin = !!env.ADMIN_EMAIL && await User.findOne({ email: env.ADMIN_EMAIL, type: bookcarsTypes.UserType.Admin })
+    if (admin) {
+      i18n.locale = admin.language
+      message = i18n.t('BOOKING_PAY_LATER_NOTIFICATION')
+      await notify(user, booking.id, admin, message)
     }
 
     return res.status(200).send({ bookingId: booking.id })
