@@ -528,12 +528,14 @@ export const signin = async (req: Request, res: Response) => {
       const loggedUser: bookcarsTypes.User = {
         _id: user.id,
         email: user.email,
-        nationalId: user.nationalId,
         fullName: user.fullName,
         language: user.language,
         enableEmailNotifications: user.enableEmailNotifications,
         blacklisted: user.blacklisted,
         avatar: user.avatar,
+        nationalId: user.nationalId,
+        birthDate: user.birthDate,
+        phone: user.phone,
       }
 
       //
