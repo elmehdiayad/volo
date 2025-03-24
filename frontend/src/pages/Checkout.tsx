@@ -163,14 +163,33 @@ const Checkout = () => {
       if (direction === 'next' && formikProps) {
         const errors = await formikProps.validateForm()
         if (Object.keys(errors).length === 0) {
-          setActiveStep((prev) => prev + 1)
+          // Find next visible step
+          let nextStep = activeStep + 1
+          while (nextStep < steps.length && !steps[nextStep].show) {
+            nextStep += 1
+          }
+          // If we're at the last visible step, go to success
+          if (nextStep >= steps.length) {
+            setActiveStep(4) // Success step
+          } else {
+            setActiveStep(nextStep)
+          }
         } else {
           formikProps.setTouched(
             Object.keys(errors).reduce((acc, key) => ({ ...acc, [key]: true }), {})
           )
         }
       } else {
-        setActiveStep((prev) => (direction === 'next' ? prev + 1 : prev - 1))
+        // Find next visible step in either direction
+        const step = direction === 'back' ? activeStep - 1 : activeStep + 1
+        const findVisibleStep = (start: number, end: number, increment: number) => {
+          let nextStep = start
+          while (nextStep !== end && !steps[nextStep].show) {
+            nextStep += increment
+          }
+          return nextStep
+        }
+        setActiveStep(findVisibleStep(step, direction === 'back' ? -1 : steps.length, direction === 'back' ? -1 : 1))
       }
     } finally {
       // Add a small delay before allowing next navigation
