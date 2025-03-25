@@ -54,13 +54,29 @@ export const decryptJWT = async (input: string) => {
 export const isBackend = (req: Request): boolean => !!req.headers.origin && helper.trimEnd(req.headers.origin, '/') === helper.trimEnd(env.BACKEND_HOST, '/')
 
 /**
+ * Normalize domain by removing www. prefix and trailing slashes
+ *
+ * @param {string} domain
+ * @returns {string}
+ */
+const normalizeDomain = (domain: string): string => {
+  const trimmed = helper.trimEnd(domain, '/')
+  return trimmed.replace(/^www\./, '')
+}
+
+/**
  * Check whether the request is from the frontend or not.
  *
  * @export
  * @param {Request} req
  * @returns {boolean}
  */
-export const isFrontend = (req: Request): boolean => !!req.headers.origin && helper.trimEnd(req.headers.origin, '/') === helper.trimEnd(env.FRONTEND_HOST, '/')
+export const isFrontend = (req: Request): boolean => {
+  if (!req.headers.origin) return false
+  const requestOrigin = normalizeDomain(req.headers.origin)
+  const frontendHost = normalizeDomain(env.FRONTEND_HOST)
+  return requestOrigin === frontendHost
+}
 
 /**
  * Get authentification cookie name.
