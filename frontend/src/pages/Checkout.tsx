@@ -1040,13 +1040,9 @@ const Checkout = () => {
                               formikProps.values,
                               bookingId
                             )
-                            const whatsappUrl = `https://wa.me/${phone}?text=${message}`
+                            const whatsappUrl = `https://api.whatsapp.com/send?phone=${phone}&text=${message}`
                             // Open WhatsApp in a new tab
-                            const link = document.createElement('a')
-                            link.href = whatsappUrl
-                            link.target = '_blank'
-                            link.rel = 'noopener noreferrer'
-                            link.click()
+                            window.open(whatsappUrl, '_blank', 'noopener,noreferrer')
                           }
                         }}
                         sx={{
