@@ -275,6 +275,7 @@ export interface GetUsersBody {
 
 export interface GetSuppliersBody {
   user: string
+  location?: string
 }
 
 export interface CreatePaymentPayload {

@@ -5,76 +5,68 @@ import Layout from '@/components/Layout'
 import SupplierList from '@/components/SupplierList'
 import Footer from '@/components/Footer'
 import * as SupplierService from '@/services/SupplierService'
-import * as LocationService from '@/services/LocationService'
 import LocationFilter from '@/components/LocationFilter'
 import { strings as commonStrings } from '@/lang/common'
+import env from '@/config/env.config'
 
 import '@/assets/css/suppliers.css'
 
 const Suppliers = () => {
   const [suppliers, setSuppliers] = useState<bookcarsTypes.User[]>([])
-  const [allSuppliers, setAllSuppliers] = useState<bookcarsTypes.User[]>([])
   const [location, setLocation] = useState<bookcarsTypes.Location>()
   const [loading, setLoading] = useState(true)
+  const [page, setPage] = useState(1)
+  const [totalRecords, setTotalRecords] = useState(0)
+  const [initialLoad, setInitialLoad] = useState(true)
 
   useEffect(() => {
-    const fetchSuppliers = async () => {
+    const fetchSuppliers = async (pageNum: number, locationId?: string) => {
       try {
-        const _suppliers = await SupplierService.getAllSuppliers()
-        setSuppliers(_suppliers)
-        setAllSuppliers(_suppliers)
+        if (pageNum === 1) {
+          setLoading(true)
+        }
+        const payload: bookcarsTypes.GetSuppliersBody = {
+          user: '',
+          location: locationId
+        }
+        const data = await SupplierService.getSuppliers(payload, '', pageNum, env.CARS_PAGE_SIZE)
+        const _data = data && data.length > 0 ? data[0] : { pageInfo: { totalRecord: 0 }, resultData: [] }
+        if (!_data) {
+          console.error('Error fetching suppliers: No data received')
+          return
+        }
+        const records = Array.isArray(_data.pageInfo) && _data.pageInfo.length > 0 ? _data.pageInfo[0].totalRecords : 0
+        setTotalRecords(records)
+
+        // If it's the first page, replace the list. Otherwise, append to the existing list
+        if (pageNum === 1) {
+          setSuppliers(_data.resultData)
+        } else {
+          setSuppliers((prevSuppliers) => {
+            const existingIds = new Set(prevSuppliers.map((s) => s._id))
+            const newSuppliers = _data.resultData.filter((s) => !existingIds.has(s._id))
+            return [...prevSuppliers, ...newSuppliers]
+          })
+        }
       } catch (error) {
         console.error('Error fetching suppliers:', error)
       } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchSuppliers()
-  }, [])
-
-  useEffect(() => {
-    const filterSuppliers = async () => {
-      setLoading(true)
-      try {
-        let filtered = [...allSuppliers]
-
-        // Filter by location
-        if (location) {
-          const locationSuppliers = await Promise.all(
-            filtered.map(async (supplier) => {
-              if (!supplier._id) return null
-              try {
-                const supplierLocations = await LocationService.getSupplierLocations(supplier._id, '', 1, 100)
-                // Check if supplierLocations.resultData exists and is not empty
-                if (!supplierLocations?.resultData?.length) return null
-
-                const hasLocation = supplierLocations.resultData.some(
-                  (loc: bookcarsTypes.Location) => loc._id === location._id
-                )
-                return hasLocation ? supplier : null
-              } catch (error) {
-                console.error(`Error fetching locations for supplier ${supplier._id}:`, error)
-                return null
-              }
-            })
-          )
-          filtered = locationSuppliers.filter((supplier): supplier is bookcarsTypes.User => supplier !== null)
+        if (pageNum === 1) {
+          setLoading(false)
+          setInitialLoad(false)
         }
-
-        setSuppliers(filtered)
-      } catch (error) {
-        console.error('Error filtering suppliers:', error)
-      } finally {
-        setLoading(false)
       }
     }
-
-    filterSuppliers()
-  }, [location, allSuppliers])
+    fetchSuppliers(page, location?._id)
+  }, [page, location])
 
   const handleLocationChange = (newLocation: bookcarsTypes.Location | null) => {
     setLocation(newLocation || undefined)
+    setPage(1)
+  }
+
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage)
   }
 
   return (
@@ -88,12 +80,17 @@ const Suppliers = () => {
           />
         </Grid>
         <Grid item xs={12} sm={6} md={9} lg={9}>
-          {loading ? (
+          {initialLoad && loading ? (
             <div className="loading-container">
               <CircularProgress />
             </div>
           ) : (
-            <SupplierList suppliers={suppliers} />
+            <SupplierList
+              suppliers={suppliers}
+              page={page}
+              totalRecords={totalRecords}
+              onPageChange={handlePageChange}
+            />
           )}
         </Grid>
       </Grid>

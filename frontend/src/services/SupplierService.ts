@@ -17,15 +17,17 @@ export const getAllSuppliers = (): Promise<bookcarsTypes.User[]> =>
 /**
  * Get suppliers.
  *
+ * @param {bookcarsTypes.GetSuppliersBody} payload
  * @param {string} keyword
  * @param {number} page
  * @param {number} size
  * @returns {Promise<bookcarsTypes.Result<bookcarsTypes.User>>}
  */
-export const getSuppliers = (keyword: string, page: number, size: number): Promise<bookcarsTypes.Result<bookcarsTypes.User>> =>
+export const getSuppliers = (payload: bookcarsTypes.GetSuppliersBody, keyword: string, page: number, size: number): Promise<bookcarsTypes.Result<bookcarsTypes.User>> =>
   axiosInstance
-    .get(
+    .post(
       `/api/suppliers/${page}/${size}/?s=${encodeURIComponent(keyword)}`,
+      payload,
       { withCredentials: true }
     )
     .then((res) => res.data)

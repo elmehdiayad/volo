@@ -230,12 +230,23 @@ export const getSuppliers = async (req: Request, res: Response) => {
     const keyword = escapeStringRegexp(String(req.query.s || ''))
     const options = 'i'
     const { body }: { body: bookcarsTypes.GetSuppliersBody } = req
-    const { user: userId } = body
+    const { user: userId, location: locationId } = body
+
     const matchQuery: any = {
       type: bookcarsTypes.UserType.Supplier,
       avatar: { $ne: null },
       fullName: { $regex: keyword, $options: options },
     }
+
+    // Only apply location filter if locationId is provided
+    if (locationId) {
+      const carsInLocation = await Car.find({
+        locations: locationId,
+        available: true,
+      }).distinct('supplier')
+      matchQuery._id = { $in: carsInLocation }
+    }
+
     if (userId) {
       const currentUser = await User.findById(userId)
       if (currentUser?.type === bookcarsTypes.UserType.Supplier) {

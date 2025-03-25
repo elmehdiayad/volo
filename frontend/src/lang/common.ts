@@ -5,6 +5,7 @@ import * as StripeService from '@/services/StripeService'
 
 const strings = new LocalizedStrings({
   fr: {
+    LOAD_MORE: 'Charger plus',
     TERMS: 'Conditions d\'utilisation',
     BOOKCARS: env.WEBSITE_NAME,
     GENERIC_ERROR: "Une erreur non gérée s'est produite.",
@@ -102,6 +103,7 @@ const strings = new LocalizedStrings({
     ID_VERSO: 'Pièce d\'identité verso',
   },
   en: {
+    LOAD_MORE: 'Load more',
     BOOKCARS: env.WEBSITE_NAME,
     GENERIC_ERROR: 'An unhandled error occurred.',
     CHANGE_LANGUAGE_ERROR: 'An error occurred while changing language.',
@@ -198,6 +200,7 @@ const strings = new LocalizedStrings({
     ID_VERSO: 'ID back',
   },
   es: {
+    LOAD_MORE: 'Cargar más',
     BOOKCARS: env.WEBSITE_NAME,
     GENERIC_ERROR: 'Se ha producido un error no gestionado.',
     CHANGE_LANGUAGE_ERROR: 'Se ha producido un error al cambiar el idioma.',
