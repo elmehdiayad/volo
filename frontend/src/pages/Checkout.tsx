@@ -155,6 +155,21 @@ const Checkout = () => {
     }
   }, [activeStep, isMobile])
 
+  const whatsAppUrl = useCallback((formikProps: FormikProps<FormValues>) => {
+    if (!car || !pickupLocation || !dropOffLocation || !from || !to || !bookingId) return ''
+    const message = generateWhatsAppMessage(
+      car?.supplier.language || 'fr',
+      car,
+      pickupLocation,
+      dropOffLocation,
+      from,
+      to,
+      totalPrice,
+      formikProps.values,
+      bookingId
+    )
+    return `https://wa.me/${car?.supplier?.phone}?text=${message}`
+  }, [car, pickupLocation, dropOffLocation, from, to, totalPrice, bookingId])
   // Add debounced navigation function
   const handleNavigation = async (direction: 'next' | 'back', formikProps?: FormikProps<FormValues>) => {
     if (isNavigating) return
@@ -1026,29 +1041,7 @@ const Checkout = () => {
                         variant="contained"
                         color="success"
                         startIcon={<WhatsApp />}
-                        onClick={() => {
-                          if (car?.supplier?.phone && from && to && bookingId) {
-                            const phone = car.supplier.phone.replace(/\D/g, '')
-                            const message = generateWhatsAppMessage(
-                              car.supplier.language || 'fr',
-                              car,
-                              pickupLocation,
-                              dropOffLocation,
-                              from,
-                              to,
-                              totalPrice,
-                              formikProps.values,
-                              bookingId
-                            )
-                            const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`
-                            // Try to open in WhatsApp app first
-                            window.location.href = whatsappUrl
-                            // Fallback to browser if app doesn't open
-                            setTimeout(() => {
-                              window.open(whatsappUrl, '_blank', 'noopener,noreferrer')
-                            }, 500)
-                          }
-                        }}
+                        href={whatsAppUrl(formikProps)}
                         sx={{
                           mt: 2,
                           backgroundColor: '#25D366',
