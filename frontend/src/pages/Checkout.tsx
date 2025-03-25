@@ -1042,6 +1042,8 @@ const Checkout = () => {
                         color="success"
                         startIcon={<WhatsApp />}
                         href={whatsAppUrl(formikProps)}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         sx={{
                           mt: 2,
                           backgroundColor: '#25D366',
