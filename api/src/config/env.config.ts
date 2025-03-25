@@ -143,7 +143,7 @@ export const FRONTEND_AUTH_COOKIE_NAME = 'bc-x-access-token-frontend'
 /**
  * Backend authentication cookie name.
  *
- * @type {"bc-x-access-token-frontend"}
+ * @type {"bc-x-access-token-backend"}
  */
 export const BACKEND_AUTH_COOKIE_NAME = 'bc-x-access-token-backend'
 
