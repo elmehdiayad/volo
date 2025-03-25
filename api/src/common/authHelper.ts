@@ -61,7 +61,7 @@ export const isBackend = (req: Request): boolean => !!req.headers.origin && help
  */
 const normalizeDomain = (domain: string): string => {
   const trimmed = helper.trimEnd(domain, '/')
-  return trimmed.replace(/^www\./, '')
+  return trimmed.replace(/www\./, '')
 }
 
 /**
