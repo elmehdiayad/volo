@@ -28,7 +28,6 @@ export const getSuppliers = (payload: bookcarsTypes.GetSuppliersBody, keyword: s
     .post(
       `/api/suppliers/${page}/${size}/?s=${encodeURIComponent(keyword)}`,
       payload,
-      { withCredentials: true }
     )
     .then((res) => res.data)
 
