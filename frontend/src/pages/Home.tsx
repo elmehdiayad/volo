@@ -1,11 +1,9 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Button,
-  // Checkbox,
   Dialog,
   DialogContent,
-  // FormControlLabel,
   Tab,
   Tabs
 } from '@mui/material'
@@ -24,13 +22,10 @@ import L from 'leaflet'
 import * as bookcarsTypes from ':bookcars-types'
 import * as bookcarsHelper from ':bookcars-helper'
 import env from '@/config/env.config'
-import { strings as commonStrings } from '@/lang/common'
 import { strings } from '@/lang/home'
-import * as UserService from '@/services/UserService'
 import * as SupplierService from '@/services/SupplierService'
 import * as CountryService from '@/services/CountryService'
 import * as LocationService from '@/services/LocationService'
-import * as StripeService from '@/services/StripeService'
 import Layout from '@/components/Layout'
 import SupplierCarrousel from '@/components/SupplierCarrousel'
 import TabPanel, { a11yProps } from '@/components/TabPanel'
@@ -59,31 +54,6 @@ const Home = () => {
   const [locations, setLocations] = useState<bookcarsTypes.Location[]>([])
   const [ranges, setRanges] = useState([bookcarsTypes.CarRange.Mini, bookcarsTypes.CarRange.Midi])
   const [openRangeSearchFormDialog, setOpenRangeSearchFormDialog] = useState(false)
-  const [miniPricePhr, setMiniPricePhr] = useState(2.5)
-  const [miniPricePday, setMiniPricePday] = useState(40)
-  const [midiPricePhr, setMidiPricePhr] = useState(3.5)
-  const [midiPricePday, setMidiPricePday] = useState(50)
-  const [maxiPricePhr, setMaxiPricePhr] = useState(3.5)
-  const [maxiPricePday, setMaxiPricePday] = useState(50)
-
-  useEffect(() => {
-    const init = async () => {
-      const _miniPricePhr = await StripeService.convertPrice(miniPricePhr)
-      setMiniPricePhr(_miniPricePhr)
-      const _miniPricePday = await StripeService.convertPrice(miniPricePday)
-      setMiniPricePday(_miniPricePday)
-      const _midiPricePhr = await StripeService.convertPrice(midiPricePhr)
-      setMidiPricePhr(_midiPricePhr)
-      const _midiPricePday = await StripeService.convertPrice(midiPricePday)
-      setMidiPricePday(_midiPricePday)
-      const _maxiPricePhr = await StripeService.convertPrice(maxiPricePhr)
-      setMaxiPricePhr(_maxiPricePhr)
-      const _maxiPricePday = await StripeService.convertPrice(maxiPricePday)
-      setMaxiPricePday(_maxiPricePday)
-    }
-
-    init()
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue)
@@ -99,8 +69,6 @@ const Home = () => {
     const _locations = await LocationService.getLocationsWithPosition()
     setLocations(_locations)
   }
-
-  const language = UserService.getLanguage()
 
   return (
     <Layout onLoad={onLoad} strict={false}>
@@ -121,7 +89,7 @@ const Home = () => {
 
         <div className="why">
 
-          {/* <h1>{strings.WHY_TITLE}</h1> */}
+          <h1>{strings.WHY_TITLE}</h1>
 
           <div className="why-boxes">
 
@@ -294,36 +262,6 @@ const Home = () => {
               <div className="box-img">
                 <img alt="Mini" src={Mini} />
               </div>
-              <div className="box-content">
-                {/* <FormControlLabel
-                  control={(
-                    <Checkbox
-                      defaultChecked
-                      onChange={(e) => {
-                        const _ranges = bookcarsHelper.cloneArray(ranges) || []
-                        if (e.target.checked) {
-                          _ranges.push(bookcarsTypes.CarRange.Mini)
-                        } else {
-                          _ranges.splice(_ranges.findIndex((r) => r === bookcarsTypes.CarRange.Mini), 1)
-                        }
-                        setRanges(_ranges)
-                      }}
-                    />
-                  )}
-                  label={strings.MINI}
-                /> */}
-                <span>{strings.MINI}</span>
-                <ul>
-                  <li>
-                    <span className="price">{bookcarsHelper.formatPrice(miniPricePhr, commonStrings.CURRENCY, language)}</span>
-                    <span className="unit"> · phr</span>
-                  </li>
-                  <li>
-                    <span className="price">{bookcarsHelper.formatPrice(miniPricePday, commonStrings.CURRENCY, language)}</span>
-                    <span className="unit"> · pday</span>
-                  </li>
-                </ul>
-              </div>
               <div className="car-size-action">
                 <Button
                   variant="contained"
@@ -335,43 +273,13 @@ const Home = () => {
                     setOpenRangeSearchFormDialog(true)
                   }}
                 >
-                  {strings.SEARCH_FOR_CAR}
+                  {strings.MINI}
                 </Button>
               </div>
             </div>
             <div className="box">
               <div className="box-img">
                 <img alt="Midi" src={Midi} />
-              </div>
-              <div className="box-content">
-                {/* <FormControlLabel
-                  control={(
-                    <Checkbox
-                      defaultChecked
-                      onChange={(e) => {
-                        const _ranges = bookcarsHelper.cloneArray(ranges) || []
-                        if (e.target.checked) {
-                          _ranges.push(bookcarsTypes.CarRange.Midi)
-                        } else {
-                          _ranges.splice(_ranges.findIndex((r) => r === bookcarsTypes.CarRange.Midi), 1)
-                        }
-                        setRanges(_ranges)
-                      }}
-                    />
-                  )}
-                  label={strings.MIDI}
-                /> */}
-                <span>{strings.MIDI}</span>
-                <ul>
-                  <li>
-                    <span className="price">{bookcarsHelper.formatPrice(midiPricePhr, commonStrings.CURRENCY, language)}</span>
-                    <span className="unit"> · phr</span>
-                  </li>
-                  <li>
-                    <span className="price">{bookcarsHelper.formatPrice(midiPricePday, commonStrings.CURRENCY, language)}</span>
-                    <span className="unit"> · pday</span>
-                  </li>
-                </ul>
               </div>
               <div className="car-size-action">
                 <Button
@@ -384,42 +292,13 @@ const Home = () => {
                     setOpenRangeSearchFormDialog(true)
                   }}
                 >
-                  {strings.SEARCH_FOR_CAR}
+                  {strings.MIDI}
                 </Button>
               </div>
             </div>
             <div className="box">
               <div className="box-img">
                 <img alt="Maxi" src={Maxi} />
-              </div>
-              <div className="box-content">
-                {/* <FormControlLabel
-                  control={(
-                    <Checkbox
-                      onChange={(e) => {
-                        const _ranges = bookcarsHelper.cloneArray(ranges) || []
-                        if (e.target.checked) {
-                          _ranges.push(bookcarsTypes.CarRange.Maxi)
-                        } else {
-                          _ranges.splice(_ranges.findIndex((r) => r === bookcarsTypes.CarRange.Maxi), 1)
-                        }
-                        setRanges(_ranges)
-                      }}
-                    />
-                  )}
-                  label={strings.MAXI}
-                /> */}
-                <span>{strings.MAXI}</span>
-                <ul>
-                  <li>
-                    <span className="price">{bookcarsHelper.formatPrice(maxiPricePhr, commonStrings.CURRENCY, language)}</span>
-                    <span className="unit"> · phr</span>
-                  </li>
-                  <li>
-                    <span className="price">{bookcarsHelper.formatPrice(maxiPricePday, commonStrings.CURRENCY, language)}</span>
-                    <span className="unit"> · pday</span>
-                  </li>
-                </ul>
               </div>
               <div className="car-size-action">
                 <Button
@@ -432,21 +311,11 @@ const Home = () => {
                     setOpenRangeSearchFormDialog(true)
                   }}
                 >
-                  {strings.SEARCH_FOR_CAR}
+                  {strings.MAXI}
                 </Button>
               </div>
             </div>
           </div>
-          {/* <Button
-            variant="contained"
-            className="btn-primary btn-home"
-            disabled={ranges.length === 0}
-            onClick={() => {
-              setOpenRangeSearchFormDialog(true)
-            }}
-          >
-            {strings.SEARCH_FOR_CAR}
-          </Button> */}
         </div>
         <div className="faq">
           <FaqList />
@@ -467,11 +336,6 @@ const Home = () => {
               }
               setOpenLocationSearchFormDialog(true)
             }}
-          // onSelelectDropOffLocation={async (locationId) => {
-          //   setDropOffLocation(locationId)
-          //   setSameLocation(pickupLocation === locationId)
-          //   helper.info(strings.MAP_DROP_OFF_SELECTED)
-          // }}
           />
         </div>
 
@@ -516,7 +380,6 @@ const Home = () => {
       </div>
 
       <Dialog
-        // fullWidth={env.isMobile}
         maxWidth={false}
         open={openLocationSearchFormDialog}
         onClose={() => {
@@ -527,15 +390,11 @@ const Home = () => {
           <SearchForm
             ranges={bookcarsHelper.getAllRanges()}
             pickupLocation={pickupLocation}
-          // onCancel={() => {
-          //   setOpenLocationSearchFormDialog(false)
-          // }}
           />
         </DialogContent>
       </Dialog>
 
       <Dialog
-        // fullWidth={env.isMobile}
         maxWidth={false}
         open={openRangeSearchFormDialog}
         onClose={() => {
@@ -545,9 +404,6 @@ const Home = () => {
         <DialogContent className="search-dialog-content">
           <SearchForm
             ranges={ranges}
-          // onCancel={() => {
-          //   setOpenRangeSearchFormDialog(false)
-          // }}
           />
         </DialogContent>
       </Dialog>
