@@ -1699,7 +1699,7 @@ describe('POST /api/send-email', () => {
   it('should send an email', async () => {
     // test success (contact form)
     const payload: bookcarsTypes.SendEmailPayload = {
-      from: 'no-reply@bookcars.ma',
+      from: 'no-reply@volo.ma',
       to: 'test@test.com',
       subject: 'test',
       message: 'test message',
