@@ -75,7 +75,7 @@ export const CERTIFICATE = __env__('BC_CERTIFICATE', HTTPS)
  *
  * @type {string}
  */
-export const DB_URI = __env__('BC_DB_URI', false, 'mongodb://127.0.0.1:27017/bookcars?authSource=admin&appName=bookcars')
+export const DB_URI = __env__('BC_DB_URI', false, 'mongodb://127.0.0.1:27017/volo?authSource=admin&appName=volo')
 
 /**
  * Indicate whether MongoDB SSL is enabled or not.
