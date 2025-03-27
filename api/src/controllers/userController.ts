@@ -241,8 +241,8 @@ export const create = async (req: Request, res: Response) => {
     // }
 
     // generate token and save
-    // const token = new Token({ user: user._id, token: helper.generateToken() })
-    // await token.save()
+    const token = new Token({ user: user._id, token: helper.generateToken() })
+    await token.save()
 
     // Send email
     // i18n.locale = user.language

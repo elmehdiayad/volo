@@ -25,14 +25,6 @@ const AVATAR1_PATH = path.join(__dirname, `./img/${AVATAR1}`)
 const AVATAR2 = 'avatar2.png'
 const AVATAR2_PATH = path.join(__dirname, `./img/${AVATAR2}`)
 
-const CONTRACT1 = 'contract1.pdf'
-const CONTRACT1_PATH = path.join(__dirname, `./contracts/${CONTRACT1}`)
-
-const LICENSE1 = 'contract1.pdf'
-const LICENSE1_PATH = path.join(__dirname, `./contracts/${LICENSE1}`)
-const LICENSE2 = 'contract2.pdf'
-const LICENSE2_PATH = path.join(__dirname, `./contracts/${LICENSE2}`)
-
 let USER1_ID: string
 let USER2_ID: string
 let ADMIN_ID: string
@@ -174,21 +166,6 @@ describe('POST /api/create-user', () => {
     if (!await helper.exists(tempAvatar)) {
       await fs.copyFile(AVATAR1_PATH, tempAvatar)
     }
-    const tempLicense = path.join(env.CDN_TEMP_LICENSES, LICENSE1)
-    if (!await helper.exists(tempLicense)) {
-      await fs.copyFile(LICENSE1_PATH, tempLicense)
-    }
-
-    const contractFileName = `${nanoid()}.pdf`
-    const contractFile = path.join(env.CDN_TEMP_CONTRACTS, contractFileName)
-    if (!await helper.exists(contractFile)) {
-      await fs.copyFile(CONTRACT1_PATH, contractFile)
-    }
-    const contracts = [
-      { language: 'en', file: contractFileName },
-      { language: 'fr', file: null },
-      { language: 'es', file: `${nanoid()}.pdf` },
-    ]
 
     // test success (user)
     let payload: bookcarsTypes.CreateUserPayload = {
@@ -200,8 +177,6 @@ describe('POST /api/create-user', () => {
       location: 'location',
       bio: 'bio',
       avatar: AVATAR1,
-      license: LICENSE1,
-      contracts,
       nationalId: 'JKL012',
     }
     let res = await request(app)
@@ -220,9 +195,6 @@ describe('POST /api/create-user', () => {
     expect(user?.phone).toBe(payload.phone)
     expect(user?.location).toBe(payload.location)
     expect(user?.bio).toBe(payload.bio)
-    const contractFileResult = user?.contracts?.find((c) => c.language === 'en')?.file
-    expect(contractFileResult).toBeTruthy()
-    expect(await helper.exists(path.join(env.CDN_CONTRACTS, contractFileResult!))).toBeTruthy()
     let userToken = await Token.findOne({ user: USER2_ID })
     expect(userToken).not.toBeNull()
     expect(userToken?.token.length).toBeGreaterThan(0)
@@ -1333,12 +1305,12 @@ describe('POST /api/delete-temp-avatar/:avatar', () => {
     res = await request(app)
       .post('/api/delete-temp-avatar/unknown.jpg')
       .set(env.X_ACCESS_TOKEN, token)
-    expect(res.statusCode).toBe(200)
+    expect(res.statusCode).toBe(400)
 
     // test failure (temp file not valid)
     res = await request(app)
       .post('/api/delete-temp-avatar/unknown')
-    expect(res.statusCode).toBe(400)
+    expect(res.statusCode).toBe(403)
   })
 })
 
@@ -1522,208 +1494,6 @@ describe('GET /api/has-password/:id', () => {
   })
 })
 
-describe('POST /api/create-license', () => {
-  it('should create a license', async () => {
-    // test success
-    let res = await request(app)
-      .post('/api/create-license')
-      .attach('file', LICENSE1_PATH)
-    expect(res.statusCode).toBe(200)
-    const filename = res.body as string
-    const filePath = path.join(env.CDN_TEMP_LICENSES, filename)
-    const licenseExists = await helper.exists(filePath)
-    expect(licenseExists).toBeTruthy()
-    await fs.unlink(filePath)
-
-    // test failure (file not sent)
-    res = await request(app)
-      .post('/api/create-license')
-    expect(res.statusCode).toBe(400)
-
-    // test failure (filename not valid)
-    const invalidContract = path.join(env.CDN_TEMP_LICENSES, `${nanoid()}`)
-    await fs.copyFile(LICENSE1_PATH, invalidContract)
-    res = await request(app)
-      .post('/api/create-license')
-      .attach('file', invalidContract)
-    expect(res.statusCode).toBe(400)
-    await fs.unlink(invalidContract)
-  })
-})
-
-describe('POST /api/update-license/:id', () => {
-  it('should update a license', async () => {
-    const token = await testHelper.signinAsUser()
-
-    // test success (no initial license)
-    let user = await User.findById(USER1_ID)
-    let res = await request(app)
-      .post(`/api/update-license/${USER1_ID}`)
-      .set(env.X_ACCESS_TOKEN, token)
-      .attach('file', LICENSE1_PATH)
-    expect(res.statusCode).toBe(200)
-    let filename = res.body as string
-    expect(filename).toBeTruthy()
-    expect(await helper.exists(path.join(env.CDN_LICENSES, filename))).toBeTruthy()
-    user = await User.findById(USER1_ID)
-    expect(user).toBeTruthy()
-    expect(user?.license).toBe(filename)
-
-    // test success (initial license)
-    res = await request(app)
-      .post(`/api/update-license/${USER1_ID}`)
-      .set(env.X_ACCESS_TOKEN, token)
-      .attach('file', LICENSE2_PATH)
-    expect(res.statusCode).toBe(200)
-    filename = res.body as string
-    expect(filename).toBeTruthy()
-    expect(await helper.exists(path.join(env.CDN_LICENSES, filename))).toBeTruthy()
-    user = await User.findById(USER1_ID)
-    expect(filename).toBe(user?.license)
-
-    // test success (license file does not exist)
-    user!.license = `${nanoid()}.pdf`
-    await user?.save()
-    res = await request(app)
-      .post(`/api/update-license/${USER1_ID}`)
-      .set(env.X_ACCESS_TOKEN, token)
-      .attach('file', LICENSE1_PATH)
-    expect(res.statusCode).toBe(200)
-    filename = res.body as string
-    expect(filename).toBeTruthy()
-    expect(await helper.exists(path.join(env.CDN_LICENSES, filename))).toBeTruthy()
-    user = await User.findById(USER1_ID)
-    expect(filename).toBe(user?.license)
-    user!.license = filename
-    await user?.save()
-
-    // test failure (file not sent)
-    res = await request(app)
-      .post(`/api/update-license/${USER1_ID}`)
-      .set(env.X_ACCESS_TOKEN, token)
-    expect(res.statusCode).toBe(400)
-
-    // test failure (filename not valid)
-    const invalidContract = path.join(env.CDN_TEMP_LICENSES, `${nanoid()}`)
-    await fs.copyFile(LICENSE1_PATH, invalidContract)
-    res = await request(app)
-      .post(`/api/update-license/${USER1_ID}`)
-      .set(env.X_ACCESS_TOKEN, token)
-      .attach('file', invalidContract)
-    expect(res.statusCode).toBe(400)
-    await fs.unlink(invalidContract)
-
-    // test failure (user not found)
-    res = await request(app)
-      .post(`/api/update-license/${testHelper.GetRandromObjectIdAsString()}`)
-      .set(env.X_ACCESS_TOKEN, token)
-      .attach('file', LICENSE1_PATH)
-    expect(res.statusCode).toBe(204)
-
-    // test failure (user id not valid)
-    res = await request(app)
-      .post('/api/update-license/0')
-      .set(env.X_ACCESS_TOKEN, token)
-      .attach('file', LICENSE1_PATH)
-    expect(res.statusCode).toBe(400)
-
-    await testHelper.signout(token)
-  })
-})
-
-describe('POST /api/delete-license/:id', () => {
-  it('should delete a license', async () => {
-    const token = await testHelper.signinAsUser()
-
-    // test success
-    let user = await User.findById(USER1_ID)
-    expect(user).toBeTruthy()
-    expect(user?.license).toBeTruthy()
-    const filename = user?.license as string
-    let imageExists = await helper.exists(path.join(env.CDN_LICENSES, filename))
-    expect(imageExists).toBeTruthy()
-    let res = await request(app)
-      .post(`/api/delete-license/${USER1_ID}`)
-      .set(env.X_ACCESS_TOKEN, token)
-    expect(res.statusCode).toBe(200)
-    imageExists = await helper.exists(path.join(env.CDN_LICENSES, filename))
-    expect(imageExists).toBeFalsy()
-    user = await User.findById(USER1_ID)
-    expect(user?.license).toBeFalsy()
-
-    // test success (no license)
-    user = await User.findById(USER1_ID)
-    expect(user).toBeTruthy()
-    user!.license = undefined
-    await user!.save()
-    res = await request(app)
-      .post(`/api/delete-license/${USER1_ID}`)
-      .set(env.X_ACCESS_TOKEN, token)
-    expect(res.statusCode).toBe(200)
-
-    // test success (license with no file)
-    user = await User.findById(USER1_ID)
-    expect(user).toBeTruthy()
-    user!.license = null
-    await user!.save()
-    res = await request(app)
-      .post(`/api/delete-license/${USER1_ID}`)
-      .set(env.X_ACCESS_TOKEN, token)
-    expect(res.statusCode).toBe(200)
-
-    // test success (license with file not found)
-    user = await User.findById(USER1_ID)
-    expect(user).toBeTruthy()
-    user!.license = `${nanoid()}.pdf`
-    await user!.save()
-    res = await request(app)
-      .post(`/api/delete-license/${USER1_ID}`)
-      .set(env.X_ACCESS_TOKEN, token)
-    expect(res.statusCode).toBe(200)
-
-    // test failure (user not found)
-    res = await request(app)
-      .post(`/api/delete-license/${testHelper.GetRandromObjectIdAsString()}`)
-      .set(env.X_ACCESS_TOKEN, token)
-    expect(res.statusCode).toBe(204)
-
-    // test failure (user id not valid)
-    res = await request(app)
-      .post('/api/delete-license/invalid-id')
-      .set(env.X_ACCESS_TOKEN, token)
-    expect(res.statusCode).toBe(400)
-
-    await testHelper.signout(token)
-  })
-})
-
-describe('POST /api/delete-temp-license/:image', () => {
-  it('should delete a temporary license', async () => {
-    // init
-    const tempImage = path.join(env.CDN_TEMP_LICENSES, LICENSE1)
-    if (!await helper.exists(tempImage)) {
-      await fs.copyFile(LICENSE1_PATH, tempImage)
-    }
-
-    // test success (temp file exists)
-    let res = await request(app)
-      .post(`/api/delete-temp-license/${LICENSE1}`)
-    expect(res.statusCode).toBe(200)
-    const tempImageExists = await helper.exists(tempImage)
-    expect(tempImageExists).toBeFalsy()
-
-    // test success (temp file not found)
-    res = await request(app)
-      .post('/api/delete-temp-license/unknown.pdf')
-    expect(res.statusCode).toBe(200)
-
-    // test failure (temp file not valid)
-    res = await request(app)
-      .post('/api/delete-temp-license/unknown')
-    expect(res.statusCode).toBe(400)
-  })
-})
-
 describe('POST /api/delete-users', () => {
   it('should delete users', async () => {
     const token = await testHelper.signinAsAdmin()
@@ -1734,23 +1504,14 @@ describe('POST /api/delete-users', () => {
     const supplierName2 = testHelper.getSupplierName()
     const supplier2Id = await testHelper.createSupplier(`${supplierName2}@test.bookcars.ma`, supplierName1)
     const supplier2 = await User.findById(supplier2Id)
-    supplier2!.contracts = [
-      { language: 'en', file: null },
-      { language: 'fr', file: `${nanoid()}.pdf` },
-    ]
+
     await supplier2?.save()
     let payload: string[] = [USER1_ID, USER2_ID, ADMIN_ID, supplier1Id, supplier2Id]
     const user1 = await User.findById(USER1_ID)
     user1!.avatar = `${nanoid()}.jpg`
-    user1!.license = `${nanoid()}.pdf`
     await user1?.save()
     const user2 = await User.findById(USER2_ID)
-    const licenseFilename = `${user2!.id}.pdf`
-    const license = path.join(env.CDN_LICENSES, licenseFilename)
-    if (!await helper.exists(license)) {
-      await fs.copyFile(LICENSE1_PATH, license)
-    }
-    user2!.license = licenseFilename
+    user2!.avatar = `${nanoid()}.jpg`
     await user2?.save()
 
     let users = await User.find({ _id: { $in: payload } })
@@ -1782,8 +1543,11 @@ describe('POST /api/delete-users', () => {
       await fs.copyFile(imagePath, image)
     }
     let car = new Car({
-      name: 'BMW X1',
+      carModel: 'BMW X1',
+      brand: 'BMW',
+      year: 2020,
       supplier: supplierId,
+      plateNumber: '123456789',
       minimumAge: 21,
       locations: [locationId],
       dailyPrice: 78,
@@ -1807,8 +1571,11 @@ describe('POST /api/delete-users', () => {
     })
     await car.save()
     car = new Car({
-      name: 'BMW X1',
+      carModel: 'BMW X1',
+      brand: 'BMW',
+      year: 2020,
       supplier: supplierId,
+      plateNumber: '123456789',
       minimumAge: 21,
       locations: [locationId],
       dailyPrice: 78,
@@ -1832,8 +1599,11 @@ describe('POST /api/delete-users', () => {
     })
     await car.save()
     car = new Car({
-      name: 'BMW X1',
       supplier: supplierId,
+      plateNumber: '123456789',
+      carModel: 'BMW X1',
+      brand: 'BMW',
+      year: 2020,
       minimumAge: 21,
       locations: [locationId],
       dailyPrice: 78,
@@ -1861,10 +1631,15 @@ describe('POST /api/delete-users', () => {
       fullName: 'additional-driver',
       phone: '01010101',
       birthDate: new Date(1990, 2, 3),
+      nationalIdExpiryDate: new Date(2024, 2, 1),
+      nationalId: '123456789',
+      licenseDeliveryDate: new Date(2024, 2, 1),
+      licenseId: '123456789',
     })
     await additionalDriver.save()
     const booking = new Booking({
       supplier: supplierId,
+      bookingId: '123456789',
       car: car._id,
       driver: USER1_ID,
       pickupLocation: locationId,

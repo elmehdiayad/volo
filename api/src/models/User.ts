@@ -14,15 +14,14 @@ const userSchema = new Schema<env.User>(
     email: {
       type: String,
       lowercase: true,
-      required: [function isRequired(this: env.User) {
-        return this.type === bookcarsTypes.UserType.Supplier
-      }, "can't be blank"],
-      validate: [function isEmail(this: env.User) {
-        return this.type === bookcarsTypes.UserType.Supplier ? validator.isEmail(this.email) : true
-      }, 'is not valid'],
-      trim: true,
-      sparse: true,
       unique: true,
+      required: [true, "can't be blank"],
+      validate: {
+        validator: (value: string) => validator.isEmail(value),
+        message: '{VALUE} is not valid',
+      },
+      index: true,
+      trim: true,
     },
     phone: {
       type: String,
