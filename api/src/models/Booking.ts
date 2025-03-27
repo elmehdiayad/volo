@@ -1,4 +1,5 @@
 import { Schema, model } from 'mongoose'
+import { nanoid } from 'nanoid'
 import * as bookcarsTypes from ':bookcars-types'
 import * as env from '../config/env.config'
 
@@ -6,6 +7,11 @@ export const BOOKING_EXPIRE_AT_INDEX_NAME = 'expireAt'
 
 const bookingSchema = new Schema<env.Booking>(
   {
+    bookingId: {
+      type: String,
+      unique: true,
+      index: true,
+    },
     supplier: {
       type: Schema.Types.ObjectId,
       required: [true, "can't be blank"],
@@ -129,6 +135,14 @@ const bookingSchema = new Schema<env.Booking>(
     collection: 'Booking',
   },
 )
+
+// Add pre-save middleware to generate bookingId
+bookingSchema.pre('save', async function generateBookingId(next) {
+  if (!this.bookingId) {
+    this.bookingId = nanoid(5).toUpperCase()
+  }
+  next()
+})
 
 const Booking = model<env.Booking>('Booking', bookingSchema)
 

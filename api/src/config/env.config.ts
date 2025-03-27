@@ -488,6 +488,7 @@ export interface AdditionalDriver {
  */
 export interface Booking extends Document {
   _id: Types.ObjectId
+  bookingId: string
   supplier: Types.ObjectId
   car: Types.ObjectId
   driver: Types.ObjectId

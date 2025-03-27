@@ -73,6 +73,7 @@ export enum RecordType {
 
 export interface Booking {
   _id?: string
+  bookingId?: string
   nationalId?: string
   supplier: string | User
   car: string | Car

@@ -107,23 +107,9 @@ const userSchema = new Schema<env.User>(
     customerId: {
       type: String,
     },
-    contracts: [{
-      language: {
-        type: String,
-        required: [true, "can't be blank"],
-        trim: true,
-        lowercase: true,
-        minLength: 2,
-        maxLength: 2,
-      },
-      file: String,
-    }],
     licenseRequired: {
       type: Boolean,
       default: false,
-    },
-    license: {
-      type: String,
     },
     minimumRentalDays: {
       type: Number,
