@@ -362,7 +362,7 @@ const CarList = ({
                     </div>
                     <div className="car-image-container">
                       <img
-                        src={bookcarsHelper.joinURL(env.CDN_CARS, car.image)}
+                        src={car.image && bookcarsHelper.joinURL(env.CDN_CARS, car.image)}
                         alt={car.fullModelName}
                         className="car-image"
                       />

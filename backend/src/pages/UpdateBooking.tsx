@@ -53,6 +53,7 @@ import CarSelectList from '@/components/CarSelectList'
 import DateTimePicker from '@/components/DateTimePicker'
 import DatePicker from '@/components/DatePicker'
 import Contract from '@/components/Contract'
+import StatusList from '@/components/StatusList'
 
 import '@/assets/css/booking.css'
 
@@ -661,8 +662,8 @@ const UpdateBooking = () => {
 
                   <CarSelectList
                     label={blStrings.CAR}
-                    supplier={values.supplier._id}
-                    pickupLocation={values.pickupLocation._id}
+                    supplier={values.supplier?._id}
+                    pickupLocation={values.pickupLocation?._id}
                     onChange={handleCarSelectListChange}
                     required
                     value={car}
@@ -958,6 +959,14 @@ const UpdateBooking = () => {
                     <CustomErrorMessage name="paymentMethod" />
                   </FormControl>
 
+                  <FormControl fullWidth margin="dense">
+                    <StatusList
+                      label={blStrings.STATUS}
+                      onChange={(value) => setFieldValue('status', value)}
+                      required
+                      value={values.status}
+                    />
+                  </FormControl>
                   <FormControl fullWidth margin="dense" className="checkbox-fc">
                     <FormControlLabel
                       control={<Field as={Switch} name="additionalDriver" color="primary" checked={values.additionalDriver} />}

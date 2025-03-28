@@ -25,6 +25,7 @@ const userSchema = new Schema<env.User>(
     },
     phone: {
       type: String,
+      required: [true, "can't be blank"],
       validate: {
         validator: (value: string) => {
           // Check if value is empty then return true.

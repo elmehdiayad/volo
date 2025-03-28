@@ -349,7 +349,7 @@ const BookingList = ({
         headerName: strings.CAR,
         flex: 1,
         renderCell: ({ row, value }: GridRenderCellParams<bookcarsTypes.Booking, string>) => <Link href={`/car/${(row.car as bookcarsTypes.Car)._id}`}>{value}</Link>,
-        valueGetter: (value: bookcarsTypes.Car) => value.fullModelName,
+        valueGetter: (value: bookcarsTypes.Car) => value.fullModelName || value.carModel,
       })
     }
 

@@ -178,17 +178,10 @@ const UserForm = ({ user, isUpdate, defaultType, admin, onSubmit, onCancel, setL
       .required(commonStrings.REQUIRED_FIELD)
       .email(commonStrings.EMAIL_NOT_VALID),
     phone: Yup.string()
-      .test('phone', commonStrings.PHONE_NOT_VALID, (value) => !value || validatePhone(value))
-      .when('type', {
-        is: bookcarsTypes.RecordType.User,
-        then: (schema) => schema.required(commonStrings.REQUIRED_FIELD),
-        otherwise: (schema) => schema.notRequired(),
-      }),
-    location: Yup.string().when('type', {
-      is: bookcarsTypes.RecordType.User,
-      then: (schema) => schema.required(commonStrings.REQUIRED_FIELD),
-      otherwise: (schema) => schema.notRequired(),
-    }),
+      .required(commonStrings.REQUIRED_FIELD)
+      .test('phone', commonStrings.PHONE_NOT_VALID, (value) => !value || validatePhone(value)),
+    location: Yup.string()
+      .required(commonStrings.REQUIRED_FIELD),
     birthDate: Yup.date().when('type', {
       is: bookcarsTypes.RecordType.User,
       then: (schema) => schema.required(commonStrings.REQUIRED_FIELD).test('birthDate', commonStrings.BIRTH_DATE_NOT_VALID, validateBirthDate),
