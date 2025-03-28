@@ -168,12 +168,15 @@ const UserForm = ({ user, isUpdate, defaultType, admin, onSubmit, onCancel, setL
 
   const validationSchema = Yup.object().shape({
     type: Yup.string(),
-    fullName: Yup.string().required(commonStrings.REQUIRED_FIELD),
-    email: Yup.string().email(commonStrings.EMAIL_NOT_VALID).when('type', {
-      is: bookcarsTypes.RecordType.Supplier,
-      then: (schema) => schema.required(commonStrings.REQUIRED_FIELD),
-      otherwise: (schema) => schema.notRequired(),
-    }),
+    fullName: Yup.string()
+      .when('type', {
+        is: bookcarsTypes.RecordType.User,
+        then: (schema) => schema.required(commonStrings.REQUIRED_FIELD),
+        otherwise: (schema) => schema.test('fullName', ccStrings.INVALID_SUPPLIER_NAME, async (value) => !value || validateFullName(value)),
+      }),
+    email: Yup.string()
+      .required(commonStrings.REQUIRED_FIELD)
+      .email(commonStrings.EMAIL_NOT_VALID),
     phone: Yup.string()
       .test('phone', commonStrings.PHONE_NOT_VALID, (value) => !value || validatePhone(value))
       .when('type', {
