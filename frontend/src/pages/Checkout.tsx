@@ -23,7 +23,7 @@ import {
   useTheme,
   useMediaQuery,
   FormControl,
-  FormHelperText
+  FormHelperText,
 } from '@mui/material'
 import {
   DirectionsCar,
@@ -722,6 +722,61 @@ const Checkout = () => {
     </Card>
   )
 
+  const renderNavigationButtons = (formikProps?: FormikProps<FormValues>, isSticky = isMobile) => (
+    <Box
+      sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        mt: 3,
+        ...(isSticky && {
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          bgcolor: 'background.paper',
+          p: 2,
+          boxShadow: 3,
+          zIndex: 1000,
+          borderTop: 1,
+          borderColor: 'divider'
+        })
+      }}
+    >
+      {activeStep > 0 && (
+        <Button
+          startIcon={<ArrowBack />}
+          onClick={() => handleNavigation('back')}
+          disabled={isNavigating}
+        >
+          {commonStrings.BACK}
+        </Button>
+      )}
+      {activeStep < 3 && (
+        <Button
+          variant="contained"
+          onClick={() => handleNavigation('next', formikProps)}
+          endIcon={<ArrowForward />}
+          disabled={isNavigating}
+          sx={{
+            marginLeft: 'auto'
+          }}
+        >
+          {commonStrings.NEXT}
+        </Button>
+      )}
+      {activeStep === 3 && (
+        <Button
+          variant="contained"
+          type="submit"
+          disabled={loading || isNavigating}
+          endIcon={loading ? <CircularProgress size={20} /> : <CheckCircle />}
+        >
+          {checkoutStrings.BOOK}
+        </Button>
+      )}
+    </Box>
+  )
+
   const renderStepContent = (formikProps: FormikProps<FormValues>) => {
     switch (activeStep) {
       case 0: // Vehicle Details
@@ -855,16 +910,7 @@ const Checkout = () => {
               </Grid>
             </Grid>
 
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
-              <Button
-                variant="contained"
-                onClick={() => handleNavigation('next')}
-                endIcon={<ArrowForward />}
-                disabled={!car || !from || !to || !pickupLocation || !dropOffLocation || isNavigating}
-              >
-                {commonStrings.NEXT}
-              </Button>
-            </Box>
+            {renderNavigationButtons()}
           </Box>
         )
 
@@ -885,23 +931,7 @@ const Checkout = () => {
               </Grid>
             </Grid>
 
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
-              <Button
-                startIcon={<ArrowBack />}
-                onClick={() => handleNavigation('back')}
-                disabled={isNavigating}
-              >
-                {commonStrings.BACK}
-              </Button>
-              <Button
-                variant="contained"
-                onClick={() => handleNavigation('next', formikProps)}
-                endIcon={<ArrowForward />}
-                disabled={isNavigating}
-              >
-                {commonStrings.NEXT}
-              </Button>
-            </Box>
+            {renderNavigationButtons(formikProps)}
           </Box>
         )
 
@@ -941,23 +971,7 @@ const Checkout = () => {
               </Grid>
             </Grid>
 
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
-              <Button
-                startIcon={<ArrowBack />}
-                onClick={() => handleNavigation('back')}
-                disabled={isNavigating}
-              >
-                {commonStrings.BACK}
-              </Button>
-              <Button
-                variant="contained"
-                onClick={() => handleNavigation('next', formikProps)}
-                endIcon={<ArrowForward />}
-                disabled={isNavigating}
-              >
-                {commonStrings.NEXT}
-              </Button>
-            </Box>
+            {renderNavigationButtons(formikProps)}
           </Box>
         ) : null
 
@@ -1002,23 +1016,7 @@ const Checkout = () => {
               </Grid>
             </Grid>
 
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
-              <Button
-                startIcon={<ArrowBack />}
-                onClick={() => handleNavigation('back')}
-                disabled={isNavigating}
-              >
-                {commonStrings.BACK}
-              </Button>
-              <Button
-                variant="contained"
-                type="submit"
-                disabled={loading || isNavigating}
-                endIcon={loading ? <CircularProgress size={20} /> : <CheckCircle />}
-              >
-                {checkoutStrings.BOOK}
-              </Button>
-            </Box>
+            {renderNavigationButtons(formikProps)}
           </Box>
         )
 
