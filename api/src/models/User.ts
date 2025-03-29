@@ -7,10 +7,10 @@ export const USER_EXPIRE_AT_INDEX_NAME = 'expireAt'
 
 const userSchema = new Schema<env.User>(
   {
-    supplier: {
+    suppliers: [{
       type: Schema.Types.ObjectId,
       ref: 'User',
-    },
+    }],
     email: {
       type: String,
       lowercase: true,

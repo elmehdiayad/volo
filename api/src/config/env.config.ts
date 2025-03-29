@@ -389,7 +389,7 @@ export const OPENAI_API_KEY = __env__('BC_OPENAI_API_KEY', false)
  * @extends {Document}
  */
 export interface User extends Document {
-  supplier?: Types.ObjectId
+  suppliers?: string[]
   fullName: string
   email: string
   phone?: string

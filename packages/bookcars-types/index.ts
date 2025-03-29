@@ -561,7 +561,7 @@ export interface UpdateStatusPayload {
 
 export interface User {
   _id?: string
-  supplier?: User | string
+  suppliers?: string[]
   fullName: string
   email?: string
   phone?: string

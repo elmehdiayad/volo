@@ -171,7 +171,11 @@ const User = () => {
     }
   }
 
-  const edit = loggedUser && user && (loggedUser.type === bookcarsTypes.RecordType.Admin || loggedUser._id === user._id || (loggedUser.type === bookcarsTypes.RecordType.Supplier && loggedUser._id === user.supplier))
+  const edit = loggedUser && user && (
+    loggedUser.type === bookcarsTypes.RecordType.Admin
+    || loggedUser._id === user._id
+    || (loggedUser.type === bookcarsTypes.RecordType.Supplier && user.suppliers && user.suppliers.includes(loggedUser._id as string))
+  )
   const supplier = user && user.type === bookcarsTypes.RecordType.Supplier
 
   let _suppliers: string[] = []

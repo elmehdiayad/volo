@@ -1146,7 +1146,7 @@ export const getUser = async (req: Request, res: Response) => {
     }
 
     const user = await User.findById(id, {
-      supplier: 1,
+      suppliers: 1,
       email: 1,
       phone: 1,
       fullName: 1,
@@ -1467,7 +1467,7 @@ export const getUsers = async (req: Request, res: Response) => {
 
         // Add supplier filter if user is a supplier
         if (currentUser.type === bookcarsTypes.UserType.Supplier) {
-          $match.$and!.push({ supplier: new mongoose.Types.ObjectId(userId) })
+          $match.$and!.push({ suppliers: new mongoose.Types.ObjectId(userId) })
         }
       }
     }
@@ -1577,6 +1577,11 @@ export const deleteUsers = async (req: Request, res: Response) => {
           }
         } else if (user.type === bookcarsTypes.UserType.User) {
           await Booking.deleteMany({ driver: id })
+          // Remove user from suppliers' lists
+          await User.updateMany(
+            { suppliers: id },
+            { $pull: { suppliers: id } },
+          )
         }
         await NotificationCounter.deleteMany({ user: id })
         await Notification.deleteMany({ user: id })

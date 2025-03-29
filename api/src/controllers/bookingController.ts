@@ -49,7 +49,7 @@ export const create = async (req: Request, res: Response) => {
 }
 
 /**
- * Notify a supplier or admin.
+ * Notify suppliers or admin.
  *
  * @async
  * @param {env.User} driver
@@ -197,7 +197,7 @@ export const checkout = async (req: Request, res: Response) => {
       throw new Error('Booking not found')
     }
 
-    const supplier = await User.findById(body.booking.supplier)
+    const supplier = await User.findById(body.booking.supplier) as env.User & { _id: mongoose.Types.ObjectId }
     if (!supplier) {
       throw new Error(`Supplier ${body.booking.supplier} not found`)
     }
@@ -259,6 +259,13 @@ export const checkout = async (req: Request, res: Response) => {
           }
         }
 
+        // Add supplier to user's suppliers list if not already present
+        const supplierId = supplier._id.toString()
+        if (!existingUser.suppliers?.includes(supplierId)) {
+          existingUser.suppliers = existingUser.suppliers || []
+          existingUser.suppliers.push(supplierId)
+        }
+
         await existingUser.save()
         user = existingUser as env.User
       } else {
@@ -267,6 +274,8 @@ export const checkout = async (req: Request, res: Response) => {
         driver.blacklisted = false
         driver.type = bookcarsTypes.UserType.User
         driver.license = null
+        const supplierId = supplier._id.toString()
+        driver.suppliers = [supplierId] // Initialize suppliers array with the first supplier
 
         user = new User(driver)
         await user.save()
